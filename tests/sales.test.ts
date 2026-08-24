@@ -40,3 +40,23 @@ test('optional profitability fields are inferred and normalized without becoming
   assert.deepEqual(result.missingFields,[]);
   assert.deepEqual([row.unit_cost,row.channel_fee,row.marketing_cost,row.shipping_cost,row.return_cost],[45000,6000,8000,3500,1200]);
 });
+
+test('closed beta customer, region and return fields are preserved without direct identity data',()=>{
+  const rows=parseCsv('판매일시,판매채널,상품코드,판매수량,결제금액,반품수량,익명고객ID,배송시도,배송시군구,주문상태\n2026-08-24,자사몰,SKU-1,2,200000,1,CUST-001,서울,성동구,결제완료\n');
+  const mapping=inferSalesMapping(Object.keys(rows[0])),result=validateAndNormalizeSales(rows,mapping),row=result.validRows[0];
+  assert.deepEqual([row.returned_quantity,row.customer_token,row.shipping_region_1,row.shipping_region_2,row.order_status],[1,'CUST-001','서울','성동구','paid']);
+});
+
+test('returned quantity is capped at sold quantity and cancelled status is normalized',()=>{
+  const rows=parseCsv('sold_at,channel_code,sku_code,quantity,net_sales,returned_quantity,order_status\n2026-08-24,shop,SKU-1,2,0,7,cancelled\n');
+  const row=validateAndNormalizeSales(rows,inferSalesMapping(Object.keys(rows[0]))).validRows[0];
+  assert.equal(row.returned_quantity,2);
+  assert.equal(row.order_status,'cancelled');
+});
+
+test('ISO timestamps with milliseconds remain valid',()=>{
+  const rows=parseCsv('sold_at,channel_code,sku_code,quantity,net_sales\n2026-08-23T10:00:00.000Z,shop,SKU-1,1,100000\n');
+  const result=validateAndNormalizeSales(rows,inferSalesMapping(Object.keys(rows[0])));
+  assert.equal(result.errors.length,0);
+  assert.equal(result.validRows[0].sold_at,'2026-08-23T10:00:00.000Z');
+});

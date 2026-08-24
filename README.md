@@ -27,6 +27,14 @@ pnpm test
 pnpm build
 ```
 
+Generate the connected closed-beta sales and inventory files:
+
+```bash
+pnpm generate:beta-data
+```
+
+The acceptance criteria and authenticated production smoke test are documented in [docs/closed-beta-readiness.md](./docs/closed-beta-readiness.md).
+
 ## Configuration
 
 Copy `.env.example` into the environment configuration for local development or Vercel. Never expose `SUPABASE_SERVICE_ROLE_KEY` or `OPENAI_API_KEY` to browser code.
