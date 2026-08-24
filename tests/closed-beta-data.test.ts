@@ -16,6 +16,7 @@ test('closed beta sales pack is fully importable and covers decision data',()=>{
   assert.ok(new Set(result.validRows.map(row=>row.channel_code)).size>=6);
   assert.ok(new Set(result.validRows.map(row=>row.customer_token)).size>=300);
   assert.ok(result.validRows.some(row=>row.returned_quantity>0));
+  assert.equal(new Set(result.validRows.map(row=>row.location_code)).size,7);
 });
 
 test('closed beta inventory pack matches every sales SKU and is fully importable',()=>{
