@@ -227,6 +227,9 @@
 .ax-panel-recommendations strong { overflow: hidden; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
 .ax-panel-recommendations small { margin-top: 3px; color: var(--muted); font-size: 7px; line-height: 1.35; }
 .ax-panel-recommendations b { color: var(--brand); font-size: 8px; white-space: nowrap; }
+.ax-panel-recommendations article.selected { margin-inline: -6px; padding-inline: 6px; border-radius: 8px; background: #f4f8f5; }
+.ax-panel-recommendations article div button { margin-top: 7px; padding: 5px 7px; border: 1px solid #cddbd2; border-radius: 6px; background: #fff; color: var(--brand); font: inherit; font-size: 7px; font-weight: 800; cursor: pointer; }
+.ax-panel-recommendations article.selected div button { border-color: #87a996; background: #eaf2ed; }
 .ax-panel-response-actions { display: flex; gap: 6px; flex-wrap: wrap; padding-top: 14px; }
 .ax-panel-response-actions button { height: 34px; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff; font-size: 8px; font-weight: 700; cursor: pointer; }
 .ax-panel-response-actions button.primary { flex: 1; border-color: var(--brand); background: var(--brand); color: #fff; }
