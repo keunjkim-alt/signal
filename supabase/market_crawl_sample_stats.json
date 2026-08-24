@@ -1,0 +1,232 @@
+{
+  "sourceFile": "products.csv",
+  "byteSize": 669208106,
+  "rows": 2636573,
+  "malformed": 22,
+  "columns": [
+    "site",
+    "product_id",
+    "collected_at",
+    "url",
+    "brand",
+    "product_name",
+    "category",
+    "list_price",
+    "sale_price",
+    "discount_rate",
+    "price_scope",
+    "sale_status",
+    "rank",
+    "rank_type",
+    "rating",
+    "rating_scale",
+    "review_count"
+  ],
+  "rowSampleCount": 700,
+  "perSite": 100,
+  "siteCounts": {
+    "29cm": 449894,
+    "ably": 2592,
+    "kream": 49727,
+    "musinsa": 830718,
+    "queenit": 749813,
+    "shinsegaev": 193809,
+    "ssfshop": 360020
+  },
+  "topCategories": [
+    {
+      "value": "여성의류",
+      "count": 170386
+    },
+    {
+      "value": "WOMEN",
+      "count": 158255
+    },
+    {
+      "value": "상의",
+      "count": 126056
+    },
+    {
+      "value": "바지",
+      "count": 109917
+    },
+    {
+      "value": "아우터",
+      "count": 101984
+    },
+    {
+      "value": "신발",
+      "count": 101624
+    },
+    {
+      "value": "유즈드",
+      "count": 99989
+    },
+    {
+      "value": "소품",
+      "count": 99987
+    },
+    {
+      "value": "키즈",
+      "count": 93415
+    },
+    {
+      "value": "가방",
+      "count": 66212
+    },
+    {
+      "value": "OUTLET",
+      "count": 62476
+    },
+    {
+      "value": "모자",
+      "count": 55422
+    },
+    {
+      "value": "여성액세서리",
+      "count": 52788
+    },
+    {
+      "value": "여성가방",
+      "count": 43956
+    },
+    {
+      "value": "원피스/스커트",
+      "count": 41937
+    },
+    {
+      "value": "MEN",
+      "count": 36144
+    },
+    {
+      "value": "여성슈즈",
+      "count": 34891
+    },
+    {
+      "value": "GLF",
+      "count": 33559
+    },
+    {
+      "value": "스포츠/레저",
+      "count": 33504
+    },
+    {
+      "value": "남성의류",
+      "count": 28609
+    }
+  ],
+  "topBrands": [
+    {
+      "value": "노스페이스",
+      "count": 12909
+    },
+    {
+      "value": "아디다스",
+      "count": 12646
+    },
+    {
+      "value": "나이키",
+      "count": 12327
+    },
+    {
+      "value": "아이더",
+      "count": 10518
+    },
+    {
+      "value": "꼬르떼피엘",
+      "count": 10006
+    },
+    {
+      "value": "자라",
+      "count": 9350
+    },
+    {
+      "value": "네파",
+      "count": 9219
+    },
+    {
+      "value": "8 seconds",
+      "count": 9027
+    },
+    {
+      "value": "비앤비골드",
+      "count": 8493
+    },
+    {
+      "value": "Nike",
+      "count": 7197
+    },
+    {
+      "value": "스톤아일랜드",
+      "count": 7106
+    },
+    {
+      "value": "블랙야크",
+      "count": 6898
+    },
+    {
+      "value": "뉴발란스",
+      "count": 6535
+    },
+    {
+      "value": "무신사 스탠다드",
+      "count": 6420
+    },
+    {
+      "value": "구찌",
+      "count": 6339
+    },
+    {
+      "value": "내셔널지오그래픽",
+      "count": 5908
+    },
+    {
+      "value": "버버리",
+      "count": 5716
+    },
+    {
+      "value": "다이나핏",
+      "count": 5700
+    },
+    {
+      "value": "몽클레르",
+      "count": 5696
+    },
+    {
+      "value": "모로엠",
+      "count": 5563
+    }
+  ],
+  "nullCounts": {
+    "site": 0,
+    "product_id": 0,
+    "collected_at": 0,
+    "url": 0,
+    "brand": 0,
+    "product_name": 0,
+    "category": 0,
+    "list_price": 52319,
+    "sale_price": 19170,
+    "discount_rate": 100584,
+    "price_scope": 0,
+    "sale_status": 0,
+    "rank": 1005,
+    "rank_type": 0,
+    "rating": 606148,
+    "rating_scale": 603556,
+    "review_count": 575591
+  },
+  "invalidNumericCounts": {
+    "list_price": 0,
+    "sale_price": 0,
+    "discount_rate": 0,
+    "rank": 0,
+    "rating": 0,
+    "review_count": 0
+  },
+  "collectedAt": {
+    "min": "2026-08-19T14:35:47+09:00",
+    "max": "2026-08-20T12:01:33+09:00"
+  },
+  "generatedAt": "2026-08-20T09:57:32.812Z"
+}

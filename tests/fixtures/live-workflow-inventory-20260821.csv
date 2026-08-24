@@ -1,0 +1,3 @@
+sku_code,location_code,location_name,snapshot_at,on_hand_qty,reserved_qty,available_qty,in_transit_qty,damaged_qty,safety_stock_qty
+ARC-07-BLK-F,STORE-SEONGSU,성수 플래그십,2026-08-21 10:00,720,20,700,0,0,120
+ARC-07-BLK-F,STORE-GANGNAM,강남점,2026-08-21 10:00,72,12,60,0,0,40

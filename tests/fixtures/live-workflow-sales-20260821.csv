@@ -1,0 +1,3 @@
+sold_at,channel_code,sku_code,quantity,net_sales,location_code,location_name,product_name,category,order_id,line_id,country_code,currency_code
+2026-08-21 09:10,매장 POS,ARC-07-BLK-F,12,2976000,STORE-SEONGSU,성수 플래그십,Utility Jacket,OUTER,LIVE-WF-20260821-001,1,KR,KRW
+2026-08-21 09:20,매장 POS,ARC-07-BLK-F,36,8928000,STORE-GANGNAM,강남점,Utility Jacket,OUTER,LIVE-WF-20260821-002,1,KR,KRW

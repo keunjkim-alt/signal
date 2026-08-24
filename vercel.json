@@ -1,0 +1,11 @@
+{
+  "buildCommand": "node scripts/build.mjs",
+  "outputDirectory": "dist",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/api/uploads/wms", "destination": "/api/uploads/data" },
+    { "source": "/api/dashboards/overview", "destination": "/api/dashboards/query" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
