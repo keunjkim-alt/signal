@@ -15,6 +15,8 @@ await request('session','/api/auth/session',body=>body?.ok&&body?.authenticated&
 await request('data sources','/api/integrations/sources',body=>body?.ok&&Array.isArray(body?.sources));
 await request('sales hub','/api/dashboards/query',body=>body?.ok&&body?.hasData&&Number(body?.summary?.quantity)>0);
 await request('profitability','/api/dashboards/query?resource=profitability-summary',body=>body?.ok&&Number(body?.readiness?.totalLines)>0);
+await request('customer regions','/api/dashboards/query?resource=customer-insights',body=>body?.ok&&body?.hasData&&Array.isArray(body?.regions));
+await request('returns','/api/dashboards/query?resource=return-insights',body=>body?.ok&&body?.hasData&&Array.isArray(body?.channels));
 await request('inventory','/api/dashboards/query?resource=inventory-operations',body=>body?.ok&&body?.hasData&&body?.products?.length>0);
 await request('today actions','/api/dashboards/query?resource=decision-actions',body=>body?.ok&&Array.isArray(body?.actions));
 await request('inventory workflows','/api/dashboards/query?resource=inventory-workflows',body=>body?.ok&&body?.summary&&Array.isArray(body?.transfers));

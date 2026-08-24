@@ -1,5 +1,6 @@
 import {bodyJson,errorResponse,json} from '../_lib/http.js';
 import {buildDecisionActions,summarizeDecisionActions} from '../_lib/decision-actions.js';
+import {summarizeCustomerInsights,summarizeReturnInsights} from '../_lib/customer-returns.js';
 import {buildTransferCandidates,nextMovementStatus,summarizeInventorySnapshot} from '../_lib/inventory-operations.js';
 import {MARKET_DIMENSIONS,MARKET_METRICS,normalizeQuerySpec} from '../_lib/semantic.js';
 import {audit,insert,requestContext,requirePagePermission,requireRole,scopedValues,supabase,update} from '../_lib/supabase.js';
@@ -40,6 +41,15 @@ async function inventoryWorkflowContext(context:any){
     supabase(`/rest/v1/transfer_orders?organization_id=eq.${q}&select=*&order=created_at.desc&limit=100`,{serviceRole:true}),supabase(`/rest/v1/inventory_movements?organization_id=eq.${q}&select=*&order=occurred_at.desc&limit=100`,{serviceRole:true}),supabase(`/rest/v1/inventory_snapshots?organization_id=eq.${q}&select=sku_id,location_id,snapshot_at,available_qty,safety_stock_qty,in_transit_qty&order=snapshot_at.desc&limit=1000`,{serviceRole:true}),supabase(`/rest/v1/skus?organization_id=eq.${q}&select=id,sku_code,product_id,size,color&limit=1000`,{serviceRole:true}),supabase(`/rest/v1/products?organization_id=eq.${q}&select=id,product_code,product_name,image_url&limit=1000`,{serviceRole:true}),supabase(`/rest/v1/locations?organization_id=eq.${q}&select=id,location_code,location_name,location_type,country_code&limit=1000`,{serviceRole:true}),supabase(`/rest/v1/forecast_snapshots?organization_id=eq.${q}&target_metric=eq.quantity&subject_type=eq.product&select=subject_key,predictions,confidence,as_of_date,horizon_days,generated_at&order=generated_at.desc&limit=500`,{serviceRole:true}),supabase(`/rest/v1/ax_recommendations?organization_id=eq.${q}&page_key=eq.inventory&select=id,recommendation_key,title,status,payload,approved_at,created_at,updated_at&order=updated_at.desc&limit=100`,{serviceRole:true})
   ]);
   return {org,transfers:transfers.data||[],movements:movements.data||[],snapshots:snapshots.data||[],skus:skus.data||[],products:products.data||[],locations:locations.data||[],forecasts:latestForecastRows(forecasts.data||[]),recommendations:recommendations.data||[]};
+}
+async function customerReturnContext(context:any){
+  const org=context.membership.organization_id,q=enc(org),end=new Date(),start=new Date(end.getTime()-90*86400000),[ordersResult,linesResult,productsResult,locationsResult]=await Promise.all([
+    supabase(`/rest/v1/sales_orders?organization_id=eq.${q}&ordered_at=gte.${encodeURIComponent(start.toISOString())}&ordered_at=lt.${encodeURIComponent(end.toISOString())}&select=id,channel_code,location_id,ordered_at,status,country_code,paid_amount,customer_token,shipping_region_1,shipping_region_2&order=ordered_at.desc&limit=20000`,{serviceRole:true}),
+    supabase(`/rest/v1/sales_order_lines?organization_id=eq.${q}&select=order_id,sku_id,product_id,quantity,returned_quantity,net_sales,unit_list_price,return_cost&limit=50000`,{serviceRole:true}),
+    supabase(`/rest/v1/products?organization_id=eq.${q}&select=id,product_code,product_name,image_url&limit=5000`,{serviceRole:true}),
+    supabase(`/rest/v1/locations?organization_id=eq.${q}&select=id,location_code,country_code&limit=5000`,{serviceRole:true})
+  ]),locationMap=indexBy(locationsResult.data||[]),countries=scopedValues(context,'countries'),channels=scopedValues(context,'channels'),locations=scopedValues(context,'locations'),orders=(ordersResult.data||[]).filter((row:any)=>{const location:any=locationMap.get(String(row.location_id))||{};return (!countries||countries.includes(String(row.country_code||location.country_code||'')))&&(!channels||channels.includes(String(row.channel_code||'')))&&(!locations||locations.includes(String(location.location_code||'')))}),orderIds=new Set(orders.map((row:any)=>String(row.id))),lines=(linesResult.data||[]).filter((row:any)=>orderIds.has(String(row.order_id)));
+  return {orders,lines,products:productsResult.data||[],periodDays:90};
 }
 function presentInventoryWorkflow(data:any){
   const skuMap=indexBy(data.skus),productMap=indexBy(data.products),locationMap=indexBy(data.locations),recommendationMap=new Map<string,any>();for(const row of data.recommendations)if(!recommendationMap.has(row.recommendation_key))recommendationMap.set(row.recommendation_key,row);
@@ -131,6 +141,8 @@ export default {async fetch(request:Request){
       if(resource==='decision-actions'){const data=await decisionActionContext(context);return json({ok:true,source:'operational_decision_engine',...data})}
       if(resource==='product-intelligence'){const page=String(url.searchParams.get('page')||'market');requirePagePermission(context,page,'view');const data=await productIntelligence(context,page,Number(url.searchParams.get('limit'))||30);return json({ok:true,source:'precomputed_intelligence',...data})}
       if(resource==='discount-intelligence'){const page='profitability';requirePagePermission(context,page,'view');const data=await discountIntelligence(context,page,Number(url.searchParams.get('limit'))||40);return json({ok:true,source:'precomputed_discount_optimizer',...data})}
+      if(resource==='customer-insights'){requirePagePermission(context,'customers','view');const data=await customerReturnContext(context);return json({ok:true,source:'supabase_customer_region',generatedAt:new Date().toISOString(),periodDays:data.periodDays,...summarizeCustomerInsights(data.orders)})}
+      if(resource==='return-insights'){requirePagePermission(context,'returns','view');const data=await customerReturnContext(context);return json({ok:true,source:'supabase_returns',generatedAt:new Date().toISOString(),periodDays:data.periodDays,...summarizeReturnInsights(data.orders,data.lines,data.products)})}
       if(resource==='inventory-workflows'){requirePagePermission(context,'inventory','view');const data=await inventoryWorkflowContext(context);return json({ok:true,source:'supabase_inventory_operations',generatedAt:new Date().toISOString(),...presentInventoryWorkflow(data)})}
       if(resource==='production-workflows'){const data=await productionWorkflow(context);return json({ok:true,source:'approved_reorder_queue',generatedAt:new Date().toISOString(),...data})}
       if(resource==='inventory-operations'){
