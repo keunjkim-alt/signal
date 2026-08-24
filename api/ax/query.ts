@@ -29,7 +29,7 @@ function rowsForRequestedProduct(rows:any[],question:string){
 }
 async function productIntelligence(context:any,page:string,mode:'matching'|'forecast'|'discount'|'customer'|'returns',question=''){
   if(mode==='customer'||mode==='returns'){
-    const data=await customerReturnInsights(context),insight=mode==='customer'?data.customer:data.returns;
+    const data=await customerReturnInsights(context),insight:any=mode==='customer'?data.customer:data.returns;
     const rows=mode==='customer'?insight.regions||[]:insight.products||[];
     return {spec:{source:'precomputed_operational_insight',mode,visualization:mode==='customer'?'table':'bar'},data:{rows,summary:insight.summary,profileCoverage:insight.profileCoverage||null,reasonCoverage:insight.reasonCoverage||null,source:'precomputed_operational_insight',note:mode==='customer'?'익명 고객 토큰과 시군구 배송지역만 집계했습니다.':'주문·반품 수량·취소 상태에서 계산했습니다.'}};
   }
