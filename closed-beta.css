@@ -4,6 +4,7 @@
 .beta-readiness-head>div:nth-child(2)>small{display:block;margin-bottom:5px;color:#4e7468;font-size:10px;font-weight:800;letter-spacing:.14em}
 .beta-readiness-head h2{margin:0 0 5px;font-size:20px;line-height:1.35}
 .beta-readiness-head p{margin:0;color:#65736e;font-size:13px;line-height:1.55}
+.beta-readiness-controls{display:flex;flex-direction:column;gap:8px;align-items:stretch}.beta-readiness-controls .btn{white-space:nowrap}
 .beta-score{--score:0;display:flex;width:100px;height:100px;flex-direction:column;align-items:center;justify-content:center;border-radius:50%;background:radial-gradient(circle at center,#fff 58%,transparent 60%),conic-gradient(#2f7662 calc(var(--score)*1%),#dfeae6 0);box-shadow:inset 0 0 0 1px #d4e4de}
 .beta-score strong{font-size:24px;line-height:1;color:#183f35}.beta-score span{margin-top:7px;color:#5f746d;font-size:10px;font-weight:750}
 .beta-check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:20px}
