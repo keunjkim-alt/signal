@@ -19,6 +19,14 @@ export async function supabase(path:string,options:any={}){
   return {data,response};
 }
 
+export async function downloadStorageObject(bucket:string,path:string){
+  if(!url())throw new Error('SUPABASE_URL is not configured');
+  const key=serviceKey();if(!key)throw new Error('SUPABASE_SERVICE_ROLE_KEY is not configured');
+  const encodedPath=String(path).split('/').map(part=>encodeURIComponent(part)).join('/'),response=await fetch(`${url()}/storage/v1/object/${encodeURIComponent(bucket)}/${encodedPath}`,{headers:{apikey:key,authorization:`Bearer ${key}`}});
+  if(!response.ok){let message=`Supabase Storage ${response.status}`;try{const data=await response.json();message=data?.message||data?.error||message}catch{}const error:any=new Error(message);error.status=response.status;throw error}
+  return response.arrayBuffer();
+}
+
 export async function authUser(accessToken:string){
   return (await supabase('/auth/v1/user',{token:accessToken})).data;
 }

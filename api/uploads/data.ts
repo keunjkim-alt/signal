@@ -4,6 +4,7 @@ import {inferMapping,parseWorkbook,sha256,validateAndNormalize} from '../_lib/wm
 import {inferSalesMapping,validateAndNormalizeSales} from '../_lib/sales.js';
 import {chooseMapping,detectEntityType,headerSignature} from '../_lib/mapping-templates.js';
 import {refreshPostImportAnalytics} from '../_lib/post-import.js';
+import {buildReconciliation,inventoryControlTotals,salesControlTotals} from '../_lib/reconciliation.js';
 
 const MAX_SIZE=20*1024*1024;
 const SUPPORTED=['inventory_snapshot','sales_order'];
@@ -38,10 +39,10 @@ export default {async fetch(request:Request){
     rawUploadId=upload.id;
     const job=(await insert('import_jobs',{organization_id:org,raw_upload_id:upload.id,data_source_id:sourceId,mapping_template_id:template?.id||null,created_by:context.user.id,entity_type:entityType,status:'processing',total_rows:rows.length,started_at:new Date().toISOString(),summary:{mapping,mappingSource:choice.source,mappingTemplateId:template?.id||null,period:preview.period}}))?.[0];
     importJobId=job.id;
-    const result=entityType==='sales_order'?await ingestSales(validation.validRows,org,sourceId,upload.id,job.id):await ingestInventory(validation.validRows,org,sourceId,upload.id);
+    const sourceControl=entityType==='sales_order'?salesControlTotals(validation.validRows):inventoryControlTotals(validation.validRows),result=entityType==='sales_order'?await ingestSales(validation.validRows,org,sourceId,upload.id,job.id):await ingestInventory(validation.validRows,org,sourceId,upload.id);
     const allErrors=[...validation.errors.map((item:any)=>({organization_id:org,import_job_id:job.id,...item})),...result.errors.map((item:any)=>({organization_id:org,import_job_id:job.id,...item}))];
     for(const chunk of chunks(allErrors,500))await insert('import_errors',chunk);
-    const status=allErrors.length?result.successRows?'partial':'failed':'completed',completedAt=new Date().toISOString(),baseSummary={mapping,mappingSource:choice.source,mappingTemplateId:template?.id||null,period:preview.period,...result.summary};
+    const status=allErrors.length?result.successRows?'partial':'failed':'completed',completedAt=new Date().toISOString(),reconciliation=buildReconciliation(entityType,sourceControl,result.summary.persistedControl,{checkedAt:completedAt,filename:file.name,jobId:job.id}),baseSummary={mapping,mappingSource:choice.source,mappingTemplateId:template?.id||null,period:preview.period,sourceControl,reconciliation,...result.summary};
     await update('import_jobs',{id:`eq.${job.id}`},{status,success_rows:result.successRows,error_rows:allErrors.length,inserted_rows:result.insertedRows,updated_rows:result.updatedRows,unchanged_rows:0,completed_at:completedAt,summary:baseSummary});
     await update('raw_uploads',{id:`eq.${upload.id}`},{status:status==='failed'?'failed':'completed'});
     await update('data_sources',{id:`eq.${sourceId}`,organization_id:`eq.${org}`},{status:status==='failed'?'error':'active',data_mode:status==='failed'?'stale':'connected',last_synced_at:completedAt,...(status==='failed'?{last_sync_error:`${allErrors.length}개 행 적재 실패`}:{last_successful_sync_at:completedAt,last_sync_error:null}),updated_at:completedAt});
@@ -67,7 +68,7 @@ async function ingestInventory(validRows:any[],org:string,sourceId:string,upload
   const skus=await fetchMaster('skus','sku_code',skuCodes,org),locations=await fetchMaster('locations','location_code',locationCodes,org),skuMap=new Map(skus.map((item:any)=>[item.sku_code,item.id])),locationMap=new Map(locations.map((item:any)=>[item.location_code,item.id])),errors:any[]=[],snapshots:any[]=[];
   for(const row of validRows){const skuId=skuMap.get(row.sku_code),locationId=locationMap.get(row.location_code);if(!skuId||!locationId){errors.push({row_number:row.row_number,field_name:!skuId?'sku_code':'location_code',error_code:'MASTER_NOT_FOUND',message:!skuId?`미등록 SKU: ${row.sku_code}`:`미등록 위치: ${row.location_code}`,raw_row:row.raw_row});continue}snapshots.push({organization_id:org,source_id:sourceId,sku_id:skuId,location_id:locationId,snapshot_at:row.snapshot_at,on_hand_qty:row.on_hand_qty,reserved_qty:row.reserved_qty,available_qty:row.available_qty,in_transit_qty:row.in_transit_qty,damaged_qty:row.damaged_qty,safety_stock_qty:row.safety_stock_qty,raw_upload_id:uploadId})}
   for(const chunk of chunks(snapshots,500))await insert('inventory_snapshots',chunk,{upsert:true,onConflict:'organization_id,sku_id,location_id,snapshot_at'});
-  return {successRows:snapshots.length,insertedRows:snapshots.length,updatedRows:0,errors,summary:{missingSku:skuCodes.filter(code=>!skuMap.has(code)),missingLocation:locationCodes.filter(code=>!locationMap.has(code))}};
+  return {successRows:snapshots.length,insertedRows:snapshots.length,updatedRows:0,errors,summary:{missingSku:skuCodes.filter(code=>!skuMap.has(code)),missingLocation:locationCodes.filter(code=>!locationMap.has(code)),persistedControl:inventoryControlTotals(snapshots)}};
 }
 
 async function ingestSales(validRows:any[],org:string,sourceId:string,uploadId:string,jobId:string){
@@ -86,7 +87,7 @@ async function ingestSales(validRows:any[],org:string,sourceId:string,uploadId:s
   for(const row of validRows){const orderId=orderMap.get(row.source_order_id),skuId=skuMap.get(row.sku_code),productId=productMap.get(row.sku_code);if(!orderId||!skuId){errors.push({row_number:row.row_number,field_name:!orderId?'order_id':'sku_code',error_code:'MASTER_NOT_FOUND',message:!orderId?`주문 생성 실패: ${row.source_order_id}`:`SKU 생성 실패: ${row.sku_code}`,raw_row:row.raw_row});continue}lines.push({organization_id:org,order_id:orderId,source_line_id:row.source_line_id,sku_id:skuId,product_id:productId||null,quantity:row.quantity,returned_quantity:row.returned_quantity||0,unit_list_price:row.quantity?row.net_sales/row.quantity:0,unit_sale_price:row.quantity?row.net_sales/row.quantity:0,net_sales:row.net_sales,unit_cost:row.unit_cost||0,channel_fee:row.channel_fee||0,marketing_cost:row.marketing_cost||0,shipping_cost:row.shipping_cost||0,return_cost:row.return_cost||0,raw_upload_id:uploadId,import_job_id:jobId,source_updated_at:row.source_updated_at,updated_at:now})}
   for(const chunk of chunks(lines,500))await insert('sales_order_lines',chunk,{upsert:true,onConflict:'organization_id,order_id,source_line_id'});
   const updatedRows=lines.filter(line=>existingLineKeys.has(`${line.order_id}:${line.source_line_id}`)).length,insertedRows=lines.length-updatedRows;
-  return {successRows:lines.length,insertedRows,updatedRows,errors,summary:{orders:orders.length,productsAutoCreated:productRows.length,locationsAutoCreated:locationRows.length}};
+  return {successRows:lines.length,insertedRows,updatedRows,errors,summary:{orders:orders.length,productsAutoCreated:productRows.length,locationsAutoCreated:locationRows.length,persistedControl:salesControlTotals(lines)}};
 }
 
 async function ensureDataSource(org:string,userId:string,requestedId:string,entityType:string){
