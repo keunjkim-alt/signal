@@ -2,7 +2,7 @@ import {errorResponse,json} from '../_lib/http.js';
 import {audit,insert,requestContext,requirePagePermission,supabase,update} from '../_lib/supabase.js';
 import {inferMapping,parseWorkbook,sha256,validateAndNormalize} from '../_lib/wms.js';
 import {inferSalesMapping,validateAndNormalizeSales} from '../_lib/sales.js';
-import {chooseMapping,headerSignature} from '../_lib/mapping-templates.js';
+import {chooseMapping,detectEntityType,headerSignature} from '../_lib/mapping-templates.js';
 import {refreshPostImportAnalytics} from '../_lib/post-import.js';
 
 const MAX_SIZE=20*1024*1024;
@@ -16,11 +16,14 @@ export default {async fetch(request:Request){
     const form=await request.formData(),file=form.get('file');
     if(!(file instanceof File))return json({ok:false,error:'file is required'},400);
     if(file.size>MAX_SIZE)return json({ok:false,error:'파일은 최대 20MB까지 지원합니다.'},413);
-    const mode=String(form.get('mode')||'preview'),entityType=String(form.get('entityType')||'sales_order');
-    if(!SUPPORTED.includes(entityType))return json({ok:false,error:`지원하지 않는 데이터 유형입니다: ${entityType}`},400);
+    const mode=String(form.get('mode')||'preview'),requestedEntityType=String(form.get('entityType')||'auto');
+    if(![...SUPPORTED,'auto'].includes(requestedEntityType))return json({ok:false,error:`지원하지 않는 데이터 유형입니다: ${requestedEntityType}`},400);
+    if(mode!=='preview'&&requestedEntityType==='auto')return json({ok:false,error:'파일 미리보기에서 추천 데이터 유형을 확인한 뒤 적재해주세요.'},422);
     let requestedMapping={};try{requestedMapping=JSON.parse(String(form.get('mapping')||'{}'))}catch{return json({ok:false,error:'mapping must be valid JSON'},400)}
-    const requestedSourceId=String(form.get('sourceId')||''),rows=await parseWorkbook(file),headers=rows.length?Object.keys(rows[0]):[],signature=await headerSignature(headers),template=await findMappingTemplate(org,entityType,signature,requestedSourceId||null),inferred=entityType==='sales_order'?inferSalesMapping(headers):inferMapping(headers),choice=chooseMapping(entityType,headers,requestedMapping,template?.mapping,inferred),mapping=choice.mapping,validation=entityType==='sales_order'?validateAndNormalizeSales(rows,mapping):validateAndNormalize(rows,mapping);
-    const preview={filename:file.name,byteSize:file.size,entityType,headers,headerSignature:signature,mapping,mappingSource:choice.source,mappingTemplate:template?{id:template.id,name:template.name,version:template.version,dataSourceId:template.data_source_id}:null,totalRows:rows.length,validRows:validation.validRows.length,errorRows:validation.errors.length,missingFields:validation.missingFields,sample:validation.validRows.slice(0,8),errors:validation.errors.slice(0,20),period:(validation as any).period||inferPeriod(validation.validRows,entityType)};
+    const requestedSourceId=String(form.get('sourceId')||''),rows=await parseWorkbook(file),headers=rows.length?Object.keys(rows[0]):[],signature=await headerSignature(headers);
+    const autoCandidates=SUPPORTED.map(type=>{const inferred=type==='sales_order'?inferSalesMapping(headers):inferMapping(headers),validation=type==='sales_order'?validateAndNormalizeSales(rows,inferred):validateAndNormalize(rows,inferred);return [type,{mapping:inferred,validRows:validation.validRows.length,errorRows:validation.errors.length,missingFields:validation.missingFields}] as const}),detection=detectEntityType(Object.fromEntries(autoCandidates)),entityType=requestedEntityType==='auto'?detection.recommended:requestedEntityType;
+    const template=await findMappingTemplate(org,entityType,signature,requestedSourceId||null),inferred=entityType==='sales_order'?inferSalesMapping(headers):inferMapping(headers),choice=chooseMapping(entityType,headers,requestedMapping,template?.mapping,inferred),mapping=choice.mapping,validation=entityType==='sales_order'?validateAndNormalizeSales(rows,mapping):validateAndNormalize(rows,mapping);
+    const preview={filename:file.name,byteSize:file.size,requestedEntityType,entityType,detection:requestedEntityType==='auto'?detection:null,headers,headerSignature:signature,mapping,mappingSource:choice.source,mappingTemplate:template?{id:template.id,name:template.name,version:template.version,dataSourceId:template.data_source_id}:null,totalRows:rows.length,validRows:validation.validRows.length,errorRows:validation.errors.length,missingFields:validation.missingFields,sample:validation.validRows.slice(0,8),errors:validation.errors.slice(0,20),period:(validation as any).period||inferPeriod(validation.validRows,entityType)};
     if(mode==='preview')return json({ok:true,mode:'preview',preview});
     if(validation.missingFields.length)return json({ok:false,error:'필수 컬럼 매핑이 필요합니다.',preview},422);
     const fileBytes=await file.arrayBuffer(),checksum=await sha256(fileBytes);

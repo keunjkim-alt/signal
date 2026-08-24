@@ -10,7 +10,7 @@ VIIMsignal is a fashion decision-intelligence workspace that connects sales, inv
 - Today's Action decision queue and production handoff
 - AX questions, visual answers, conversation history, and approval records
 - Company accounts, page permissions, and data scopes
-- CSV/XLSX preview, mapping templates, import history, and post-import analytics
+- CSV/XLSX type recommendation, confirm-before-import mapping, import history, and post-import analytics
 - Supabase tenant isolation and Vercel Functions
 
 ## Local development

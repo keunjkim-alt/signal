@@ -48,11 +48,11 @@ Vercel Project Settings → Environment Variables에 `.env.example`의 값을 �
 
 - `file`: CSV/XLSX 파일, 최대 20MB
 - `mode`: `preview` 또는 `import`
-- `entityType`: 현재 `inventory_snapshot`
+- `entityType`: `auto`, `sales_order`, `inventory_snapshot`. `auto`는 미리보기에서만 허용되며 판매·재고 적합도를 비교한 추천 결과를 확인한 뒤 확정 유형으로 적재합니다.
 - `sourceId`: 등록된 데이터 소스 UUID
 - `mapping`: 선택적 JSON 컬럼 매핑
 
-필수 표준 필드는 `sku_code`, `location_code`, `snapshot_at`, `available_qty`입니다. 적재 전에 `skus`와 `locations` 마스터에 코드가 등록되어 있어야 하며, 누락 코드는 오류 행으로 격리됩니다.
+판매 필수 표준 필드는 `sold_at`, `channel_code`, `sku_code`, `quantity`, `net_sales`이며 재고 필수 표준 필드는 `sku_code`, `location_code`, `snapshot_at`, `available_qty`입니다. 재고 적재 전에 `skus`와 `locations` 마스터에 코드가 등록되어 있어야 하며, 누락 코드는 오류 행으로 격리됩니다.
 
 원본 파일은 private Storage의 `raw-imports/{organization_id}/...`에 보관되고, 검증 결과는 `import_jobs`와 `import_errors`에 기록됩니다. 동일 SKU·위치·시각의 재고 스냅샷은 중복 생성하지 않고 upsert 됩니다.
 

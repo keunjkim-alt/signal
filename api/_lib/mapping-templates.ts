@@ -34,3 +34,21 @@ export function chooseMapping(entityType:string,headers:string[],requested:any,s
   if(Object.keys(savedMapping).length)return {mapping:{...inferredMapping,...savedMapping},source:'saved_template'};
   return {mapping:inferredMapping,source:'auto'};
 }
+
+type DetectionCandidate={
+  mapping:Record<string,string>;
+  validRows?:number;
+  errorRows?:number;
+  missingFields?:string[];
+};
+
+export function detectEntityType(candidates:Record<string,DetectionCandidate>){
+  const scored=Object.entries(candidates).map(([entityType,candidate])=>{
+    const required=requiredMappingFields(entityType),fields=mappingFields(entityType),mapping=candidate.mapping||{},missing=candidate.missingFields||required.filter(field=>!mapping[field]);
+    const requiredCoverage=required.length?(required.length-missing.length)/required.length:0,mappedCoverage=fields.length?Math.min(1,Object.keys(mapping).length/Math.min(fields.length,10)):0,totalRows=Number(candidate.validRows||0)+Number(candidate.errorRows||0),rowQuality=totalRows?Number(candidate.validRows||0)/totalRows:0;
+    const score=Math.max(0,Math.min(100,Math.round(requiredCoverage*70+mappedCoverage*10+rowQuality*20)));
+    return {entityType,score,requiredCoverage:Number(requiredCoverage.toFixed(2)),rowQuality:Number(rowQuality.toFixed(2)),mappedFields:Object.keys(mapping).length,missingFields:missing};
+  }).sort((a,b)=>b.score-a.score);
+  const winner=scored[0]||{entityType:'sales_order',score:0,requiredCoverage:0,rowQuality:0,mappedFields:0,missingFields:[]},runnerUp=scored[1],gap=winner.score-Number(runnerUp?.score||0),confidence=winner.score>=85&&winner.requiredCoverage===1&&gap>=20?'high':winner.score>=65&&winner.requiredCoverage>=.75&&gap>=10?'medium':'low';
+  return {recommended: winner.entityType,confidence,score:winner.score,gap,candidates:Object.fromEntries(scored.map(item=>[item.entityType,item])),requiresConfirmation:true};
+}
