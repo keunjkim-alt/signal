@@ -15,3 +15,11 @@ test('requested filters cannot exceed account data scope',()=>{
   assert.deepEqual(scopedValues(manager,'channels','무신사'),['무신사']);
   assert.throws(()=>scopedValues(manager,'countries','CN'),/outside the account data scope/);
 });
+
+test('owners and admins always use the full company data scope',()=>{
+  const owner={membership:{role:'owner',data_scope:{countries:[],channels:[],locations:[]}},permissions:[]};
+  const admin={membership:{role:'admin',data_scope:{countries:['KR'],channels:[],locations:[]}},permissions:[]};
+  assert.equal(scopedValues(owner,'locations'),null);
+  assert.equal(scopedValues(admin,'channels'),null);
+  assert.deepEqual(scopedValues(owner,'countries','KR'),['KR']);
+});

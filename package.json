@@ -8,7 +8,8 @@
     "build": "node scripts/build.mjs",
     "test": "tsx --test tests/*.test.ts",
     "generate:beta-data": "node scripts/generate-closed-beta-data.mjs",
-    "smoke:beta": "node scripts/closed-beta-smoke.mjs"
+    "smoke:beta": "node scripts/closed-beta-smoke.mjs",
+    "diagnose:beta": "node scripts/closed-beta-diagnostics.mjs"
   },
   "dependencies": {
     "xlsx": "^0.18.5"

@@ -64,6 +64,7 @@ export function requirePagePermission(context:any,pageKey:string,action:'view'|'
 }
 
 export function scopedValues(context:any,key:'countries'|'channels'|'locations',requested?:string|null){
+  if(['owner','admin'].includes(context.membership.role))return requested?[requested]:null;
   const scope=context.membership.data_scope?.[key];
   if(!scope||scope==='all')return requested?[requested]:null;
   const allowed=Array.isArray(scope)?scope.map(String):[];
