@@ -1,6 +1,6 @@
 import {bodyJson,errorResponse,json} from '../_lib/http.js';
 import {buildDecisionActions,summarizeDecisionActions} from '../_lib/decision-actions.js';
-import {buildTransferCandidates,nextMovementStatus} from '../_lib/inventory-operations.js';
+import {buildTransferCandidates,nextMovementStatus,summarizeInventorySnapshot} from '../_lib/inventory-operations.js';
 import {MARKET_DIMENSIONS,MARKET_METRICS,normalizeQuerySpec} from '../_lib/semantic.js';
 import {audit,insert,requestContext,requirePagePermission,requireRole,scopedValues,supabase,update} from '../_lib/supabase.js';
 
@@ -134,14 +134,19 @@ export default {async fetch(request:Request){
       if(resource==='inventory-workflows'){requirePagePermission(context,'inventory','view');const data=await inventoryWorkflowContext(context);return json({ok:true,source:'supabase_inventory_operations',generatedAt:new Date().toISOString(),...presentInventoryWorkflow(data)})}
       if(resource==='production-workflows'){const data=await productionWorkflow(context);return json({ok:true,source:'approved_reorder_queue',generatedAt:new Date().toISOString(),...data})}
       if(resource==='inventory-operations'){
-        requirePagePermission(context,'inventory','view');const org=context.membership.organization_id;
-        const [products,locations,latestSnapshot,inventorySources]=await Promise.all([
-          overviewRows(context,'inventory','available_qty','product',14),overviewRows(context,'inventory','available_qty','location',14),
-          supabase(`/rest/v1/inventory_snapshots?organization_id=eq.${encodeURIComponent(org)}&select=snapshot_at&order=snapshot_at.desc&limit=1`,{serviceRole:true}),
+        requirePagePermission(context,'inventory','view');const org=context.membership.organization_id,q=encodeURIComponent(org),periodDays=14,end=new Date(),start=new Date(end.getTime()-periodDays*86400000);
+        const [snapshots,skus,masterProducts,masterLocations,orders,inventorySources]=await Promise.all([
+          supabase(`/rest/v1/inventory_snapshots?organization_id=eq.${q}&select=sku_id,location_id,snapshot_at,available_qty,safety_stock_qty,in_transit_qty&order=snapshot_at.desc&limit=10000`,{serviceRole:true}),
+          supabase(`/rest/v1/skus?organization_id=eq.${q}&select=id,sku_code,product_id,size,color&limit=5000`,{serviceRole:true}),
+          supabase(`/rest/v1/products?organization_id=eq.${q}&select=id,product_code,product_name,image_url&limit=5000`,{serviceRole:true}),
+          supabase(`/rest/v1/locations?organization_id=eq.${q}&select=id,location_code,location_name,location_type,country_code&limit=5000`,{serviceRole:true}),
+          supabase(`/rest/v1/sales_orders?organization_id=eq.${q}&ordered_at=gte.${encodeURIComponent(start.toISOString())}&ordered_at=lt.${encodeURIComponent(end.toISOString())}&select=id,location_id,country_code,channel_code&limit=10000`,{serviceRole:true}),
           supabase(`/rest/v1/data_sources?organization_id=eq.${encodeURIComponent(org)}&provider=eq.file_upload_inventory_snapshot&select=id,name,status,data_mode,last_synced_at,last_successful_sync_at,last_sync_error&order=last_synced_at.desc.nullslast&limit=1`,{serviceRole:true})
         ]);
+        const orderIds=(orders.data||[]).map((row:any)=>String(row.id)),lines=orderIds.length?(await supabase(`/rest/v1/sales_order_lines?order_id=in.(${orderIds.map((id:string)=>encodeURIComponent(id)).join(',')})&select=order_id,sku_id,quantity&limit=20000`,{serviceRole:true})).data||[]:[];
+        const summary=summarizeInventorySnapshot({snapshots:snapshots.data||[],skus:skus.data||[],products:masterProducts.data||[],locations:masterLocations.data||[],orders:orders.data||[],lines,periodDays,allowedCountries:scopedValues(context,'countries'),allowedChannels:scopedValues(context,'channels'),allowedLocations:scopedValues(context,'locations')});
         const source=inventorySources.data?.[0]||null,stale=source?.data_mode==='stale'||source?.status==='error';
-        return json({ok:true,source:'supabase_inventory',dataMode:stale?'stale':'connected',generatedAt:new Date().toISOString(),lastSnapshotAt:latestSnapshot.data?.[0]?.snapshot_at||null,lastSuccessfulSyncAt:source?.last_successful_sync_at||null,sourceStatus:source,hasData:products.length>0,products,locations});
+        return json({ok:true,source:'supabase_inventory',dataMode:stale?'stale':'connected',generatedAt:new Date().toISOString(),lastSnapshotAt:summary.latestSnapshotAt,lastSuccessfulSyncAt:source?.last_successful_sync_at||null,sourceStatus:source,hasData:summary.products.length>0,products:summary.products,locations:summary.locations});
       }
       requirePagePermission(context,'hub','view');
       const [channels,locations,products,daily,inventory]=await Promise.all([
