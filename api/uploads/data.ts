@@ -10,7 +10,7 @@ const SUPPORTED=['inventory_snapshot','sales_order'];
 
 export default {async fetch(request:Request){
   if(request.method!=='POST')return json({ok:false,error:'Method not allowed'},405);
-  let sourceId:string|null=null;
+  let sourceId:string|null=null,rawUploadId:string|null=null,importJobId:string|null=null;
   try{
     const context=await requestContext(request);requirePagePermission(context,'connections','update');const org=context.membership.organization_id;
     const form=await request.formData(),file=form.get('file');
@@ -35,7 +35,9 @@ export default {async fetch(request:Request){
       return json({ok:true,mode:'import',duplicate:true,job:existingJob||{id:null,status:'completed',totalRows:rows.length,successRows:rows.length,errorRows:0},preview,source:await sourceSummary(sourceId)},200);
     }
     const upload=await persistRawFile(file,fileBytes,checksum,org,context.user.id,sourceId,entityType);
+    rawUploadId=upload.id;
     const job=(await insert('import_jobs',{organization_id:org,raw_upload_id:upload.id,data_source_id:sourceId,mapping_template_id:template?.id||null,created_by:context.user.id,entity_type:entityType,status:'processing',total_rows:rows.length,started_at:new Date().toISOString(),summary:{mapping,mappingSource:choice.source,mappingTemplateId:template?.id||null,period:preview.period}}))?.[0];
+    importJobId=job.id;
     const result=entityType==='sales_order'?await ingestSales(validation.validRows,org,sourceId,upload.id,job.id):await ingestInventory(validation.validRows,org,sourceId,upload.id);
     const allErrors=[...validation.errors.map((item:any)=>({organization_id:org,import_job_id:job.id,...item})),...result.errors.map((item:any)=>({organization_id:org,import_job_id:job.id,...item}))];
     for(const chunk of chunks(allErrors,500))await insert('import_errors',chunk);
@@ -51,7 +53,11 @@ export default {async fetch(request:Request){
     await audit(context,'file_import.completed','import_job',job.id,{entityType,status,totalRows:rows.length,successRows:result.successRows,errorRows:allErrors.length,sourceId,mappingSource:choice.source,mappingTemplateId:template?.id||null,analytics:{status:analytics.status,completed:analytics.completed,failed:analytics.failed,asOfDate:analytics.asOfDate}});
     return json({ok:true,mode:'import',duplicate:false,job:{id:job.id,status,totalRows:rows.length,successRows:result.successRows,errorRows:allErrors.length,insertedRows:result.insertedRows,updatedRows:result.updatedRows,analytics},preview,source:await sourceSummary(sourceId)},status==='failed'?422:201);
   }catch(error:any){
+    const failedAt=new Date().toISOString();
+    if(importJobId){try{await update('import_jobs',{id:`eq.${importJobId}`},{status:'failed',completed_at:failedAt})}catch{}}
+    if(rawUploadId){try{await update('raw_uploads',{id:`eq.${rawUploadId}`},{status:'failed'})}catch{}}
     if(sourceId){try{await update('data_sources',{id:`eq.${sourceId}`},{status:'error',data_mode:'stale',last_sync_error:String(error?.message||error),last_synced_at:new Date().toISOString(),updated_at:new Date().toISOString()})}catch{}}
+    console.error('[file_import.failed]',{importJobId,rawUploadId,sourceId,error:String(error?.message||error)});
     return errorResponse(error,error.status||500);
   }
 }};
@@ -96,7 +102,7 @@ async function persistRawFile(file:File,fileBytes:ArrayBuffer,checksum:string,or
   return (await insert('raw_uploads',{id:uploadId,organization_id:org,data_source_id:sourceId,uploaded_by:userId,original_filename:file.name,storage_path:storagePath,content_type:file.type||null,byte_size:file.size,checksum,entity_type:entityType,status:'processing'}))?.[0];
 }
 
-async function findCompletedUpload(org:string,entityType:string,checksum:string){const query=new URLSearchParams({organization_id:`eq.${org}`,entity_type:`eq.${entityType}`,checksum:`eq.${checksum}`,status:'eq.completed',select:'id,created_at,original_filename',order:'created_at.desc',limit:'1'});return ((await supabase(`/rest/v1/raw_uploads?${query}`,{serviceRole:true})).data||[])[0]||null}
+async function findCompletedUpload(org:string,entityType:string,checksum:string){const query=new URLSearchParams({organization_id:`eq.${org}`,entity_type:`eq.${entityType}`,checksum:`eq.${checksum}`,status:'eq.completed',select:'id,created_at,original_filename',order:'created_at.desc',limit:'5'}),uploads=((await supabase(`/rest/v1/raw_uploads?${query}`,{serviceRole:true})).data||[]);for(const upload of uploads){const job=await findImportJob(upload.id);if(job?.status==='completed')return upload}return null}
 async function findMappingTemplate(org:string,entityType:string,signature:string,requestedSourceId:string|null){
   if(requestedSourceId){const specific=new URLSearchParams({organization_id:`eq.${org}`,entity_type:`eq.${entityType}`,header_signature:`eq.${signature}`,data_source_id:`eq.${requestedSourceId}`,active:'eq.true',select:'id,name,version,mapping,data_source_id',order:'version.desc,created_at.desc',limit:'1'}),row=((await supabase(`/rest/v1/mapping_templates?${specific}`,{serviceRole:true})).data||[])[0];if(row)return row}
   const generic=new URLSearchParams({organization_id:`eq.${org}`,entity_type:`eq.${entityType}`,header_signature:`eq.${signature}`,data_source_id:'is.null',active:'eq.true',select:'id,name,version,mapping,data_source_id',order:'version.desc,created_at.desc',limit:'1'});
@@ -105,8 +111,8 @@ async function findMappingTemplate(org:string,entityType:string,signature:string
 async function findImportJob(uploadId:string){const query=new URLSearchParams({raw_upload_id:`eq.${uploadId}`,select:'id,status,total_rows,success_rows,error_rows,inserted_rows,updated_rows',order:'created_at.desc',limit:'1'}),row=((await supabase(`/rest/v1/import_jobs?${query}`,{serviceRole:true})).data||[])[0];return row?{id:row.id,status:row.status,totalRows:row.total_rows,successRows:row.success_rows,errorRows:row.error_rows,insertedRows:row.inserted_rows,updatedRows:row.updated_rows}:null}
 async function sourceSummary(sourceId:string){const query=new URLSearchParams({id:`eq.${sourceId}`,select:'id,name,provider,status,data_mode,last_synced_at,last_successful_sync_at,last_sync_error',limit:'1'});return ((await supabase(`/rest/v1/data_sources?${query}`,{serviceRole:true})).data||[])[0]||null}
 async function fetchMaster(table:string,field:string,codes:string[],org:string){if(!codes.length)return [];const filter=`in.(${codes.map(code=>`"${String(code).replace(/"/g,'')}"`).join(',')})`,query=`organization_id=eq.${encodeURIComponent(org)}&${field}=${encodeURIComponent(filter)}&select=id,${field}&limit=50000`;return (await supabase(`/rest/v1/${table}?${query}`,{serviceRole:true})).data||[]}
-async function fetchOrders(ids:string[],org:string,sourceId:string){if(!ids.length)return [];const filter=`in.(${ids.map(id=>`"${String(id).replace(/"/g,'')}"`).join(',')})`,query=`organization_id=eq.${encodeURIComponent(org)}&source_id=eq.${encodeURIComponent(sourceId)}&source_order_id=${encodeURIComponent(filter)}&select=id,source_order_id&limit=50000`;return (await supabase(`/rest/v1/sales_orders?${query}`,{serviceRole:true})).data||[]}
-async function fetchSalesLines(orderIds:string[],org:string){if(!orderIds.length)return [];const filter=`in.(${orderIds.map(id=>`"${String(id).replace(/"/g,'')}"`).join(',')})`,query=`organization_id=eq.${encodeURIComponent(org)}&order_id=${encodeURIComponent(filter)}&select=order_id,source_line_id&limit=50000`;return (await supabase(`/rest/v1/sales_order_lines?${query}`,{serviceRole:true})).data||[]}
+async function fetchOrders(ids:string[],org:string,sourceId:string){const rows:any[]=[];for(const group of chunks(ids,100)){const filter=`in.(${group.map(id=>`"${String(id).replace(/"/g,'')}"`).join(',')})`,query=`organization_id=eq.${encodeURIComponent(org)}&source_id=eq.${encodeURIComponent(sourceId)}&source_order_id=${encodeURIComponent(filter)}&select=id,source_order_id&limit=50000`;rows.push(...((await supabase(`/rest/v1/sales_orders?${query}`,{serviceRole:true})).data||[]))}return rows}
+async function fetchSalesLines(orderIds:string[],org:string){const rows:any[]=[];for(const group of chunks(orderIds,100)){const filter=`in.(${group.map(id=>`"${String(id).replace(/"/g,'')}"`).join(',')})`,query=`organization_id=eq.${encodeURIComponent(org)}&order_id=${encodeURIComponent(filter)}&select=order_id,source_line_id&limit=50000`;rows.push(...((await supabase(`/rest/v1/sales_order_lines?${query}`,{serviceRole:true})).data||[]))}return rows}
 function chunks<T>(items:T[],size:number){const result:T[][]=[];for(let index=0;index<items.length;index+=size)result.push(items.slice(index,index+size));return result}
 function dedupe<T extends Record<string,any>>(items:T[],key:string){return [...new Map(items.map(item=>[item[key],item])).values()]}
 function sum(items:any[],key:string){return items.reduce((total,item)=>total+Number(item[key]||0),0)}
