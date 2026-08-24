@@ -40,6 +40,7 @@ test('AX router uses the low-latency structured-output model role',async()=>{
     assert.equal(result.source,'openai');
     assert.equal(requestBody.model,'gpt-5.6-luna');
     assert.equal(requestBody.reasoning.effort,'none');
+    assert.equal(requestBody.max_output_tokens,500);
     assert.equal(requestBody.text.verbosity,'low');
     assert.equal(requestBody.store,false);
   }finally{
