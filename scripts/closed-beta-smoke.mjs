@@ -13,6 +13,8 @@ const request=async(name,path,validate=body=>body?.ok===true,options={})=>{const
 
 await request('session','/api/auth/session',body=>body?.ok&&body?.authenticated&&body?.user?.organizationId);
 await request('data sources','/api/integrations/sources',body=>body?.ok&&Array.isArray(body?.sources));
+await request('mapping templates','/api/integrations/sources?resource=mappings',body=>body?.ok&&Array.isArray(body?.templates)&&body.templates.some(row=>row.entity_type==='sales_order')&&body.templates.some(row=>row.entity_type==='inventory_snapshot'));
+await request('data reconciliation','/api/integrations/sources?resource=data-quality',body=>body?.ok&&body?.blocked===false&&body?.status==='healthy');
 await request('sales hub','/api/dashboards/query',body=>body?.ok&&body?.hasData&&Number(body?.summary?.quantity)>0);
 await request('profitability','/api/dashboards/query?resource=profitability-summary',body=>body?.ok&&Number(body?.readiness?.totalLines)>0);
 await request('customer regions','/api/dashboards/query?resource=customer-insights',body=>body?.ok&&body?.hasData&&Array.isArray(body?.regions));
@@ -24,6 +26,8 @@ await request('production workflows','/api/dashboards/query?resource=production-
 await request('market intelligence','/api/dashboards/query?resource=product-intelligence&page=market',body=>body?.ok&&Array.isArray(body?.matches));
 await request('discount intelligence','/api/dashboards/query?resource=discount-intelligence',body=>body?.ok&&Array.isArray(body?.recommendations));
 await request('AX history','/api/ax/history',body=>body?.ok&&Array.isArray(body?.conversations));
+await request('audit history','/api/permissions/users?resource=audit&limit=20',body=>body?.ok&&Array.isArray(body?.events)&&body.events.length>0);
+await request('closed beta readiness','/api/admin/readiness',body=>body?.ok&&body?.ready===true&&body?.score===100);
 if(includeAx)await request('AX live answer','/api/ax/query',body=>body?.ok&&body?.answer&&body?.conversationId,{method:'POST',body:JSON.stringify({question:'최근 14일 고판매·부족재고 상품을 보여줘',page:'inventory',filters:{country:'전체 국가',channel:'전체 채널'}})});
 
 const passed=checks.filter(item=>item.ok).length;

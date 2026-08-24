@@ -23,12 +23,21 @@ export default {async fetch(request:Request){
     let requestedMapping={};try{requestedMapping=JSON.parse(String(form.get('mapping')||'{}'))}catch{return json({ok:false,error:'mapping must be valid JSON'},400)}
     const requestedSourceId=String(form.get('sourceId')||''),rows=await parseWorkbook(file),headers=rows.length?Object.keys(rows[0]):[],signature=await headerSignature(headers);
     const autoCandidates=SUPPORTED.map(type=>{const inferred=type==='sales_order'?inferSalesMapping(headers):inferMapping(headers),validation=type==='sales_order'?validateAndNormalizeSales(rows,inferred):validateAndNormalize(rows,inferred);return [type,{mapping:inferred,validRows:validation.validRows.length,errorRows:validation.errors.length,missingFields:validation.missingFields}] as const}),detection=detectEntityType(Object.fromEntries(autoCandidates)),entityType=requestedEntityType==='auto'?detection.recommended:requestedEntityType;
-    const template=await findMappingTemplate(org,entityType,signature,requestedSourceId||null),inferred=entityType==='sales_order'?inferSalesMapping(headers):inferMapping(headers),choice=chooseMapping(entityType,headers,requestedMapping,template?.mapping,inferred),mapping=choice.mapping,validation=entityType==='sales_order'?validateAndNormalizeSales(rows,mapping):validateAndNormalize(rows,mapping);
-    const preview={filename:file.name,byteSize:file.size,requestedEntityType,entityType,detection:requestedEntityType==='auto'?detection:null,headers,headerSignature:signature,mapping,mappingSource:choice.source,mappingTemplate:template?{id:template.id,name:template.name,version:template.version,dataSourceId:template.data_source_id}:null,totalRows:rows.length,validRows:validation.validRows.length,errorRows:validation.errors.length,missingFields:validation.missingFields,sample:validation.validRows.slice(0,8),errors:validation.errors.slice(0,20),period:(validation as any).period||inferPeriod(validation.validRows,entityType)};
+    let template=await findMappingTemplate(org,entityType,signature,requestedSourceId||null);const inferred=entityType==='sales_order'?inferSalesMapping(headers):inferMapping(headers),choice=chooseMapping(entityType,headers,requestedMapping,template?.mapping,inferred),mapping=choice.mapping,validation=entityType==='sales_order'?validateAndNormalizeSales(rows,mapping):validateAndNormalize(rows,mapping);let mappingSource=choice.source;
+    const preview={filename:file.name,byteSize:file.size,requestedEntityType,entityType,detection:requestedEntityType==='auto'?detection:null,headers,headerSignature:signature,mapping,mappingSource,mappingTemplate:template?{id:template.id,name:template.name,version:template.version,dataSourceId:template.data_source_id}:null,totalRows:rows.length,validRows:validation.validRows.length,errorRows:validation.errors.length,missingFields:validation.missingFields,sample:validation.validRows.slice(0,8),errors:validation.errors.slice(0,20),period:(validation as any).period||inferPeriod(validation.validRows,entityType)};
     if(mode==='preview')return json({ok:true,mode:'preview',preview});
     if(validation.missingFields.length)return json({ok:false,error:'필수 컬럼 매핑이 필요합니다.',preview},422);
     const fileBytes=await file.arrayBuffer(),checksum=await sha256(fileBytes);
     sourceId=await ensureDataSource(org,context.user.id,requestedSourceId,entityType);
+    if(!template){
+      const saved=await ensureConfirmedMappingTemplate(org,context.user.id,entityType,signature,mapping,file.name);
+      template=saved.template;
+      preview.mappingTemplate=template?{id:template.id,name:template.name,version:template.version,dataSourceId:template.data_source_id}:null;
+      if(saved.created){
+        mappingSource='saved_template';preview.mappingSource=mappingSource;
+        await audit(context,'mapping_template.auto_saved','mapping_template',template.id,{entityType,filename:file.name,headerSignature:signature,fieldCount:Object.keys(mapping||{}).length});
+      }
+    }
     const duplicate=await findCompletedUpload(org,entityType,checksum);
     if(duplicate){
       const existingJob=await findImportJob(duplicate.id);
@@ -37,14 +46,14 @@ export default {async fetch(request:Request){
     }
     const upload=await persistRawFile(file,fileBytes,checksum,org,context.user.id,sourceId,entityType);
     rawUploadId=upload.id;
-    const job=(await insert('import_jobs',{organization_id:org,raw_upload_id:upload.id,data_source_id:sourceId,mapping_template_id:template?.id||null,created_by:context.user.id,entity_type:entityType,status:'processing',total_rows:rows.length,started_at:new Date().toISOString(),summary:{mapping,mappingSource:choice.source,mappingTemplateId:template?.id||null,period:preview.period}}))?.[0];
+    const job=(await insert('import_jobs',{organization_id:org,raw_upload_id:upload.id,data_source_id:sourceId,mapping_template_id:template?.id||null,created_by:context.user.id,entity_type:entityType,status:'processing',total_rows:rows.length,started_at:new Date().toISOString(),summary:{mapping,mappingSource,mappingTemplateId:template?.id||null,period:preview.period}}))?.[0];
     importJobId=job.id;
     const sourceControl=entityType==='sales_order'?salesControlTotals(validation.validRows):inventoryControlTotals(validation.validRows),result=entityType==='sales_order'?await ingestSales(validation.validRows,org,sourceId,upload.id,job.id):await ingestInventory(validation.validRows,org,sourceId,upload.id);
     const allErrors=[...validation.errors.map((item:any)=>({organization_id:org,import_job_id:job.id,...item})),...result.errors.map((item:any)=>({organization_id:org,import_job_id:job.id,...item}))];
     for(const chunk of chunks(allErrors,500))await insert('import_errors',chunk);
     const completedAt=new Date().toISOString(),persistedControl=await persistedControlTotals(org,{id:job.id,raw_upload_id:upload.id,entity_type:entityType}),reconciliation=buildReconciliation(entityType,sourceControl,persistedControl,{checkedAt:completedAt,filename:file.name,jobId:job.id});
     let status=allErrors.length?result.successRows?'partial':'failed':'completed';if(reconciliation.status==='mismatch'&&status!=='failed')status='partial';
-    const baseSummary={mapping,mappingSource:choice.source,mappingTemplateId:template?.id||null,period:preview.period,...result.summary,sourceControl,persistedControl,reconciliation};
+    const baseSummary={mapping,mappingSource,mappingTemplateId:template?.id||null,period:preview.period,...result.summary,sourceControl,persistedControl,reconciliation};
     await update('import_jobs',{id:`eq.${job.id}`},{status,success_rows:result.successRows,error_rows:allErrors.length,inserted_rows:result.insertedRows,updated_rows:result.updatedRows,unchanged_rows:0,completed_at:completedAt,summary:baseSummary});
     await update('raw_uploads',{id:`eq.${upload.id}`},{status:status==='failed'?'failed':'completed'});
     const qualityBlocked=shouldBlockAnalytics(reconciliation),syncError=qualityBlocked?'원천 파일과 운영 DB 합계가 일치하지 않아 분석 갱신을 차단했습니다.':status==='failed'?`${allErrors.length}개 행 적재 실패`:null;
@@ -56,7 +65,7 @@ export default {async fetch(request:Request){
       await update('import_jobs',{id:`eq.${job.id}`},{summary:{...baseSummary,analytics}});
     }catch(error:any){analytics={status:'failed',completed:0,failed:2,total:2,refreshedAt:new Date().toISOString(),asOfDate:preview.period?.end?.slice?.(0,10)||null,results:[],error:String(error?.message||error||'자동 분석 갱신 실패')}}
     if(qualityBlocked)await audit(context,'data_quality.reconciliation_blocked','import_job',job.id,{entityType,filename:file.name,sourceId,checks:reconciliation.checks.filter((check:any)=>!check.match)});
-    await audit(context,'file_import.completed','import_job',job.id,{entityType,status,totalRows:rows.length,successRows:result.successRows,errorRows:allErrors.length,sourceId,mappingSource:choice.source,mappingTemplateId:template?.id||null,reconciliation:reconciliation.status,analytics:{status:analytics.status,completed:analytics.completed,failed:analytics.failed,asOfDate:analytics.asOfDate}});
+    await audit(context,'file_import.completed','import_job',job.id,{entityType,status,totalRows:rows.length,successRows:result.successRows,errorRows:allErrors.length,sourceId,mappingSource,mappingTemplateId:template?.id||null,reconciliation:reconciliation.status,analytics:{status:analytics.status,completed:analytics.completed,failed:analytics.failed,asOfDate:analytics.asOfDate}});
     return json({ok:true,mode:'import',duplicate:false,job:{id:job.id,status,totalRows:rows.length,successRows:result.successRows,errorRows:allErrors.length,insertedRows:result.insertedRows,updatedRows:result.updatedRows,reconciliation,analytics},preview,source:await sourceSummary(sourceId)},status==='failed'?422:201);
   }catch(error:any){
     const failedAt=new Date().toISOString();
@@ -113,6 +122,11 @@ async function findMappingTemplate(org:string,entityType:string,signature:string
   if(requestedSourceId){const specific=new URLSearchParams({organization_id:`eq.${org}`,entity_type:`eq.${entityType}`,header_signature:`eq.${signature}`,data_source_id:`eq.${requestedSourceId}`,active:'eq.true',select:'id,name,version,mapping,data_source_id',order:'version.desc,created_at.desc',limit:'1'}),row=((await supabase(`/rest/v1/mapping_templates?${specific}`,{serviceRole:true})).data||[])[0];if(row)return row}
   const generic=new URLSearchParams({organization_id:`eq.${org}`,entity_type:`eq.${entityType}`,header_signature:`eq.${signature}`,data_source_id:'is.null',active:'eq.true',select:'id,name,version,mapping,data_source_id',order:'version.desc,created_at.desc',limit:'1'});
   return ((await supabase(`/rest/v1/mapping_templates?${generic}`,{serviceRole:true})).data||[])[0]||null;
+}
+async function ensureConfirmedMappingTemplate(org:string,userId:string,entityType:string,signature:string,mapping:any,filename:string){
+  const existing=await findMappingTemplate(org,entityType,signature,null);if(existing)return {template:existing,created:false};
+  const base=String(filename||'회사 데이터').replace(/\.[^.]+$/,'').slice(0,60),template=(await insert('mapping_templates',{organization_id:org,data_source_id:null,name:`${base} · 확인된 매핑`,entity_type:entityType,header_signature:signature,mapping,transformations:{source:'confirmed_import'},version:1,active:true,created_by:userId}))?.[0];
+  return {template,created:true};
 }
 async function findImportJob(uploadId:string){const query=new URLSearchParams({raw_upload_id:`eq.${uploadId}`,select:'id,status,total_rows,success_rows,error_rows,inserted_rows,updated_rows',order:'created_at.desc',limit:'1'}),row=((await supabase(`/rest/v1/import_jobs?${query}`,{serviceRole:true})).data||[])[0];return row?{id:row.id,status:row.status,totalRows:row.total_rows,successRows:row.success_rows,errorRows:row.error_rows,insertedRows:row.inserted_rows,updatedRows:row.updated_rows}:null}
 async function sourceSummary(sourceId:string){const query=new URLSearchParams({id:`eq.${sourceId}`,select:'id,name,provider,status,data_mode,last_synced_at,last_successful_sync_at,last_sync_error',limit:'1'});return ((await supabase(`/rest/v1/data_sources?${query}`,{serviceRole:true})).data||[])[0]||null}
