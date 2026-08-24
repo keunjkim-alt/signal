@@ -27,7 +27,7 @@ await request('market intelligence','/api/dashboards/query?resource=product-inte
 await request('discount intelligence','/api/dashboards/query?resource=discount-intelligence',body=>body?.ok&&Array.isArray(body?.recommendations));
 await request('AX history','/api/ax/history',body=>body?.ok&&Array.isArray(body?.conversations));
 await request('audit history','/api/permissions/users?resource=audit&limit=20',body=>body?.ok&&Array.isArray(body?.events)&&body.events.length>0);
-await request('closed beta readiness','/api/admin/readiness',body=>body?.ok&&body?.ready===true&&body?.score===100);
+await request('closed beta readiness','/api/permissions/users?resource=readiness',body=>body?.ok&&body?.ready===true&&body?.score===100);
 if(includeAx)await request('AX live answer','/api/ax/query',body=>body?.ok&&body?.answer&&body?.conversationId,{method:'POST',body:JSON.stringify({question:'최근 14일 고판매·부족재고 상품을 보여줘',page:'inventory',filters:{country:'전체 국가',channel:'전체 채널'}})});
 
 const passed=checks.filter(item=>item.ok).length;
