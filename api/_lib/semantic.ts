@@ -18,7 +18,8 @@ function clean(value:any){if(typeof value!=='string'||!value.trim()||value==='�
 
 export function heuristicPlan(question:string,page='hub'){
   const text=`${page} ${question}`.toLowerCase();
-  const isMarket=['market','radar','마켓','시장','경쟁','외부','노출','랭킹','순위','리뷰','평점'].some(token=>text.includes(token));
+  const marketText=text.replace(/우선\s*순위/g,'');
+  const isMarket=['market','radar','마켓','시장','경쟁','외부','노출','랭킹','순위','리뷰','평점'].some(token=>marketText.includes(token));
   const dimension=isMarket?(text.includes('일별')||text.includes('추이')?'day':text.includes('플랫폼')?'platform':text.includes('카테고리')||text.includes('스타일')?'category':text.includes('제품')||text.includes('상품')?'market_product':'brand'):(text.includes('매장')||text.includes('지역')?'location':text.includes('제품')||text.includes('sku')||text.includes('재고')?'product':text.includes('일별')||text.includes('추이')||text.includes('시간')?'day':'channel');
   const metric=isMarket?(text.includes('리뷰')?'total_review_count':text.includes('평점')?'avg_rating':text.includes('할인')?'avg_discount_rate':text.includes('상품 수')||text.includes('제품 수')?'product_count':text.includes('top')||text.includes('상위')?'top_100_count':text.includes('순위')||text.includes('랭킹')?'best_rank':'exposure_score'):(text.includes('재고')?'available_qty':text.includes('수량')?'quantity':text.includes('반품')?'return_rate':text.includes('이익')||text.includes('수익')?'contribution_margin':'net_sales');
   const visualization=text.includes('표')?'table':text.includes('추이')?'line':text.includes('재고')&&text.includes('판매')?'quadrant':dimension==='day'?'area':'bar';

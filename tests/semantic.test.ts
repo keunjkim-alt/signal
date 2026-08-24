@@ -28,6 +28,12 @@ test('market ranking questions use precomputed external market metrics',()=>{
   assert.equal(plan.dimension,'platform');
 });
 
+test('inventory priority is not mistaken for an external market ranking',()=>{
+  const plan=heuristicPlan('현재 재고 이동 승인 대기 중 우선순위 3건과 근거를 알려줘','inventory');
+  assert.equal(plan.metric,'available_qty');
+  assert.equal(plan.dimension,'product');
+});
+
 test('forecast and product matching questions route to stored intelligence snapshots',()=>{
   assert.equal(intelligenceMode('ARC-07의 2주 수요 예측과 재주문 수량을 보여줘','inventory'),'forecast');
   assert.equal(intelligenceMode('자사 상품과 유사한 경쟁 상품을 매칭해줘','market'),'matching');
