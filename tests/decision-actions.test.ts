@@ -25,3 +25,17 @@ test('decision summary excludes approved actions from pending impact',()=>{
   const summary=summarizeDecisionActions([{priority:'P0',due:'오늘 16:00',impact_amount:100,decision_status:'proposed'},{priority:'P1',due:'오늘 18:00',impact_amount:900,decision_status:'approved'}]);
   assert.deepEqual(summary,{total:2,pending:1,approved:1,p0:1,dueToday:1,impactAmount:100});
 });
+
+test('customer and return intelligence become executable follow-up actions',()=>{
+  const actions=buildDecisionActions({
+    customerInsight:{hasData:true,summary:{anonymousCustomers:120,repeatCustomerPct:18,totalSales:100000000},regions:[{label:'서울 성동구',sales_share_pct:24}]},
+    returnInsight:{hasData:true,summary:{returnRate:9.2,cancelRate:3.1,refundAmount:18000000,cancelAmount:4000000,processingCost:1000000},channels:[{label:'29CM'}],products:[{label:'Layer Top',product_code:'EASE-19'}]}
+  });
+  const returns=actions.find(row=>row.kind==='return_mitigation'),customer=actions.find(row=>row.kind==='customer_opportunity');
+  assert.equal(returns?.priority,'P0');
+  assert.equal(returns?.execution.action,'create_followup_task');
+  assert.equal(returns?.target_page,'returns');
+  assert.equal(customer?.priority,'P1');
+  assert.equal(customer?.execution.action,'create_followup_task');
+  assert.match(customer?.title,/서울 성동구/);
+});

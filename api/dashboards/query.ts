@@ -51,6 +51,10 @@ async function customerReturnContext(context:any){
   ]),locationMap=indexBy(locationsResult.data||[]),countries=scopedValues(context,'countries'),channels=scopedValues(context,'channels'),locations=scopedValues(context,'locations'),orders=(ordersResult.data||[]).filter((row:any)=>{const location:any=locationMap.get(String(row.location_id))||{};return (!countries||countries.includes(String(row.country_code||location.country_code||'')))&&(!channels||channels.includes(String(row.channel_code||'')))&&(!locations||locations.includes(String(location.location_code||'')))}),orderIds=new Set(orders.map((row:any)=>String(row.id))),lines=(linesResult.data||[]).filter((row:any)=>orderIds.has(String(row.order_id)));
   return {orders,lines,products:productsResult.data||[],periodDays:90};
 }
+export async function customerReturnInsights(context:any){
+  const data=await customerReturnContext(context);
+  return {periodDays:data.periodDays,customer:summarizeCustomerInsights(data.orders),returns:summarizeReturnInsights(data.orders,data.lines,data.products)};
+}
 function presentInventoryWorkflow(data:any){
   const skuMap=indexBy(data.skus),productMap=indexBy(data.products),locationMap=indexBy(data.locations),recommendationMap=new Map<string,any>();for(const row of data.recommendations)if(!recommendationMap.has(row.recommendation_key))recommendationMap.set(row.recommendation_key,row);
   const labelSku=(skuId:string)=>{const sku:any=skuMap.get(String(skuId))||{},product:any=productMap.get(String(sku.product_id))||{};return {...sku,product_code:product.product_code||sku.sku_code||'SKU',product_name:product.product_name||product.product_code||sku.sku_code||'상품',image_url:product.image_url||null}},labelLocation=(locationId:string)=>locationMap.get(String(locationId))||{location_code:'UNKNOWN',location_name:'위치 미확인'};
@@ -89,12 +93,12 @@ function canAccessPage(context:any,page:string,action:'view'|'update'|'approve'=
 
 async function decisionActionContext(context:any){
   requirePagePermission(context,'action','view');
-  const org=context.membership.organization_id,q=enc(org),inventory=await inventoryWorkflowContext(context),presented=presentInventoryWorkflow(inventory);
+  const org=context.membership.organization_id,q=enc(org),[inventory,customerReturns]=await Promise.all([inventoryWorkflowContext(context),customerReturnInsights(context).catch(()=>({customer:null,returns:null}))]),presented=presentInventoryWorkflow(inventory);
   const [discountResult,persistedResult]=await Promise.all([
     discountIntelligence(context,'action',40).catch(()=>({recommendations:[]})),
     supabase(`/rest/v1/ax_recommendations?organization_id=eq.${q}&page_key=eq.action&select=id,conversation_id,recommendation_key,title,status,payload,approved_at,created_at,updated_at&order=updated_at.desc&limit=100`,{serviceRole:true})
   ]);
-  const productionOrders=productionOrdersFromRecommendations(inventory.recommendations,inventory.products),live=buildDecisionActions({transfers:presented.transfers,reorders:presented.reorders,discounts:discountResult?.recommendations||[],productionOrders}),persisted=persistedResult.data||[],latest=new Map<string,any>();
+  const productionOrders=productionOrdersFromRecommendations(inventory.recommendations,inventory.products),live=buildDecisionActions({transfers:presented.transfers,reorders:presented.reorders,discounts:discountResult?.recommendations||[],productionOrders,customerInsight:customerReturns.customer,returnInsight:customerReturns.returns}),persisted=persistedResult.data||[],latest=new Map<string,any>();
   for(const row of persisted)if(!latest.has(row.recommendation_key))latest.set(row.recommendation_key,row);
   const actions=live.map((action:any)=>{const record=latest.get(action.key);return {...action,decision_status:record?.status||'proposed',recommendation_id:record?.id||null,approved_at:record?.approved_at||null,updated_at:record?.updated_at||null}});
   for(const record of persisted){
@@ -102,7 +106,7 @@ async function decisionActionContext(context:any){
     actions.push({...record.payload.action,decision_status:record.status,recommendation_id:record.id,approved_at:record.approved_at,updated_at:record.updated_at});
   }
   const visible=actions.filter((action:any)=>canAccessPage(context,action.target_page||'action','view')).sort((a:any,b:any)=>{const done=(row:any)=>['approved','executed'].includes(row.decision_status)?1:0,score:any={P0:0,P1:1,P2:2};return done(a)-done(b)||(score[a.priority]??9)-(score[b.priority]??9)||Number(b.impact_amount||0)-Number(a.impact_amount||0)}).slice(0,20);
-  return {actions:visible,summary:summarizeDecisionActions(visible),generatedAt:new Date().toISOString(),sources:{inventory:true,forecast:inventory.forecasts.length>0,discount:(discountResult?.recommendations||[]).length>0,production:productionOrders.length>0}};
+  return {actions:visible,summary:summarizeDecisionActions(visible),generatedAt:new Date().toISOString(),sources:{inventory:true,forecast:inventory.forecasts.length>0,discount:(discountResult?.recommendations||[]).length>0,production:productionOrders.length>0,customer:Boolean(customerReturns.customer?.hasData),returns:Boolean(customerReturns.returns?.hasData)}};
 }
 
 async function responseData(response:Response){const data=await response.json();if(!response.ok){const error:any=new Error(data?.error||'업무 실행에 실패했습니다.');error.status=response.status;throw error}return data}
@@ -122,6 +126,7 @@ async function persistDecisionAction(context:any,body:any){
     else if(execution.action==='approve_reorder')executionResult=await responseData(await approveInventoryReorder(context,execution));
     else if(execution.action==='approve_discount')executionResult=await approveDiscountAction(context,execution);
     else if(execution.action==='update_production_order')executionResult=await responseData(await updateProductionOrder(context,execution));
+    else if(execution.action==='create_followup_task')executionResult={queued:true,taskType:execution.taskType,targetPage:execution.targetPage,owner:execution.owner,focus:execution.focus,metrics:execution.metrics,queuedAt:new Date().toISOString()};
     else return json({ok:false,error:'This action has no executable workflow'},400);
   }
   const now=new Date().toISOString();let conversationId=existing?.conversation_id,recommendation:any;

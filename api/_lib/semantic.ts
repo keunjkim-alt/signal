@@ -30,8 +30,10 @@ export function requiresOpenAI(question:string){
   return ['왜','원인','추천','예측','전략','시나리오','어떻게','요약해','설명해','비교해서 판단'].some(token=>text.includes(token));
 }
 
-export function intelligenceMode(question:string,page='hub'):'matching'|'forecast'|'discount'|null{
+export function intelligenceMode(question:string,page='hub'):'matching'|'forecast'|'discount'|'customer'|'returns'|null{
   const text=`${page} ${question}`.toLowerCase();
+  if(page==='returns'||['반품','취소','환불'].some(token=>text.includes(token)))return 'returns';
+  if(page==='customers'||['재구매','고객군','고객 세그먼트','배송지역','구매주기'].some(token=>text.includes(token)))return 'customer';
   if((page==='profitability'||text.includes('할인'))&&['최적','권장','추천','할인율','정상가','가격','마진','이익'].some(token=>text.includes(token)))return 'discount';
   if(['자사 상품','경쟁 상품','유사 상품','상품 매칭','제품 매칭','match'].some(token=>text.includes(token)))return 'matching';
   if(['예측','재주문','수요','소진','품절','forecast'].some(token=>text.includes(token)))return 'forecast';

@@ -16,7 +16,7 @@ const money=(value:any)=>`₩${Math.max(0,Math.round(number(value)/1000000)).toL
 const clean=(value:any)=>String(value||'').replace(/[^a-zA-Z0-9가-힣:_-]/g,'-').slice(0,160);
 
 export function buildDecisionActions(input:any={}){
-  const transfers=input.transfers||[],reorders=input.reorders||[],discounts=input.discounts||[],productionOrders=input.productionOrders||[],actions:any[]=[];
+  const transfers=input.transfers||[],reorders=input.reorders||[],discounts=input.discounts||[],productionOrders=input.productionOrders||[],customerInsight=input.customerInsight||null,returnInsight=input.returnInsight||null,actions:any[]=[];
 
   for(const row of transfers.filter((item:any)=>item.status==='recommended').slice(0,3)){
     const qty=integer(row.recommended_qty),from=String(row.from_location?.location_name||'출발지'),to=String(row.to_location?.location_name||'도착지'),code=String(row.sku?.product_code||row.sku?.sku_code||'SKU'),fromQty=integer(row.reason?.from_available),toQty=integer(row.reason?.to_available),priority=qty>=100?'P0':'P1';
@@ -51,6 +51,24 @@ export function buildDecisionActions(input:any={}){
       key:`today:production:${clean(row.id)}:${next.status}`,kind:'production',priority:'P1',type:'생산 진행',target_page:'production',team_code:'생산·SCM팀',title:`${code} ${next.label} 착수`,scope:'생산 · SCM',basis:`승인 수량 ${qty.toLocaleString()}pcs · 현재 진척 ${integer(row.progress)}% · 입고 목표 ${row.due_date||'미정'}`,impact:`예측 매출 ${money(sales)} 대응 일정 유지`,impact_amount:sales,risk:'공정 전환 지연 시 입고 목표일 변동 가능',confidence:percent(row.confidence),source:'승인 재주문 · 생산 실행 큐',owner:'생산·SCM팀',due:'오늘 16:00',recommendation:`${row.production_order_no||code}를 ${next.label} 단계로 전환`,approve_label:`${next.label} 승인`,adjust_label:'일정 조정',
       evidence:[[`${qty.toLocaleString()}pcs`,'승인 생산수량'],[`${integer(row.progress)}%`,'현재 공정 진척'],[row.due_date||'미정','목표 입고일']],effect_title:'승인 수요의 생산 일정을 유지',effect_lines:[`${next.label} 단계로 실행 이력 전환`,'담당 팀의 다음 공정 버튼이 자동 갱신'],risk_title:'생산·입고 일정 지연 가능',risk_lines:['후속 공정 가용시간 감소','예측 수요 대응 재고의 입고 지연'],constraints:['공장·원부자재 가용 여부 확인','공정 담당자의 실행 권한 확인'],
       execution:{action:'update_production_order',recommendationId:row.id,status:next.status}
+    });
+  }
+
+  if(returnInsight?.hasData){
+    const summary=returnInsight.summary||{},topChannel=returnInsight.channels?.[0],topProduct=returnInsight.products?.[0],loss=number(summary.refundAmount)+number(summary.cancelAmount)+number(summary.processingCost),avoidable=Math.round(loss*.15),priority=number(summary.returnRate)>=8||number(summary.cancelRate)>=5?'P0':'P1',focus=topProduct?.product_code||topProduct?.label||topChannel?.label||'반품 상위 대상';
+    actions.push({
+      key:`today:return:${clean(focus)}`,kind:'return_mitigation',priority,type:'반품 개선',target_page:'returns',team_code:'영업·상품팀',title:`${focus} 반품·취소 개선 과제 착수`,scope:'상품 · 이커머스 · CS',basis:`반품률 ${number(summary.returnRate).toFixed(1)}% · 취소율 ${number(summary.cancelRate).toFixed(1)}% · 최대 손실 채널 ${topChannel?.label||'미확인'}`,impact:`예상 손실 ${money(avoidable)} 절감 기회`,impact_amount:avoidable,risk:'반품·취소 원인을 늦게 보완하면 동일 손실이 반복',confidence:'85%',source:'주문 · 반품수량 · 취소상태',owner:'상품기획 · 이커머스',due:'오늘 17:00',recommendation:`${focus} 개선 과제를 생성하고 담당자와 완료일을 확정`,approve_label:'개선 과제 생성',adjust_label:'범위 조정',
+      evidence:[[`${number(summary.returnRate).toFixed(1)}%`,'최근 90일 전체 반품률'],[`${number(summary.cancelRate).toFixed(1)}%`,'최근 90일 전체 취소율'],[money(loss),'반품·취소·처리비용 영향']],effect_title:`예상 손실 ${money(avoidable)} 절감 기회`,effect_lines:[`${topChannel?.label||'상위 채널'}와 ${focus}를 우선 개선 대상으로 지정`,'과제 승인 이력을 오늘의 실행 큐에 저장'],risk_title:'동일한 반품·취소 손실이 반복됩니다',risk_lines:['상위 위험 제품의 상세정보·옵션 개선 지연','환불·취소 비용과 재고 복귀 지연 지속'],constraints:['반품 사유 코드가 없으면 담당자 확인 필요','채널·상품 담당자의 개선 범위와 완료일 확정'],
+      execution:{action:'create_followup_task',taskType:'return_mitigation',targetPage:'returns',owner:'상품기획 · 이커머스',focus,metrics:{returnRate:number(summary.returnRate),cancelRate:number(summary.cancelRate),lossAmount:loss,avoidableAmount:avoidable}}
+    });
+  }
+
+  if(customerInsight?.hasData){
+    const summary=customerInsight.summary||{},topRegion=customerInsight.regions?.[0],repeatPct=number(summary.repeatCustomerPct),identified=integer(summary.anonymousCustomers),priority=repeatPct<25?'P1':'P2',opportunity=Math.round(number(summary.totalSales)*.03);
+    actions.push({
+      key:`today:customer:${clean(topRegion?.label||'all')}`,kind:'customer_opportunity',priority,type:'고객 성장',target_page:'customers',team_code:'CRM·마케팅팀',title:`${topRegion?.label||'핵심 지역'} 재구매 성장 실험 시작`,scope:'CRM · 마케팅 · 이커머스',basis:`익명 고객 ${identified.toLocaleString()}명 · 재구매 고객 ${repeatPct.toFixed(1)}% · 상위 배송지역 ${topRegion?.label||'미확인'}`,impact:`반복매출 ${money(opportunity)} 성장 기회`,impact_amount:opportunity,risk:'고객·지역 신호를 활용하지 않으면 획일적인 캠페인 비용이 지속',confidence:'78%',source:'익명 고객 토큰 · 배송지역 · 주문',owner:'CRM · 마케팅',due:'내일 12:00',recommendation:`${topRegion?.label||'핵심 지역'} 고객군 대상 재구매 실험 과제를 생성`,approve_label:'실험 과제 생성',adjust_label:'대상 조정',
+      evidence:[[`${identified.toLocaleString()}명`,'식별 가능한 익명 고객'],[`${repeatPct.toFixed(1)}%`,'재구매 고객 비중'],[`${number(topRegion?.sales_share_pct).toFixed(1)}%`,`${topRegion?.label||'상위 지역'} 매출 비중`]],effect_title:`반복매출 ${money(opportunity)} 성장 기회`,effect_lines:['상위 배송지역과 재구매 행동을 결합한 타깃 실험','직접 식별정보 없이 익명 고객군 단위로 실행'],risk_title:'고객별 차이를 반영하지 못합니다',risk_lines:['신규·재구매 고객에게 동일한 메시지 반복','지역별 수요 차이를 놓쳐 캠페인 효율 저하'],constraints:['익명 고객 식별률과 배송지역 입력률 확인','개인정보가 아닌 고객군 단위로만 실행'],
+      execution:{action:'create_followup_task',taskType:'customer_growth',targetPage:'customers',owner:'CRM · 마케팅',focus:topRegion?.label||'핵심 고객군',metrics:{identifiedCustomers:identified,repeatCustomerPct:repeatPct,opportunityAmount:opportunity}}
     });
   }
 

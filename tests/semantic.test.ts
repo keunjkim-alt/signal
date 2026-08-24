@@ -32,6 +32,8 @@ test('forecast and product matching questions route to stored intelligence snaps
   assert.equal(intelligenceMode('ARC-07의 2주 수요 예측과 재주문 수량을 보여줘','inventory'),'forecast');
   assert.equal(intelligenceMode('자사 상품과 유사한 경쟁 상품을 매칭해줘','market'),'matching');
   assert.equal(intelligenceMode('오늘 채널별 매출을 보여줘','hub'),null);
+  assert.equal(intelligenceMode('반품률이 높은 제품의 근거를 보여줘','action'),'returns');
+  assert.equal(intelligenceMode('성동구 재구매 고객을 분석해줘','action'),'customer');
 });
 
 test('discount optimization questions use saved recommendation snapshots',()=>{
