@@ -294,3 +294,4 @@
   .app.ax-panel-open::after { display: none; }
   .ax-panel-facts { grid-template-columns: repeat(2,1fr); }
 }
+.ax-panel-warning{display:grid;gap:3px;margin:4px 0 12px;padding:10px 12px;border:1px solid #e4d8c3;border-radius:10px;background:#fffaf1;color:#72583a}.ax-panel-warning strong{font-size:10px}.ax-panel-warning span{font-size:9px;line-height:1.5;color:#80694c}

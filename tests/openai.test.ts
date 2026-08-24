@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createAnalysisPlan} from '../api/_lib/openai.ts';
 
-test('OpenAI 401 errors are sanitized and mapped to a gateway error',async()=>{
+test('OpenAI 401 errors fall back without exposing the API key or blocking AX',async()=>{
   const previousKey=process.env.OPENAI_API_KEY;
   const previousFetch=globalThis.fetch;
   process.env.OPENAI_API_KEY='test-invalid-key';
@@ -14,20 +14,33 @@ test('OpenAI 401 errors are sanitized and mapped to a gateway error',async()=>{
   }),{status:401,headers:{'content-type':'application/json'}});
 
   try{
-    await assert.rejects(
-      ()=>createAnalysisPlan('채널별 매출을 보여줘','hub'),
-      (error:any)=>{
-        assert.equal(error.status,502);
-        assert.equal(error.code,'invalid_api_key');
-        assert.match(error.message,/API 키가 유효하지 않습니다/);
-        assert.doesNotMatch(error.message,/sk-proj-secret-fragment/);
-        return true;
-      }
-    );
+    const result=await createAnalysisPlan('채널별 매출을 보여줘','hub');
+    assert.equal(result.source,'heuristic');
+    assert.equal(result.degraded,true);
+    assert.equal(result.warningCode,'OPENAI_AUTH');
+    assert.match(result.warning||'',/사전 계산 지표/);
+    assert.doesNotMatch(JSON.stringify(result),/sk-proj-secret-fragment/);
   }finally{
     globalThis.fetch=previousFetch;
     if(previousKey===undefined)delete process.env.OPENAI_API_KEY;
     else process.env.OPENAI_API_KEY=previousKey;
+  }
+});
+
+test('OpenAI timeout falls back to the deterministic router',async()=>{
+  const previousKey=process.env.OPENAI_API_KEY,previousTimeout=process.env.OPENAI_ROUTER_TIMEOUT_MS,previousFetch=globalThis.fetch;
+  process.env.OPENAI_API_KEY='test-key';process.env.OPENAI_ROUTER_TIMEOUT_MS='2500';
+  globalThis.fetch=async()=>{const error:any=new Error('aborted');error.name='AbortError';throw error};
+  try{
+    const result=await createAnalysisPlan('제품별 판매 추이를 비교해줘','sales');
+    assert.equal(result.source,'heuristic');
+    assert.equal(result.degraded,true);
+    assert.equal(result.warningCode,'OPENAI_TIMEOUT');
+    assert.equal(result.dimension,'product');
+  }finally{
+    globalThis.fetch=previousFetch;
+    if(previousKey===undefined)delete process.env.OPENAI_API_KEY;else process.env.OPENAI_API_KEY=previousKey;
+    if(previousTimeout===undefined)delete process.env.OPENAI_ROUTER_TIMEOUT_MS;else process.env.OPENAI_ROUTER_TIMEOUT_MS=previousTimeout;
   }
 });
 
