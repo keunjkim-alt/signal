@@ -3,7 +3,7 @@ import {audit,downloadStorageObject,insert,requestContext,requirePagePermission,
 import {headerSignature,mappingFields,requiredMappingFields,sanitizeMapping} from '../_lib/mapping-templates.js';
 import {inferMapping,parseWorkbook,validateAndNormalize} from '../_lib/wms.js';
 import {inferSalesMapping,validateAndNormalizeSales} from '../_lib/sales.js';
-import {buildReconciliation,inventoryControlTotals,salesControlTotals} from '../_lib/reconciliation.js';
+import {buildReconciliation,inventoryControlTotals,persistedControlTotals,salesControlTotals,summarizeDataQuality} from '../_lib/reconciliation.js';
 
 const SUPPORTED_MAPPINGS=['sales_order','inventory_snapshot'];
 
@@ -15,6 +15,7 @@ export default {async fetch(request:Request){
       if(resource==='imports')return importHistory(org,url);
       if(resource==='import-errors')return importErrors(org,url);
       if(resource==='reconciliation')return reconciliationStatus(org);
+      if(resource==='data-quality')return dataQualityStatus(org);
       if(resource==='mappings'){
         const entityType=String(url.searchParams.get('entityType')||'');
         if(entityType&&!SUPPORTED_MAPPINGS.includes(entityType))return json({ok:false,error:'지원하지 않는 데이터 유형입니다.'},400);
@@ -77,7 +78,8 @@ async function reconciliationStatus(org:string){
   for(const job of latest){
     const upload:any=uploadMap.get(String(job.raw_upload_id));
     try{
-      const source=job.summary?.sourceControl||await sourceTotalsFromUpload(job,upload),persisted=await persistedTotalsForJob(org,job),result=buildReconciliation(job.entity_type,source,persisted,{filename:upload?.original_filename||null,jobId:job.id});
+      const source=job.summary?.sourceControl||await sourceTotalsFromUpload(job,upload),persisted=await persistedControlTotals(org,job),result=buildReconciliation(job.entity_type,source,persisted,{filename:upload?.original_filename||null,jobId:job.id});
+      await update('import_jobs',{id:`eq.${job.id}`,organization_id:`eq.${org}`},{summary:{...(job.summary||{}),sourceControl:source,persistedControl:persisted,reconciliation:result}});
       items.push({...result,jobStatus:job.status,totalRows:Number(job.total_rows||0),successRows:Number(job.success_rows||0),errorRows:Number(job.error_rows||0),sourceMode:job.summary?.sourceControl?'stored_control':'raw_file_replay'});
     }catch(error:any){items.push({entityType:job.entity_type,status:'unavailable',matched:false,checkedAt:new Date().toISOString(),filename:upload?.original_filename||null,jobId:job.id,jobStatus:job.status,totalRows:Number(job.total_rows||0),successRows:Number(job.success_rows||0),errorRows:Number(job.error_rows||0),source:null,persisted:null,checks:[],error:String(error?.message||error||'정합성 검증 실패')})}
   }
@@ -92,13 +94,7 @@ async function sourceTotalsFromUpload(job:any,upload:any){
   return job.entity_type==='sales_order'?salesControlTotals(validation.validRows):inventoryControlTotals(validation.validRows);
 }
 
-async function persistedTotalsForJob(org:string,job:any){
-  if(job.entity_type==='sales_order')return salesControlTotals(await fetchPaged('sales_order_lines',{organization_id:`eq.${org}`,import_job_id:`eq.${job.id}`},'order_id,sku_id,quantity,returned_quantity,net_sales'));
-  return inventoryControlTotals(await fetchPaged('inventory_snapshots',{organization_id:`eq.${org}`,raw_upload_id:`eq.${job.raw_upload_id}`},'sku_id,location_id,on_hand_qty,reserved_qty,available_qty'));
-}
-
-async function fetchPaged(table:string,filters:Record<string,string>,select:string){
-  const rows:any[]=[],pageSize=1000;
-  for(let offset=0;;offset+=pageSize){const query=new URLSearchParams({...filters,select}),page=(await supabase(`/rest/v1/${table}?${query}`,{serviceRole:true,headers:{Range:`${offset}-${offset+pageSize-1}`,'Range-Unit':'items'}})).data||[];rows.push(...page);if(page.length<pageSize)break}
-  return rows;
+async function dataQualityStatus(org:string){
+  const query=new URLSearchParams({organization_id:`eq.${org}`,status:'in.(completed,partial)',entity_type:'in.(sales_order,inventory_snapshot)',select:'id,entity_type,status,total_rows,success_rows,error_rows,summary,completed_at,created_at',order:'created_at.desc',limit:'40'}),jobs=(await supabase(`/rest/v1/import_jobs?${query}`,{serviceRole:true})).data||[],latest=['sales_order','inventory_snapshot'].map(type=>jobs.find((job:any)=>job.entity_type===type)).filter(Boolean),items=latest.map((job:any)=>({jobId:job.id,entityType:job.entity_type,jobStatus:job.status,filename:job.summary?.reconciliation?.filename||null,reconciliation:job.summary?.reconciliation||null,completedAt:job.completed_at||job.created_at})),summary=summarizeDataQuality(items);
+  return json({ok:true,...summary,items,checkedAt:new Date().toISOString()});
 }

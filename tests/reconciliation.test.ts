@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {inferSalesMapping,validateAndNormalizeSales} from '../api/_lib/sales.ts';
 import {inferMapping,parseCsv,validateAndNormalize} from '../api/_lib/wms.ts';
-import {buildReconciliation,inventoryControlTotals,salesControlTotals} from '../api/_lib/reconciliation.ts';
+import {buildReconciliation,inventoryControlTotals,salesControlTotals,shouldBlockAnalytics,summarizeDataQuality} from '../api/_lib/reconciliation.ts';
 
 const fixture=(name:string)=>readFileSync(new URL(`../assets/templates/closed-beta/${name}`,import.meta.url),'utf8');
 
@@ -28,4 +28,13 @@ test('reconciliation reports the exact mismatched measure',()=>{
   assert.equal(result.status,'mismatch');
   assert.equal(quantity.match,false);
   assert.equal(quantity.difference,-1);
+  assert.equal(shouldBlockAnalytics(result),true);
+});
+
+test('data quality blocks only when a latest source reconciliation mismatches',()=>{
+  const healthy=summarizeDataQuality([{reconciliation:{status:'matched'}},{reconciliation:{status:'matched'}}]),blocked=summarizeDataQuality([{reconciliation:{status:'matched'}},{reconciliation:{status:'mismatch'}}]),checking=summarizeDataQuality([{reconciliation:{status:'matched'}},{reconciliation:null}]);
+  assert.deepEqual({status:healthy.status,blocked:healthy.blocked},{status:'healthy',blocked:false});
+  assert.deepEqual({status:blocked.status,blocked:blocked.blocked},{status:'blocked',blocked:true});
+  assert.equal(blocked.mismatches.length,1);
+  assert.deepEqual({status:checking.status,blocked:checking.blocked},{status:'checking',blocked:false});
 });
