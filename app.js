@@ -331,8 +331,15 @@ function registeredFilesPanel(){
 }
 const connectionsWithImportHistory=connectionsOperational;
 connectionsOperational=()=>`${uploadEnvironmentNotice()}${registeredFilesPanel()}${uploadProgressPanel()}${connectionsWithImportHistory()}`;
+const connectionsWithUploadFeedback=connectionsOperational;
+connectionsOperational=()=>{
+ const html=connectionsWithUploadFeedback(),file=state.uploadFile,preview=state.uploadPreview,imported=preview?.importJob;
+ if(!file)return html;
+ const size=`${(Number(file.size||0)/1024/1024).toFixed(file.size>1024*1024?1:2)}MB`,statusClass=imported?'is-registered':state.uploadBusy?'is-analyzing':'has-file',headline=imported?`등록 완료 · ${escapeHtml(file.name)}`:state.uploadBusy?`분석 중 · ${escapeHtml(file.name)}`:`선택됨 · ${escapeHtml(file.name)}`,detail=imported?`정상 ${Number(imported.successRows||0).toLocaleString()}행 · 서버와 대시보드에 반영되었습니다.`:state.uploadBusy?`${size} · 파일 유형과 컬럼을 확인하고 있습니다.`:`${size} · 아래 미리보기에서 확인한 뒤 데이터 적재를 눌러주세요.`;
+ return html.replace('class="drop-zone"',`class="drop-zone ${statusClass}"`).replace('CSV/XLSX 파일을 끌어놓거나 선택하세요',headline).replace('파일을 분석하고 있습니다…',headline).replace('원본 파일 보관 · 행별 오류 분리 · 같은 파일 중복 적재 방지',detail);
+};
 async function handleDataFileMapped(file,mode='preview',mapping=null){
- state.uploadFile=file;state.uploadBusy=true;state.lastUploadError='';render();toast(mode==='preview'?'파일의 실제 컬럼과 값을 분석하고 있습니다.':'서버 검증 후 운영 데이터에 반영하고 있습니다.');
+ if(mode==='preview'){state.uploadPreview=null;state.uploadMappingDirty=false}state.uploadFile=file;state.uploadBusy=true;state.lastUploadError='';render();toast(mode==='preview'?'파일의 실제 컬럼과 값을 분석하고 있습니다.':'서버 검증 후 운영 데이터에 반영하고 있습니다.');
  try{
   if(state.backendMode!=='connected'){toast('실제 파일 미리보기와 적재는 Supabase 연결 환경에서 사용할 수 있습니다.');return}
   const form=new FormData(),entityType=mode==='import'&&state.uploadPreview?.entityType?state.uploadPreview.entityType:state.uploadEntityType;form.append('file',file);form.append('mode',mode);form.append('entityType',entityType);if(mapping&&Object.keys(mapping).length)form.append('mapping',JSON.stringify(mapping));
@@ -455,6 +462,7 @@ function bindPage(){bindLegacy();
  if(input)input.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();executeAx(input.value)}};
  if(mark)mark.onclick=()=>input?.focus();
  const logout=document.querySelector('#logout');if(logout)logout.onclick=async()=>{try{if(state.backendMode==='connected')await apiRequest('/api/auth/logout',{method:'POST',body:'{}'})}catch{}sessionStorage.removeItem('fashionAxSession');state.authenticated=false;state.currentUser=null;state.loginError='';state.aiResult=null;state.aiQuery='';state.axMode='idle';render()};
+ const uploadDropZone=document.querySelector('.drop-zone');if(uploadDropZone){const clearDrag=()=>uploadDropZone.classList.remove('is-dragging');uploadDropZone.ondragenter=event=>{event.preventDefault();uploadDropZone.classList.add('is-dragging')};uploadDropZone.ondragover=event=>{event.preventDefault();event.dataTransfer.dropEffect='copy';uploadDropZone.classList.add('is-dragging')};uploadDropZone.ondragleave=event=>{if(!uploadDropZone.contains(event.relatedTarget))clearDrag()};uploadDropZone.ondrop=event=>{event.preventDefault();clearDrag();const dropped=event.dataTransfer.files?.[0];if(!dropped)return;if(!/\.(csv|xlsx|xls)$/i.test(dropped.name)){state.lastUploadError='CSV 또는 Excel 파일만 올릴 수 있습니다.';render();toast('지원하지 않는 파일 형식입니다.');return}if(dropped.size>20*1024*1024){state.lastUploadError='파일은 최대 20MB까지 올릴 수 있습니다.';render();toast('파일 용량이 20MB를 초과했습니다.');return}handleDataFileMapped(dropped,'preview')}};
  const clearUpload=document.querySelector('#clearUploadPreview');if(clearUpload)clearUpload.onclick=()=>{state.uploadPreview=null;state.uploadFile=null;state.uploadEntityType='auto';state.uploadMappingDirty=false;state.lastUploadError='';render()};
  const importData=document.querySelector('#importDataFile');if(importData)importData.onclick=()=>state.uploadFile&&handleDataFileMapped(state.uploadFile,'import',state.uploadPreview?.mapping);
  document.querySelectorAll('[data-upload-type]').forEach(button=>button.onclick=()=>{if(!state.uploadFile||state.uploadBusy||button.dataset.uploadType===state.uploadPreview?.entityType)return;state.uploadEntityType=button.dataset.uploadType;state.uploadPreview=null;state.uploadMappingDirty=false;handleDataFileMapped(state.uploadFile,'preview')});
