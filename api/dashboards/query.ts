@@ -44,9 +44,10 @@ async function inventoryWorkflowContext(context:any){
   return {org,transfers:transfers.data||[],movements:movements.data||[],snapshots:snapshots.data||[],skus:skus.data||[],products:products.data||[],locations:locations.data||[],forecasts:latestForecastRows(forecasts.data||[]),recommendations:recommendations.data||[]};
 }
 async function latestInventorySnapshots(org:string,limit=10000){
-  const q=enc(org),jobs=(await supabase(`/rest/v1/import_jobs?organization_id=eq.${q}&entity_type=eq.inventory_snapshot&status=in.(completed,partial)&select=id,raw_upload_id,completed_at,created_at&order=created_at.desc&limit=1`,{serviceRole:true})).data||[],job=jobs[0];
-  if(!job?.raw_upload_id)return supabase(`/rest/v1/inventory_snapshots?organization_id=eq.${q}&select=sku_id,location_id,snapshot_at,available_qty,safety_stock_qty,in_transit_qty&order=snapshot_at.desc&limit=${limit}`,{serviceRole:true});
-  const uploadId=enc(String(job.raw_upload_id)),result=await supabase(`/rest/v1/inventory_snapshots?organization_id=eq.${q}&raw_upload_id=eq.${uploadId}&select=sku_id,location_id,snapshot_at,available_qty,safety_stock_qty,in_transit_qty&order=snapshot_at.desc&limit=${limit}`,{serviceRole:true});
+  const jobQuery=new URLSearchParams({organization_id:`eq.${org}`,entity_type:'eq.inventory_snapshot',status:'in.(completed,partial)',select:'id,raw_upload_id,completed_at,created_at',order:'created_at.desc',limit:'1'}),jobs=(await supabase(`/rest/v1/import_jobs?${jobQuery}`,{serviceRole:true})).data||[],job=jobs[0],snapshotQuery=new URLSearchParams({organization_id:`eq.${org}`,select:'sku_id,location_id,snapshot_at,available_qty,safety_stock_qty,in_transit_qty',order:'snapshot_at.desc',limit:String(limit)});
+  if(!job?.raw_upload_id)return supabase(`/rest/v1/inventory_snapshots?${snapshotQuery}`,{serviceRole:true});
+  snapshotQuery.set('raw_upload_id',`eq.${job.raw_upload_id}`);
+  const result=await supabase(`/rest/v1/inventory_snapshots?${snapshotQuery}`,{serviceRole:true});
   return {...result,importJob:job,readMode:'latest_import'};
 }
 async function customerReturnContext(context:any){
