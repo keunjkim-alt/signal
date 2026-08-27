@@ -7,6 +7,13 @@
     { "path": "/api/integrations/cron", "schedule": "0 21 * * *" }
   ],
   "rewrites": [
+    { "source": "/api/auth/login", "destination": "/api/auth?action=login" },
+    { "source": "/api/auth/logout", "destination": "/api/auth?action=logout" },
+    { "source": "/api/auth/password", "destination": "/api/auth?action=password" },
+    { "source": "/api/auth/session", "destination": "/api/auth?action=session" },
+    { "source": "/api/provider/organizations", "destination": "/api/provider?action=organizations" },
+    { "source": "/api/provider/portfolio", "destination": "/api/provider?action=portfolio" },
+    { "source": "/api/provider/data-sources", "destination": "/api/provider?action=data-sources" },
     { "source": "/api/uploads/wms", "destination": "/api/uploads/data" },
     { "source": "/api/dashboards/overview", "destination": "/api/dashboards/query" },
     { "source": "/(.*)", "destination": "/index.html" }
