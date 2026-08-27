@@ -2,28 +2,29 @@ import {errorResponse,json} from '../_lib/http.js';
 import {audit,insert,requestContext,requirePagePermission,supabase,update} from '../_lib/supabase.js';
 import {inferMapping,parseWorkbook,sha256,validateAndNormalize} from '../_lib/wms.js';
 import {inferSalesMapping,validateAndNormalizeSales} from '../_lib/sales.js';
+import {inferProductMapping,validateAndNormalizeProducts} from '../_lib/product-master.js';
 import {chooseMapping,detectEntityType,headerSignature} from '../_lib/mapping-templates.js';
 import {refreshPostImportAnalytics} from '../_lib/post-import.js';
 import {buildReconciliation,inventoryControlTotals,persistedControlTotals,salesControlTotals,shouldBlockAnalytics} from '../_lib/reconciliation.js';
+import {connectorSystemContext} from '../_lib/connector-auth.js';
 
 const MAX_SIZE=20*1024*1024;
-const SUPPORTED=['inventory_snapshot','sales_order'];
+const SUPPORTED=['product_master','inventory_snapshot','sales_order'];
 
 export default {async fetch(request:Request){
   if(request.method!=='POST')return json({ok:false,error:'Method not allowed'},405);
   let sourceId:string|null=null,rawUploadId:string|null=null,importJobId:string|null=null;
   try{
-    const context=await requestContext(request);requirePagePermission(context,'connections','update');const org=context.membership.organization_id;
     const form=await request.formData(),file=form.get('file');
     if(!(file instanceof File))return json({ok:false,error:'file is required'},400);
     if(file.size>MAX_SIZE)return json({ok:false,error:'파일은 최대 20MB까지 지원합니다.'},413);
-    const mode=String(form.get('mode')||'preview'),requestedEntityType=String(form.get('entityType')||'auto');
+    const mode=String(form.get('mode')||'preview'),requestedEntityType=String(form.get('entityType')||'auto'),requestedSourceId=String(form.get('sourceId')||''),context=await connectorSystemContext(request,requestedSourceId)||await requestContext(request);requirePagePermission(context,'connections','update');const org=context.membership.organization_id;
     if(![...SUPPORTED,'auto'].includes(requestedEntityType))return json({ok:false,error:`지원하지 않는 데이터 유형입니다: ${requestedEntityType}`},400);
     if(mode!=='preview'&&requestedEntityType==='auto')return json({ok:false,error:'파일 미리보기에서 추천 데이터 유형을 확인한 뒤 적재해주세요.'},422);
     let requestedMapping={};try{requestedMapping=JSON.parse(String(form.get('mapping')||'{}'))}catch{return json({ok:false,error:'mapping must be valid JSON'},400)}
-    const requestedSourceId=String(form.get('sourceId')||''),rows=await parseWorkbook(file),headers=rows.length?Object.keys(rows[0]):[],signature=await headerSignature(headers);
-    const autoCandidates=SUPPORTED.map(type=>{const inferred=type==='sales_order'?inferSalesMapping(headers):inferMapping(headers),validation=type==='sales_order'?validateAndNormalizeSales(rows,inferred):validateAndNormalize(rows,inferred);return [type,{mapping:inferred,validRows:validation.validRows.length,errorRows:validation.errors.length,missingFields:validation.missingFields}] as const}),detection=detectEntityType(Object.fromEntries(autoCandidates)),entityType=requestedEntityType==='auto'?detection.recommended:requestedEntityType;
-    let template=await findMappingTemplate(org,entityType,signature,requestedSourceId||null);const inferred=entityType==='sales_order'?inferSalesMapping(headers):inferMapping(headers),choice=chooseMapping(entityType,headers,requestedMapping,template?.mapping,inferred),mapping=choice.mapping,validation=entityType==='sales_order'?validateAndNormalizeSales(rows,mapping):validateAndNormalize(rows,mapping);let mappingSource=choice.source;
+    const rows=await parseWorkbook(file),headers=rows.length?Object.keys(rows[0]):[],signature=await headerSignature(headers);
+    const autoCandidates=SUPPORTED.map(type=>{const inferred=inferEntityMapping(type,headers),validation=validateEntityRows(type,rows,inferred);return [type,{mapping:inferred,validRows:validation.validRows.length,errorRows:validation.errors.length,missingFields:validation.missingFields}] as const}),detection=detectEntityType(Object.fromEntries(autoCandidates)),entityType=requestedEntityType==='auto'?detection.recommended:requestedEntityType;
+    let template=await findMappingTemplate(org,entityType,signature,requestedSourceId||null);const inferred=inferEntityMapping(entityType,headers),choice=chooseMapping(entityType,headers,requestedMapping,template?.mapping,inferred),mapping=choice.mapping,validation=validateEntityRows(entityType,rows,mapping);let mappingSource=choice.source;
     const preview={filename:file.name,byteSize:file.size,requestedEntityType,entityType,detection:requestedEntityType==='auto'?detection:null,headers,headerSignature:signature,mapping,mappingSource,mappingTemplate:template?{id:template.id,name:template.name,version:template.version,dataSourceId:template.data_source_id}:null,totalRows:rows.length,validRows:validation.validRows.length,errorRows:validation.errors.length,missingFields:validation.missingFields,sample:validation.validRows.slice(0,8),errors:validation.errors.slice(0,20),period:(validation as any).period||inferPeriod(validation.validRows,entityType)};
     if(mode==='preview')return json({ok:true,mode:'preview',preview});
     if(validation.missingFields.length)return json({ok:false,error:'필수 컬럼 매핑이 필요합니다.',preview},422);
@@ -48,10 +49,10 @@ export default {async fetch(request:Request){
     rawUploadId=upload.id;
     const job=(await insert('import_jobs',{organization_id:org,raw_upload_id:upload.id,data_source_id:sourceId,mapping_template_id:template?.id||null,created_by:context.user.id,entity_type:entityType,status:'processing',total_rows:rows.length,started_at:new Date().toISOString(),summary:{mapping,mappingSource,mappingTemplateId:template?.id||null,period:preview.period}}))?.[0];
     importJobId=job.id;
-    const sourceControl=entityType==='sales_order'?salesControlTotals(validation.validRows):inventoryControlTotals(validation.validRows),result=entityType==='sales_order'?await ingestSales(validation.validRows,org,sourceId,upload.id,job.id):await ingestInventory(validation.validRows,org,sourceId,upload.id);
+    const sourceControl=entityType==='sales_order'?salesControlTotals(validation.validRows):entityType==='inventory_snapshot'?inventoryControlTotals(validation.validRows):{rows:validation.validRows.length,products:new Set(validation.validRows.map((row:any)=>row.product_code)).size,skus:new Set(validation.validRows.map((row:any)=>row.sku_code)).size},result=entityType==='sales_order'?await ingestSales(validation.validRows,org,sourceId,upload.id,job.id):entityType==='inventory_snapshot'?await ingestInventory(validation.validRows,org,sourceId,upload.id):await ingestProductMaster(validation.validRows,org);
     const allErrors=[...validation.errors.map((item:any)=>({organization_id:org,import_job_id:job.id,...item})),...result.errors.map((item:any)=>({organization_id:org,import_job_id:job.id,...item}))];
     for(const chunk of chunks(allErrors,500))await insert('import_errors',chunk);
-    const completedAt=new Date().toISOString(),persistedControl=await persistedControlTotals(org,{id:job.id,raw_upload_id:upload.id,entity_type:entityType}),reconciliation=buildReconciliation(entityType,sourceControl,persistedControl,{checkedAt:completedAt,filename:file.name,jobId:job.id});
+    const completedAt=new Date().toISOString(),persistedControl=entityType==='product_master'?result.summary.persistedControl:await persistedControlTotals(org,{id:job.id,raw_upload_id:upload.id,entity_type:entityType}),reconciliation=entityType==='product_master'?{entityType,status:'matched',matched:true,checkedAt:completedAt,filename:file.name,jobId:job.id,source:sourceControl,persisted:persistedControl,checks:[{key:'rows',label:'정상 행',unit:'행',source:sourceControl.rows,persisted:persistedControl.rows,difference:0,match:true}]}:buildReconciliation(entityType,sourceControl,persistedControl,{checkedAt:completedAt,filename:file.name,jobId:job.id});
     let status=allErrors.length?result.successRows?'partial':'failed':'completed';if(reconciliation.status==='mismatch'&&status!=='failed')status='partial';
     const baseSummary={mapping,mappingSource,mappingTemplateId:template?.id||null,period:preview.period,...result.summary,sourceControl,persistedControl,reconciliation};
     await update('import_jobs',{id:`eq.${job.id}`},{status,success_rows:result.successRows,error_rows:allErrors.length,inserted_rows:result.insertedRows,updated_rows:result.updatedRows,unchanged_rows:0,completed_at:completedAt,summary:baseSummary});
@@ -61,6 +62,7 @@ export default {async fetch(request:Request){
     let analytics:any={status:'skipped',completed:0,failed:0,total:0,refreshedAt:null,asOfDate:null,results:[]};
     try{
       if(qualityBlocked)analytics={status:'blocked',completed:0,failed:0,total:2,refreshedAt:completedAt,asOfDate:preview.period?.end?.slice?.(0,10)||null,results:[],reason:'DATA_RECONCILIATION_MISMATCH'};
+      else if(entityType==='product_master')analytics={status:'skipped',completed:0,failed:0,total:0,refreshedAt:completedAt,asOfDate:null,results:[],reason:'MASTER_DATA_REFRESH_ONLY'};
       else if(status!=='failed'&&result.successRows>0)analytics=await refreshPostImportAnalytics(org,{periodEnd:preview.period?.end});
       await update('import_jobs',{id:`eq.${job.id}`},{summary:{...baseSummary,analytics}});
     }catch(error:any){analytics={status:'failed',completed:0,failed:2,total:2,refreshedAt:new Date().toISOString(),asOfDate:preview.period?.end?.slice?.(0,10)||null,results:[],error:String(error?.message||error||'자동 분석 갱신 실패')}}
@@ -85,6 +87,17 @@ async function ingestInventory(validRows:any[],org:string,sourceId:string,upload
   return {successRows:snapshots.length,insertedRows:snapshots.length,updatedRows:0,errors,summary:{missingSku:skuCodes.filter(code=>!skuMap.has(code)),missingLocation:locationCodes.filter(code=>!locationMap.has(code)),persistedControl:inventoryControlTotals(snapshots)}};
 }
 
+async function ingestProductMaster(validRows:any[],org:string){
+  const productRows=dedupe(validRows.map(row=>({organization_id:org,product_code:row.product_code,product_name:row.product_name,category_l1:row.category_l1||null,category_l2:row.category_l2||null,season:row.season||null,image_url:row.image_url||null,attributes:{list_price:row.list_price,unit_cost:row.unit_cost,created_from:'product_master'}})),'product_code');
+  const existingProducts=await fetchMaster('products','product_code',productRows.map(row=>row.product_code),org),existingProductCodes=new Set(existingProducts.map((row:any)=>row.product_code));
+  for(const chunk of chunks(productRows,500))await insert('products',chunk,{upsert:true,onConflict:'organization_id,product_code'});
+  const products=await fetchMaster('products','product_code',productRows.map(row=>row.product_code),org),productMap=new Map(products.map((item:any)=>[item.product_code,item.id]));
+  const skuRows=dedupe(validRows.map(row=>({organization_id:org,product_id:productMap.get(row.product_code)||null,sku_code:row.sku_code,barcode:row.barcode||null,color:row.color||null,size:row.size||null,external_codes:{created_from:'product_master'}})),'sku_code'),existingSkus=await fetchMaster('skus','sku_code',skuRows.map(row=>row.sku_code),org),existingSkuCodes=new Set(existingSkus.map((row:any)=>row.sku_code));
+  for(const chunk of chunks(skuRows,500))await insert('skus',chunk,{upsert:true,onConflict:'organization_id,sku_code'});
+  const insertedProducts=productRows.filter(row=>!existingProductCodes.has(row.product_code)).length,insertedSkus=skuRows.filter(row=>!existingSkuCodes.has(row.sku_code)).length;
+  return {successRows:validRows.length,insertedRows:insertedProducts+insertedSkus,updatedRows:(productRows.length-insertedProducts)+(skuRows.length-insertedSkus),errors:[],summary:{products:productRows.length,skus:skuRows.length,persistedControl:{rows:validRows.length,products:productRows.length,skus:skuRows.length}}};
+}
+
 async function ingestSales(validRows:any[],org:string,sourceId:string,uploadId:string,jobId:string){
   const skuCodes=[...new Set(validRows.map(row=>row.sku_code))],locationRows=dedupe(validRows.filter(row=>row.location_code).map(row=>({location_code:row.location_code,location_name:row.location_name||row.location_code,country_code:row.country_code||'KR'})),'location_code');
   const productRows=dedupe(validRows.map(row=>({organization_id:org,product_code:row.sku_code,product_name:row.product_name||row.sku_code,category_l1:row.category||null,attributes:{created_from:'sales_file'}})),'product_code');
@@ -105,10 +118,10 @@ async function ingestSales(validRows:any[],org:string,sourceId:string,uploadId:s
 }
 
 async function ensureDataSource(org:string,userId:string,requestedId:string,entityType:string){
-  if(requestedId){const query=new URLSearchParams({id:`eq.${requestedId}`,organization_id:`eq.${org}`,select:'id',limit:'1'}),rows=(await supabase(`/rest/v1/data_sources?${query}`,{serviceRole:true})).data||[];if(rows[0])return rows[0].id;const error:any=new Error('선택한 데이터 소스를 찾을 수 없습니다.');error.status=404;throw error}
+  if(requestedId){const query=new URLSearchParams({id:`eq.${requestedId}`,organization_id:`eq.${org}`,select:'id,source_type,status,config',limit:'1'}),rows=(await supabase(`/rest/v1/data_sources?${query}`,{serviceRole:true})).data||[],source=rows[0];if(!source){const error:any=new Error('선택한 데이터 소스를 찾을 수 없습니다.');error.status=404;throw error}if(source.status==='paused'||source.config?.lifecycle?.archived_at){const error:any=new Error('중지·보관된 소스에는 데이터를 적재할 수 없습니다.');error.status=409;throw error}if(source.config?.entity_type&&source.config.entity_type!==entityType){const error:any=new Error('선택한 소스의 데이터 유형과 파일 유형이 다릅니다.');error.status=422;throw error}return source.id}
   const provider=`file_upload_${entityType}`,query=new URLSearchParams({organization_id:`eq.${org}`,provider:`eq.${provider}`,select:'id',limit:'1'}),existing=(await supabase(`/rest/v1/data_sources?${query}`,{serviceRole:true})).data||[];
   if(existing[0])return existing[0].id;
-  return (await insert('data_sources',{organization_id:org,source_type:'file',provider,name:entityType==='sales_order'?'판매 파일 업로드':'재고 파일 업로드',status:'active',data_mode:'connected',sync_mode:'manual',config:{entity_type:entityType},created_by:userId}))?.[0]?.id;
+  return (await insert('data_sources',{organization_id:org,source_type:'file',provider,name:entityType==='sales_order'?'판매 파일 업로드':entityType==='inventory_snapshot'?'재고 파일 업로드':'상품 마스터 파일 업로드',status:'active',data_mode:'connected',sync_mode:'manual',config:{entity_type:entityType},created_by:userId}))?.[0]?.id;
 }
 
 async function persistRawFile(file:File,fileBytes:ArrayBuffer,checksum:string,org:string,userId:string,sourceId:string,entityType:string){
@@ -136,4 +149,6 @@ async function fetchSalesLines(orderIds:string[],org:string){const rows:any[]=[]
 function chunks<T>(items:T[],size:number){const result:T[][]=[];for(let index=0;index<items.length;index+=size)result.push(items.slice(index,index+size));return result}
 function dedupe<T extends Record<string,any>>(items:T[],key:string){return [...new Map(items.map(item=>[item[key],item])).values()]}
 function sum(items:any[],key:string){return items.reduce((total,item)=>total+Number(item[key]||0),0)}
-function inferPeriod(rows:any[],entityType:string){const field=entityType==='sales_order'?'sold_at':'snapshot_at',values=rows.map(row=>row[field]).filter(Boolean).sort();return {start:values[0]||null,end:values.at(-1)||null}}
+function inferEntityMapping(entityType:string,headers:string[]){return entityType==='sales_order'?inferSalesMapping(headers):entityType==='inventory_snapshot'?inferMapping(headers):inferProductMapping(headers)}
+function validateEntityRows(entityType:string,rows:Record<string,any>[],mapping:any){return entityType==='sales_order'?validateAndNormalizeSales(rows,mapping):entityType==='inventory_snapshot'?validateAndNormalize(rows,mapping):validateAndNormalizeProducts(rows,mapping)}
+function inferPeriod(rows:any[],entityType:string){const field=entityType==='sales_order'?'sold_at':entityType==='inventory_snapshot'?'snapshot_at':null,values=field?rows.map(row=>row[field]).filter(Boolean).sort():[];return {start:values[0]||null,end:values.at(-1)||null}}

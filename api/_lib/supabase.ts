@@ -31,6 +31,15 @@ export async function authUser(accessToken:string){
   return (await supabase('/auth/v1/user',{token:accessToken})).data;
 }
 
+export async function membershipBrands(membership:any){
+  const query=new URLSearchParams({organization_id:`eq.${membership.organization_id}`,status:'eq.active',select:'id,name,code,country_code,status',order:'name.asc'});
+  const brands=(await supabase(`/rest/v1/brands?${query}`,{serviceRole:true,headers:{accept:'application/json'}})).data||[];
+  const scope=membership.data_scope?.brands;
+  if(!Array.isArray(scope))return brands;
+  const allowed=new Set(scope.map((value:any)=>String(value).toLowerCase()));
+  return brands.filter((brand:any)=>allowed.has(String(brand.id).toLowerCase())||allowed.has(String(brand.code).toLowerCase()));
+}
+
 export async function contextForAccessToken(accessToken:string,requestedOrganization?:string|null){
   const user=await authUser(accessToken);
   const query=new URLSearchParams({user_id:`eq.${user.id}`,status:'eq.active',select:'id,organization_id,role,team_code,data_scope,organizations(id,name,slug)'});
@@ -41,7 +50,8 @@ export async function contextForAccessToken(accessToken:string,requestedOrganiza
   const profiles=(await supabase(`/rest/v1/profiles?${profileQuery}`,{serviceRole:true})).data||[];
   const permissionQuery=new URLSearchParams({membership_id:`eq.${membership.id}`,select:'page_key,can_view,can_update,can_approve,data_scope'});
   const permissions=(await supabase(`/rest/v1/page_permissions?${permissionQuery}`,{serviceRole:true})).data||[];
-  return {user,membership,profile:profiles[0]||null,permissions,accessToken};
+  const brands=await membershipBrands(membership);
+  return {user,membership,profile:profiles[0]||null,permissions,brands,accessToken};
 }
 
 export async function requestContext(request:Request){

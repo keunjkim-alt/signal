@@ -2,7 +2,7 @@ import {authCookies,readCookies} from '../_lib/cookies.js';
 import {errorResponse,json} from '../_lib/http.js';
 import {backendConfigured,contextForAccessToken,requestContext,supabase} from '../_lib/supabase.js';
 
-function sessionPayload(context:any){return {ok:true,authenticated:true,backendConfigured:true,user:{id:context.user.id,email:context.user.email,name:context.profile?.display_name||context.user.email,role:context.membership.role,team:context.membership.team_code||'소속 미지정',scope:context.membership.data_scope,organization:context.membership.organizations,permissions:context.permissions}}}
+function sessionPayload(context:any){return {ok:true,authenticated:true,backendConfigured:true,user:{id:context.user.id,email:context.user.email,name:context.profile?.display_name||context.user.email,role:context.membership.role,team:context.membership.team_code||'소속 미지정',scope:context.membership.data_scope,organization:context.membership.organizations,permissions:context.permissions,brands:context.brands||[]}}}
 
 export default {async fetch(request:Request){
   if(!backendConfigured())return json({ok:false,authenticated:false,backendConfigured:false},503);

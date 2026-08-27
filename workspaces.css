@@ -1,0 +1,186 @@
+:root {
+  --workspace-rail-width: 64px;
+  --workspace-rail: #122d23;
+  --workspace-rail-soft: #1a3a2e;
+  --workspace-active: #315d48;
+}
+
+.app.workspace-enabled {
+  grid-template-columns: var(--workspace-rail-width) 232px minmax(0, 1fr);
+}
+
+.app.workspace-enabled.ax-panel-open {
+  grid-template-columns: var(--workspace-rail-width) 232px minmax(0, 1fr) var(--ax-panel-width);
+}
+
+.workspace-rail {
+  position: sticky;
+  top: 0;
+  z-index: 24;
+  width: var(--workspace-rail-width);
+  height: 100vh;
+  padding: 14px 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: var(--workspace-rail);
+  color: #fff;
+  border-right: 1px solid rgba(255, 255, 255, .08);
+}
+
+.workspace-top,
+.workspace-bottom {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+
+.workspace-divider {
+  width: 32px;
+  height: 1px;
+  margin: 2px 0;
+  background: rgba(255, 255, 255, .12);
+}
+
+.workspace-company,
+.workspace-item,
+.workspace-control,
+.workspace-account {
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+}
+
+.workspace-company {
+  width: 46px;
+  min-height: 51px;
+  padding: 6px 2px 5px;
+  display: grid;
+  place-items: center;
+  gap: 1px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, .07);
+}
+
+.workspace-company strong { font-size: 12px; letter-spacing: -.02em; }
+.workspace-company small { color: #a9beb4; font-size: 7px; letter-spacing: .08em; }
+
+.workspace-item {
+  position: relative;
+  width: 46px;
+  min-height: 51px;
+  padding: 7px 2px 5px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 2px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, .055);
+  transition: background .16s ease, transform .16s ease, box-shadow .16s ease;
+}
+
+.workspace-item strong { font-size: 11px; letter-spacing: -.02em; }
+.workspace-item small {
+  max-width: 39px;
+  overflow: hidden;
+  color: #b8c8c0;
+  font-size: 7px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-item:not(.unavailable):hover {
+  transform: translateY(-1px);
+  background: var(--workspace-rail-soft);
+}
+
+.workspace-item.active {
+  background: var(--workspace-active);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, .18), inset 0 0 0 1px rgba(199, 243, 107, .2);
+}
+
+.workspace-item.active small { color: #d8e9e0; }
+
+.workspace-item.unavailable {
+  cursor: default;
+  opacity: .45;
+}
+
+.workspace-item i {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  padding: 2px 4px;
+  border-radius: 5px;
+  background: #263e34;
+  color: #c7d6cf;
+  font-size: 6px;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.workspace-control,
+.workspace-account {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .06);
+  color: #c8d6cf;
+  font-size: 15px;
+}
+
+.workspace-control:hover,
+.workspace-account:hover { background: rgba(255, 255, 255, .11); color: #fff; }
+.workspace-account { border-radius: 50%; background: #dce9e2; color: var(--workspace-rail); font-size: 11px; font-weight: 800; }
+
+.workspace-context {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  margin-bottom: 7px;
+  padding: 0 8px;
+  border-radius: 7px;
+  background: #e7eee9;
+  color: var(--brand-2);
+  font-size: 8px;
+  font-weight: 700;
+}
+
+@media (max-width: 1600px) {
+  .app.workspace-enabled.ax-panel-open {
+    grid-template-columns: var(--workspace-rail-width) 210px minmax(0, 1fr) minmax(360px, 400px);
+  }
+
+  .app.workspace-enabled.ax-panel-open .today-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .app.workspace-enabled.ax-panel-open .today-evidence-strip,
+  .app.workspace-enabled.ax-panel-open .today-outcome-grid,
+  .app.workspace-enabled.ax-panel-open .today-constraints {
+    grid-template-columns: 1fr;
+  }
+
+  .app.workspace-enabled.ax-panel-open .today-evidence-title { grid-column: auto; }
+}
+
+@media (max-width: 1180px) {
+  .app.workspace-enabled.ax-panel-open {
+    grid-template-columns: var(--workspace-rail-width) 232px minmax(0, 1fr);
+  }
+
+  .app.workspace-enabled.ax-panel-open .ax-push-panel {
+    position: fixed;
+    right: 0;
+    width: min(var(--ax-panel-width), calc(100vw - var(--workspace-rail-width)));
+  }
+}
+
+@media (max-width: 1000px) {
+  .app.workspace-enabled,
+  .app.workspace-enabled.ax-panel-open { grid-template-columns: 1fr; }
+  .workspace-rail { display: none; }
+  .workspace-context { display: none; }
+}

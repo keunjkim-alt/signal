@@ -1,11 +1,14 @@
 import {bodyJson,errorResponse,json} from '../_lib/http.js';
-import {audit,downloadStorageObject,insert,requestContext,requirePagePermission,supabase,update} from '../_lib/supabase.js';
+import {audit,downloadStorageObject,insert,requestContext,requirePagePermission,requireRole,supabase,update} from '../_lib/supabase.js';
 import {headerSignature,mappingFields,requiredMappingFields,sanitizeMapping} from '../_lib/mapping-templates.js';
 import {inferMapping,parseWorkbook,validateAndNormalize} from '../_lib/wms.js';
 import {inferSalesMapping,validateAndNormalizeSales} from '../_lib/sales.js';
 import {buildReconciliation,inventoryControlTotals,persistedControlTotals,salesControlTotals,summarizeDataQuality} from '../_lib/reconciliation.js';
+import {isSourceLifecycleAction,sourceLifecycleUpdate} from '../_lib/source-lifecycle.js';
+import {inspectConnectorDraft,normalizeConnectorDraft} from '../_lib/connector-config.js';
+import {credentialRegistry,probeConnector} from '../_lib/connector-runtime.js';
 
-const SUPPORTED_MAPPINGS=['sales_order','inventory_snapshot'];
+const SUPPORTED_MAPPINGS=['product_master','sales_order','inventory_snapshot'];
 
 export default {async fetch(request:Request){
   try{
@@ -22,21 +25,44 @@ export default {async fetch(request:Request){
         const query=new URLSearchParams({organization_id:`eq.${org}`,active:'eq.true',select:'id,name,entity_type,header_signature,mapping,transformations,version,data_source_id,created_at',order:'created_at.desc',limit:'100'});
         if(entityType)query.set('entity_type',`eq.${entityType}`);
         const templates=(await supabase(`/rest/v1/mapping_templates?${query}`,{serviceRole:true})).data||[];
-        return json({ok:true,templates,fields:entityType?mappingFields(entityType):{sales_order:mappingFields('sales_order'),inventory_snapshot:mappingFields('inventory_snapshot')}});
+        return json({ok:true,templates,fields:entityType?mappingFields(entityType):{product_master:mappingFields('product_master'),sales_order:mappingFields('sales_order'),inventory_snapshot:mappingFields('inventory_snapshot')}});
       }
-      const query=new URLSearchParams({organization_id:`eq.${org}`,select:'id,brand_id,source_type,provider,name,status,data_mode,sync_mode,schedule,last_synced_at,last_successful_sync_at,last_sync_error,created_at',order:'created_at.desc'}),sources=(await supabase(`/rest/v1/data_sources?${query}`,{serviceRole:true})).data;
+      const query=new URLSearchParams({organization_id:`eq.${org}`,select:'id,brand_id,source_type,provider,name,status,data_mode,sync_mode,schedule,config,last_synced_at,last_successful_sync_at,last_sync_error,created_at,updated_at',order:'created_at.desc'}),sources=(await supabase(`/rest/v1/data_sources?${query}`,{serviceRole:true})).data;
       return json({ok:true,sources});
     }
     if(request.method==='POST'){
       requirePagePermission(context,'connections','update');const body=await bodyJson(request);
       if(body?.action==='save_mapping')return saveMapping(context,org,body);
+      if(body?.action==='test_connection')return testConnection(body);
+      if(body?.action==='create_source'){
+        const draft=normalizeConnectorDraft(body),rows=await insert('data_sources',{organization_id:org,brand_id:body.brand_id||null,source_type:draft.source_type,provider:draft.provider,name:draft.name,status:'draft',data_mode:'stale',sync_mode:draft.sync_mode,schedule:draft.schedule,config:draft.config,created_by:context.user.id});
+        await audit(context,'data_source.created','data_source',rows?.[0]?.id,{provider:draft.provider,entity_type:draft.entity_type,activation:'registered_pending_sync'});return json({ok:true,source:rows?.[0],activation:'registered_pending_sync'},201);
+      }
       if(!body?.name||!body?.provider||!body?.source_type)return json({ok:false,error:'name, provider and source_type are required'},400);
       const rows=await insert('data_sources',{organization_id:org,brand_id:body.brand_id||null,source_type:body.source_type,provider:body.provider,name:body.name,status:'draft',sync_mode:body.sync_mode||'manual',schedule:body.schedule||null,config:body.config||{},created_by:context.user.id});
       await audit(context,'data_source.created','data_source',rows?.[0]?.id,{provider:body.provider});return json({ok:true,source:rows?.[0]},201);
     }
+    if(request.method==='PATCH'){
+      requirePagePermission(context,'connections','update');const body=await bodyJson(request),sourceId=String(body?.sourceId||''),action=String(body?.action||'');
+      if(!sourceId||!isSourceLifecycleAction(action))return json({ok:false,error:'sourceId와 유효한 action이 필요합니다.'},400);
+      if(['archive','restore'].includes(action))requireRole(context,['owner','admin']);
+      const sourceQuery=new URLSearchParams({id:`eq.${sourceId}`,organization_id:`eq.${org}`,select:'id,name,provider,status,config',limit:'1'}),source=((await supabase(`/rest/v1/data_sources?${sourceQuery}`,{serviceRole:true})).data||[])[0];
+      if(!source)return json({ok:false,error:'데이터 소스를 찾을 수 없습니다.'},404);
+      const values=sourceLifecycleUpdate(source,action,context.user.id),updated=(await update('data_sources',{id:`eq.${sourceId}`,organization_id:`eq.${org}`},values))?.[0];
+      await audit(context,`data_source.${action}d`,'data_source',sourceId,{provider:source.provider,previous_status:source.status,next_status:updated?.status||values.status});
+      return json({ok:true,source:updated});
+    }
     return json({ok:false,error:'Method not allowed'},405);
   }catch(error:any){return errorResponse(error,error.status||500)}
 }};
+
+async function testConnection(body:any){
+  const inspected:any=inspectConnectorDraft(body),normalized=inspected.normalized,connection=normalized.config.connection,hasCredential=normalized.source_type==='sheet'||Boolean(credentialRegistry()[connection.credential_ref]);
+  if(!hasCredential)return json({ok:true,test:{...inspected,runtime:{status:'pending',message:`Vercel의 VIIMSIGNAL_CONNECTOR_CREDENTIALS에 '${connection.credential_ref}'를 등록하면 실제 연결 검사가 활성화됩니다.`}}});
+  const probe=await probeConnector({name:normalized.name,source_type:normalized.source_type,provider:normalized.provider,config:normalized.config});
+  inspected.checks=inspected.checks.map((check:any)=>check.key==='worker'?{key:'worker',label:'원천 연결',status:'passed',message:`${probe.filename} · ${probe.byteSize.toLocaleString()} bytes · 헤더 ${probe.headers.length}개 확인`}:check);
+  return json({ok:true,test:{...inspected,activation:'ready_to_sync',runtime:{status:'passed',...probe}}});
+}
 
 async function saveMapping(context:any,org:string,body:any){
   const entityType=String(body?.entityType||''),headers=Array.isArray(body?.headers)?body.headers.map(String):[];
@@ -46,7 +72,7 @@ async function saveMapping(context:any,org:string,body:any){
   if(missing.length)return json({ok:false,error:`필수 매핑이 누락되었습니다: ${missing.join(', ')}`},422);
   const sourceId=body?.sourceId?String(body.sourceId):null;
   if(sourceId){const sourceQuery=new URLSearchParams({id:`eq.${sourceId}`,organization_id:`eq.${org}`,select:'id',limit:'1'}),source=((await supabase(`/rest/v1/data_sources?${sourceQuery}`,{serviceRole:true})).data||[])[0];if(!source)return json({ok:false,error:'선택한 데이터 소스를 찾을 수 없습니다.'},404)}
-  const signature=await headerSignature(headers),existing=await findTemplate(org,entityType,signature,sourceId),name=String(body?.name||`${entityType==='sales_order'?'판매':'재고'} · ${headers.slice(0,3).join(' / ')}`).trim().slice(0,120),transformations=body?.transformations&&typeof body.transformations==='object'?body.transformations:{};
+  const signature=await headerSignature(headers),existing=await findTemplate(org,entityType,signature,sourceId),typeLabel=entityType==='product_master'?'상품 마스터':entityType==='sales_order'?'판매':'재고',name=String(body?.name||`${typeLabel} · ${headers.slice(0,3).join(' / ')}`).trim().slice(0,120),transformations=body?.transformations&&typeof body.transformations==='object'?body.transformations:{};
   const template=existing?(await update('mapping_templates',{id:`eq.${existing.id}`,organization_id:`eq.${org}`},{name,mapping,transformations,version:Number(existing.version||1)+1,active:true}))?.[0]:(await insert('mapping_templates',{organization_id:org,data_source_id:sourceId,name,entity_type:entityType,header_signature:signature,mapping,transformations,version:1,active:true,created_by:context.user.id}))?.[0];
   await audit(context,'mapping_template.saved','mapping_template',template.id,{entityType,headerSignature:signature,version:template.version,sourceId,fields:Object.keys(mapping)});
   return json({ok:true,template:{id:template.id,name:template.name,entityType:template.entity_type,headerSignature:template.header_signature,mapping:template.mapping,version:template.version,dataSourceId:template.data_source_id}},existing?200:201);

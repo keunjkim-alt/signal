@@ -3,6 +3,9 @@
   "outputDirectory": "dist",
   "cleanUrls": true,
   "trailingSlash": false,
+  "crons": [
+    { "path": "/api/integrations/cron", "schedule": "*/15 * * * *" }
+  ],
   "rewrites": [
     { "source": "/api/uploads/wms", "destination": "/api/uploads/data" },
     { "source": "/api/dashboards/overview", "destination": "/api/dashboards/query" },
