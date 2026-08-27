@@ -4,7 +4,7 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "crons": [
-    { "path": "/api/integrations/cron", "schedule": "*/15 * * * *" }
+    { "path": "/api/integrations/cron", "schedule": "0 21 * * *" }
   ],
   "rewrites": [
     { "source": "/api/uploads/wms", "destination": "/api/uploads/data" },
