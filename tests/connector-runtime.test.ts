@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {credentialRegistry,googleSheetCsvUrl,probeConnector,pullConnectorFile} from '../api/_lib/connector-runtime.ts';
+import {storageSafeFilename} from '../api/uploads/data.ts';
 
 test('Google Sheets URL is converted to a bounded CSV export URL',()=>{
   const url=new URL(googleSheetCsvUrl({spreadsheet_url:'https://docs.google.com/spreadsheets/d/abc_123/edit',sheet_range:"상품 마스터!A:L"}));
@@ -12,6 +13,11 @@ test('Google Sheets CSV response strips charset from the storage MIME type',asyn
   const fetchImpl:any=async()=>new Response('sku_code,location_code,snapshot_at,available_qty\nA1,S1,2026-08-27,5',{headers:{'content-type':'text/csv; charset=utf-8'}});
   const file=await pullConnectorFile(source,{fetchImpl});
   assert.equal(file.type,'text/csv');
+});
+
+test('connector filenames use an ASCII-safe storage key while keeping the CSV extension',()=>{
+  assert.equal(storageSafeFilename('베타_재고_Google_Sheets.csv'),'Google_Sheets.csv');
+  assert.equal(storageSafeFilename('재고 스냅샷'),'source-data.csv');
 });
 
 test('channel API JSON rows are converted to an importable CSV file',async()=>{

@@ -125,9 +125,15 @@ async function ensureDataSource(org:string,userId:string,requestedId:string,enti
 }
 
 async function persistRawFile(file:File,fileBytes:ArrayBuffer,checksum:string,org:string,userId:string,sourceId:string,entityType:string){
-  const uploadId=crypto.randomUUID(),safeName=file.name.replace(/[^a-zA-Z0-9가-힣._-]/g,'_'),storagePath=`${org}/${uploadId}/${safeName}`;
+  const uploadId=crypto.randomUUID(),safeName=storageSafeFilename(file.name),storagePath=`${org}/${uploadId}/${safeName}`;
   await supabase(`/storage/v1/object/raw-imports/${encodeURI(storagePath)}`,{serviceRole:true,method:'POST',headers:{'content-type':file.type||'application/octet-stream','x-upsert':'false'},body:fileBytes});
   return (await insert('raw_uploads',{id:uploadId,organization_id:org,data_source_id:sourceId,uploaded_by:userId,original_filename:file.name,storage_path:storagePath,content_type:file.type||null,byte_size:file.size,checksum,entity_type:entityType,status:'processing'}))?.[0];
+}
+
+export function storageSafeFilename(filename:string){
+  const raw=String(filename||'source-data.csv'),dot=raw.lastIndexOf('.'),extension=dot>0?raw.slice(dot).toLowerCase().replace(/[^a-z0-9.]/g,''):'';
+  const base=(dot>0?raw.slice(0,dot):raw).normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g,'-').replace(/[-_.]{2,}/g,'-').replace(/^[-_.]+|[-_.]+$/g,'').slice(0,80)||'source-data';
+  return `${base}${extension||'.csv'}`;
 }
 
 async function findCompletedUpload(org:string,entityType:string,checksum:string){const query=new URLSearchParams({organization_id:`eq.${org}`,entity_type:`eq.${entityType}`,checksum:`eq.${checksum}`,status:'eq.completed',select:'id,created_at,original_filename',order:'created_at.desc',limit:'5'}),uploads=((await supabase(`/rest/v1/raw_uploads?${query}`,{serviceRole:true})).data||[]);for(const upload of uploads){const job=await findImportJob(upload.id);if(job?.status==='completed')return upload}return null}
