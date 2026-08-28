@@ -64,10 +64,11 @@ async function responseToFile(response:Response,filename:string,fetchImpl:typeof
     const rows=resolvePath(payload,credential.response_path||'items');if(!Array.isArray(rows))invalid('API 응답에서 행 배열을 찾을 수 없습니다. 자격증명의 response_path를 확인해주세요.',502);
     const csv=rowsToCsv(rows);return checkedFile(csv,payload?.filename||filename,'text/csv');
   }
-  const bytes=await response.arrayBuffer();if(bytes.byteLength>MAX_PULL_BYTES)invalid('원천 파일이 20MB를 초과합니다.',413);return new File([bytes],filename,{type:contentType||'text/csv'});
+  const bytes=await response.arrayBuffer();if(bytes.byteLength>MAX_PULL_BYTES)invalid('원천 파일이 20MB를 초과합니다.',413);return new File([bytes],filename,{type:normalizedMimeType(contentType,filename)});
 }
 
 function checkedFile(content:string,filename:string,type:string){const bytes=new TextEncoder().encode(content);if(bytes.byteLength>MAX_PULL_BYTES)invalid('원천 파일이 20MB를 초과합니다.',413);return new File([bytes],filename,{type})}
+function normalizedMimeType(contentType:string,filename:string){const base=String(contentType||'').split(';')[0].trim().toLowerCase();if(filename.toLowerCase().endsWith('.csv')||base==='text/csv')return 'text/csv';return base||'application/octet-stream'}
 function resolvePath(payload:any,path:string){if(Array.isArray(payload))return payload;return String(path||'items').split('.').filter(Boolean).reduce((value,key)=>value?.[key],payload)}
 function rowsToCsv(rows:any[]){if(!rows.length)return '';const normalized=rows.filter(row=>row&&typeof row==='object'&&!Array.isArray(row)),headers=[...new Set(normalized.flatMap(row=>Object.keys(row)))];return [headers,...normalized.map(row=>headers.map(header=>serializeCell(row[header])))].map(row=>row.map(csvCell).join(',')).join('\n')}
 function serializeCell(value:any){return value&&typeof value==='object'?JSON.stringify(value):String(value??'')}
