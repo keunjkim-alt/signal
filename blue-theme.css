@@ -1,0 +1,361 @@
+/* VIIMsignal blue system
+   Structural UI uses one blue family. Amber and coral remain reserved for
+   targets/warnings and risks; green is limited to small success indicators. */
+:root {
+  --brand: #315fd5;
+  --brand-2: #4475e6;
+  --lime: #a9c7ff;
+  --sales: #356fd6;
+  --sales-2: #4e7fce;
+  --forecast: #6677ad;
+  --growth: #5573b7;
+  --operations: #3f6fb6;
+  --sales-soft: #edf3ff;
+  --forecast-soft: #f0f2fb;
+  --growth-soft: #eef2fb;
+  --operations-soft: #edf3fc;
+  --page-accent: var(--brand);
+
+  --workspace-rail: #101827;
+  --workspace-rail-soft: #1b2b48;
+  --workspace-active: #315fd5;
+}
+
+body[data-page-id] { --page-accent: var(--brand); }
+
+/* Workspace and navigation */
+.workspace-rail {
+  background: var(--workspace-rail);
+  border-right-color: rgba(169, 199, 255, .12);
+}
+.workspace-company { background: rgba(143, 180, 255, .10); }
+.workspace-company small,
+.workspace-item small { color: #aab9d3; }
+.workspace-item:not(.unavailable):hover { background: var(--workspace-rail-soft); }
+.workspace-item.active {
+  background: var(--workspace-active);
+  box-shadow: 0 8px 18px rgba(5, 17, 43, .25), inset 0 0 0 1px rgba(169, 199, 255, .30);
+}
+.workspace-item.active small { color: #e6edff; }
+.workspace-item i { background: #22304a; color: #c7d5ee; }
+.workspace-control,
+.workspace-account { color: #c9d5e9; }
+.workspace-account { background: #dce6f6; color: #18243a; }
+.workspace-context { background: #e8efff; color: #3157ad; }
+.sidebar-scroll { scrollbar-color: #5f7fbd transparent; }
+.sidebar-scroll::-webkit-scrollbar-thumb { background: #5f7fbd; }
+.ax-conversation-scroll,
+.ax-panel-history { scrollbar-color: #b8c7df transparent; }
+
+/* Shared cards, active states and decision surfaces */
+.scope-note,
+.today-decision-footer,
+.customer-callout,
+.quarter-month.current,
+.brand-ranking-table .our-brand,
+.designer-benchmark .our-brand,
+.user.active {
+  border-color: #cbd8f0;
+  background: #edf3ff;
+}
+.tag,
+.planning-card button,
+.market-gap-table button {
+  background: #e9f0ff;
+  color: #3157ad;
+}
+.delta { color: var(--operations); }
+.phase-links small { color: #3157ad; }
+.phase-links button:hover { border-color: #91a9db; }
+.sales-tab.ax-link,
+.ax-badge {
+  border-color: var(--brand);
+  background: var(--brand);
+  color: #fff;
+}
+.hour-col i { background: #315fd5; }
+.hour-col:nth-last-child(-n+2) i { background: #7fa2eb; }
+.explore { background: linear-gradient(135deg, #f7f9ff, #edf3ff); }
+.insight-card:hover,
+.ai-chip:hover { border-color: #8ea9df; }
+.ai-context span,
+.ai-help,
+.ai-list > div { background: #f0f4fc; color: #53627b; }
+
+/* Today's Action: keep risk/target semantics, replace large green success areas */
+.priority-label {
+  --priority-ink: #476188;
+  --priority-bg: #eef2f8;
+}
+.priority-label.p2 { --priority-ink: #3157ad; --priority-bg: #e9f0ff; }
+.priority-tooltip {
+  background: #17243b;
+  box-shadow: 0 12px 30px rgba(16, 31, 60, .20);
+}
+.priority-tooltip span { color: #dce5f5; }
+.priority-tooltip small { color: #aebed8; }
+.action-confidence,
+.today-confidence,
+.today-evidence-strip,
+.action-evidence-grid > div,
+.action-constraints { background: #f4f7fc; }
+.action-evidence-grid .positive,
+.today-outcome.positive {
+  border-color: #c9d7f2;
+  background: #edf3ff;
+}
+.today-outcome.positive header > strong,
+.today-outcome.positive > header strong { color: #3157ad; }
+.today-decision-footer { border-color: var(--brand); }
+.action-measurement { background: #20365e; }
+.action-measurement small { color: #b9d0ff; }
+.action-measurement p { color: #d2ddef; }
+
+/* AX assistant */
+.ax-top-launcher { border-color: #cbd6e8; }
+.ax-top-launcher:hover,
+.ax-top-launcher.active { border-color: #9eb7ea; background: #f0f4ff; }
+.ax-push-panel { box-shadow: -12px 0 34px rgba(29, 54, 105, .08); }
+.ax-message.user p { background: #edf3ff; color: #243a67; }
+.ax-starter-prompts button { color: #30415c; }
+.ax-panel-recommendations article > span { background: #e9f0ff; color: #3157ad; }
+.ax-panel-recommendations article.selected { background: #f1f5ff; }
+.ax-panel-recommendations article div button { border-color: #ccd8ef; }
+.ax-panel-recommendations article.selected div button { border-color: #9eb7ea; background: #eaf0ff; }
+.ax-composer {
+  border-color: #c9d5e8;
+  box-shadow: 0 8px 24px rgba(29, 54, 105, .08);
+}
+.ax-composer .ax-voice-button { border-color: #c9d5e8; background: #f3f6fc; }
+.ax-history-row:hover,
+.ax-history-row.active { background: #f2f5fb; }
+.ax-response-speed { border-color: #dce3ef; background: #f6f8fc; color: #60708a; }
+.app.ax-panel-open::after { background: rgba(20, 36, 68, .13); }
+@keyframes axVoicePulse {
+  50% { box-shadow: 0 0 0 6px rgba(68, 117, 230, .14); transform: scale(.94); }
+}
+
+/* Operational provenance and live data blocks */
+.data-provenance:not(.sample):not(.stale) {
+  border-color: #cedbf2;
+  background: #f4f7ff;
+  color: #53627b;
+}
+.data-provenance:not(.sample):not(.stale) strong {
+  background: #e5edff;
+  color: #3157ad;
+}
+.operational-source,
+.readiness-item,
+.reconciliation-flow,
+.reconciliation-card,
+.reconciliation-card > header,
+.mapping-template-card,
+.mapping-template-empty,
+.source-import-summary,
+.source-import-empty,
+.operational-empty,
+.import-job-detail,
+.beta-data-pack {
+  border-color: #dce4f1;
+  background: #f8faff;
+}
+.file-contract { background: #edf3ff; }
+.file-contract strong,
+.connected-sales-row > b,
+.reconciliation-flow strong,
+.mapping-templates-panel .panel-title h2 em,
+.mapping-template-meta b,
+.mapping-template-fields em { color: #3157ad; }
+.connected-rank { background: #eaf0ff; color: #3157ad; }
+.connected-sales-row > i { background: #edf1f8; }
+.connected-sales-row > i em { background: linear-gradient(90deg, #315fd5, #6d93e9); }
+.readiness-item.ready { border-color: #cbd9f2; background: #f2f6ff; }
+.readiness-item.ready strong { color: #3157ad; }
+
+/* Upload and import workspace */
+.source-item:hover,
+.source-item.active,
+.import-history-row:hover,
+.import-history-row.active,
+.registered-file-card:hover,
+.upload-batch-row:hover,
+.upload-batch-row.active {
+  border-color: #aebfe5;
+  background: #f1f5ff;
+  box-shadow: 0 6px 18px rgba(45, 83, 156, .07);
+}
+.connection-meta input,
+.connection-meta select,
+.drop-zone,
+.import-job-detail,
+.registered-file-card,
+.registered-file-empty,
+.upload-progress-step,
+.upload-batch-summary span,
+.upload-batch-row { border-color: #dce4f1; background: #f8faff; }
+.drop-zone { border-color: #b9c8e2; }
+.drop-zone:hover,
+.drop-zone.has-file,
+.drop-zone.is-registered {
+  border-color: #8fa8dc;
+  background: #eef3ff;
+}
+.drop-zone::before,
+.drop-zone.has-file::before {
+  border-color: #b8c8e6;
+  color: #3157ad;
+}
+.drop-zone.is-registered::before { border-color: #315fd5; background: #315fd5; color: #fff; }
+.drop-zone.is-registered strong { color: #3157ad; }
+.registered-files-panel h2 em,
+.registered-file-icon,
+.upload-progress-step.current,
+.upload-progress-step.done {
+  border-color: #c7d6f0;
+  background: #eaf0ff;
+  color: #3157ad;
+}
+.upload-progress-step.current > b,
+.upload-progress-step.done > b,
+.upload-batch-state.registered { background: #315fd5; color: #fff; }
+.upload-progress-step.current strong,
+.upload-progress-step.done strong { color: #3157ad; }
+.upload-batch-state.ready { background: #eaf0ff; color: #3157ad; }
+.import-analysis-status { border-color: #5d7fcb; background: #eef3ff; }
+
+/* Data governance */
+.data-governance {
+  border-color: #d9e2f1;
+  box-shadow: 0 10px 32px rgba(38, 66, 124, .05);
+}
+.data-governance-head {
+  background: linear-gradient(118deg, #f0f5ff 0%, #fbfcff 62%, #f7f8fc 100%);
+}
+.data-governance-head > div > span,
+.source-management-header > div > span,
+.source-detail > header span,
+.source-wizard-modal > header span,
+.wizard-review-title > span { color: #4f6fae; }
+.data-governance-score strong,
+.data-governance-score span { color: #3157ad; }
+.data-management-nav { border-color: #e1e7f1; background: #fafbfe; }
+.data-management-nav button:hover,
+.data-management-nav button.active { background: #e9f0ff; color: #3157ad; }
+.data-pipeline > div { border-color: #dde5f1; background: #f9fbff; }
+.data-pipeline i { background: #e7eeff; color: #3157ad; }
+.coverage-scroll table,
+.coverage-scroll th { border-color: #dfe6f1; }
+.coverage-scroll th { background: #f3f6fb; }
+.source-management { border-color: #d9e2f1; background: #f7f9fd; }
+.managed-source:hover,
+.managed-source.active,
+.connector-choice:hover,
+.connector-choice.active {
+  border-color: #b5c7e9;
+  background: #eef3ff;
+  box-shadow: 0 8px 20px rgba(45, 83, 156, .07);
+}
+.source-kind,
+.connector-choice > span,
+.source-wizard-note,
+.wizard-checks i { background: #e8efff; color: #3157ad; }
+.source-detail-grid { border-color: #e1e7f1; background: #e1e7f1; }
+.source-detail-grid > div { background: #f9fbff; }
+.source-wizard-backdrop { background: rgba(19, 31, 56, .42); }
+.source-wizard-modal {
+  border-color: #d9e2f1;
+  box-shadow: 0 28px 80px rgba(21, 39, 75, .22);
+}
+.source-wizard-progress i.done { background: #5578c6; }
+.source-wizard-fields input:focus,
+.source-wizard-fields select:focus {
+  border-color: #7798dd;
+  box-shadow: 0 0 0 3px rgba(49, 95, 213, .10);
+}
+
+/* Charts and visual accents */
+.sales-area-canvas .peak-label { fill: #315fbd; }
+.profit-bubble { background: rgba(53, 111, 214, .90); box-shadow: 0 5px 15px rgba(53, 111, 214, .17); }
+.profit-bubble.high { background: rgba(85, 115, 183, .92); }
+.quadrant-plot {
+  background:
+    linear-gradient(90deg, rgba(85,115,183,.06) 0 50%, rgba(63,111,182,.08) 50%),
+    linear-gradient(0deg, rgba(184,95,86,.08) 0 50%, transparent 50%);
+}
+.repeat-ring { background: conic-gradient(#356fd6 0 54.2%, #83a4e3 54.2% 82.9%, #e2e8f2 82.9% 100%); }
+.repeat-legend .repeat { background: #356fd6; }
+.repeat-legend .new { background: #83a4e3; }
+.customer-hub-card {
+  border-color: #9db7e8;
+  background: linear-gradient(120deg, #274d9a, #4e7fce);
+}
+.customer-mini i::after { background: #b9d0ff; }
+.customer-mini em,
+.customer-arrow { color: #d6e3ff !important; }
+.segment,
+.segment.s1,
+.segment.s2 { background: #edf3ff; }
+.region-map b { background: #4e7fce; }
+.percent-chip { color: #3157ad; }
+.rank-track i { background: linear-gradient(90deg, #315fd5, #6e94ea); }
+.lifecycle-svg polyline.actual { stroke: #315fd5; }
+.lifecycle-svg polyline.forecast { stroke: #6677ad; }
+.lifecycle-svg circle { fill: #315fd5; }
+.lifecycle-ribbon .life-stage { background: #f0f3f8; }
+.lifecycle-ribbon .life-stage.s1 { background: #e1eaff; }
+.lifecycle-ribbon .life-stage.s2 { background: #edf2fc; }
+.legend i[style*="b7ed4d"] { background: #6677ad !important; }
+.legend i[style*="173d2b"] { background: #315fd5 !important; }
+.goal-track i { background: #315fd5; }
+.scenario.selected { border-color: #9eb6e6; background: #edf3ff; }
+.cover { background: #e9f0ff; color: #3157ad; }
+.rule-list > div { background: #f3f6fb; }
+.waterfall-row.start b { background: #315fd5; }
+.waterfall-row.end b { background: #5573b7; }
+.funnel-step.f0 { background: #274d9a; }
+.funnel-step.f1 { background: #4e75c0; }
+.funnel-step.f2 { background: #88a6df; }
+.funnel-step small { color: #e0e8f8; }
+.map-land.china { fill: #e5ecf8; }
+.map-land.korea { fill: #dce7f8; }
+.map-land.japan { fill: #edf1f8; }
+.map-pulse { fill: #4e7fce; stroke: #315fd5; }
+.map-pulse.level-4 { fill: #234d9f; }
+.map-pulse.level-2 { fill: #6287d2; }
+.map-pulse.level-1 { fill: #adc1e7; }
+.map-label text { fill: #24437e; }
+.map-legend .l4 { background: #234d9f; }
+.map-legend .l2 { background: #6287d2; }
+.map-legend .l1 { background: #adc1e7; }
+
+/* Workflow pages */
+.quarter-month.current,
+.designer-list button.active { border-color: #9fb7e9; background: #edf3ff; }
+.quarter-plan { --marketing-color: #315fd5; }
+.plan-legend .brand { background: #315fd5; }
+.plan-legend .launch { background: #6f92db; }
+.calendar-week.current,
+.rank-hero,
+.designer-identity > span { background: #243b66; }
+.calendar-task.brand { background: #e8efff; border-color: #315fd5; }
+.calendar-task.launch { background: #eef2fb; border-color: #6677ad; }
+.day-status.done,
+.opportunity-score { color: #3157ad; }
+.progress-pill,
+.market-gap-table button,
+.designer-list button > span { background: #e8efff; color: #3157ad; }
+.contribution-chart i { background: #edf1f8; }
+.contribution-chart b { background: linear-gradient(#6f92db, #3157ad); }
+.design-flow-step em,
+.production-step em,
+.production-progress b,
+.quarter-month b { background: #3f6fb6; }
+
+/* Login visual remains blue-only */
+.login-visual {
+  background:
+    radial-gradient(circle at 76% 20%, rgba(68, 117, 230, .28), transparent 30%),
+    radial-gradient(circle at 18% 82%, rgba(49, 95, 213, .18), transparent 34%),
+    #10151f;
+}
