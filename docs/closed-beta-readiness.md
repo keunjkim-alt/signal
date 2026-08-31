@@ -24,6 +24,17 @@
 
 ## 자동 검증
 
+로그인 없이 운영 URL·API·온보딩 파일을 먼저 확인한다.
+
+```bash
+BETA_BASE_URL=https://signal.viimstudio.ai \
+node scripts/public-beta-check.mjs
+```
+
+결과 JSON을 보관하려면 `BETA_PUBLIC_REPORT_PATH=outputs/beta-public.json`을 추가한다.
+
+그다음 운영 관리자 계정으로 인증 검증을 실행한다.
+
 ```bash
 BETA_BASE_URL=https://signal.viimstudio.ai \
 BETA_TEST_EMAIL='company-owner@example.com' \
@@ -50,4 +61,5 @@ node scripts/closed-beta-smoke.mjs
 - 완료: 연결형 데이터팩의 CSV 정규화 → 고객·반품 집계 → 오늘의 액션 생성 자동 검증
 - 완료: 회사별 운영 준비도 100점 산정 API와 관리자 진단 UI, 감사 이력, AX API 장애 시 집계 기반 폴백
 - 배포 게이트: 운영 URL 자동 스모크 테스트의 모든 항목 통과 + 관리자 준비도 100점
+- 운영 문서: `beta-onboarding.md` → `beta-operations-runbook.md` → `beta-pilot-plan.md` 순서로 사용
 - 베타 이후: Google Sheets/WMS/채널 API 실제 어댑터, 장기 모니터링·재시도·사용량 최적화

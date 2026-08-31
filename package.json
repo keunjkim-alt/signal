@@ -8,6 +8,7 @@
     "build": "node scripts/build.mjs",
     "test": "tsx --test tests/*.test.ts",
     "generate:beta-data": "node scripts/generate-closed-beta-data.mjs",
+    "check:beta-public": "node scripts/public-beta-check.mjs",
     "smoke:beta": "node scripts/closed-beta-smoke.mjs",
     "diagnose:beta": "node scripts/closed-beta-diagnostics.mjs"
   },

@@ -1,0 +1,2 @@
+date,workspace,operator,sales_file_status,inventory_file_status,last_successful_sync,data_quality,ax_status,open_p0,approvals_pending,incident_count,notes,signoff
+2026-09-01,BRAND-A,,pending,pending,,unchecked,unchecked,,,,,

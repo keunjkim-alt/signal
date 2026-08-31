@@ -1,0 +1,17 @@
+entity_type,standard_field,required,description,example,company_source_column,data_owner,refresh_frequency,privacy_class
+sales_order,sold_at,Y,판매 발생 일시,2026-08-23T10:00:00+09:00,,영업/데이터,일 1회,operational
+sales_order,channel_code,Y,판매 채널 코드 또는 명칭,자사몰,,영업/데이터,일 1회,operational
+sales_order,sku_code,Y,SKU 식별 코드,ARC-07-BLK-F,,MD/상품,일 1회,operational
+sales_order,quantity,Y,판매 수량,2,,영업/데이터,일 1회,operational
+sales_order,net_sales,Y,할인·취소 반영 순매출,248000,,재무/영업,일 1회,confidential
+sales_order,unit_cost,N,개당 원가,79000,,재무,주 1회,confidential
+sales_order,customer_token,N,익명 고객 식별 토큰,CUST-0001,,CRM,일 1회,pseudonymous
+sales_order,shipping_region_1,N,배송 시도 단위 지역,서울,,CRM/물류,일 1회,regional
+sales_order,shipping_region_2,N,배송 시군구 단위 지역,성동구,,CRM/물류,일 1회,regional
+inventory_snapshot,snapshot_at,Y,재고 기준 일시,2026-08-24T09:00:00+09:00,,재고/물류,일 1회,operational
+inventory_snapshot,location_code,Y,매장 또는 창고 코드,STORE-GANGNAM,,재고/물류,일 1회,operational
+inventory_snapshot,sku_code,Y,SKU 식별 코드,ARC-07-BLK-F,,MD/상품,일 1회,operational
+inventory_snapshot,available_qty,Y,판매 가능한 재고 수량,45,,재고/물류,일 1회,operational
+inventory_snapshot,reserved_qty,N,주문 등에 예약된 수량,5,,재고/물류,일 1회,operational
+inventory_snapshot,in_transit_qty,N,이동 또는 입고 중 수량,40,,재고/물류,일 1회,operational
+inventory_snapshot,safety_stock_qty,N,안전재고 기준 수량,35,,재고/물류,주 1회,operational

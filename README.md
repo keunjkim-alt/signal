@@ -33,7 +33,14 @@ Generate the connected closed-beta sales and inventory files:
 pnpm generate:beta-data
 ```
 
+Check the public production gate without creating a session or AX history:
+
+```bash
+pnpm check:beta-public
+```
+
 The acceptance criteria and authenticated production smoke test are documented in [docs/closed-beta-readiness.md](./docs/closed-beta-readiness.md).
+Use [docs/beta-onboarding.md](./docs/beta-onboarding.md), [docs/beta-operations-runbook.md](./docs/beta-operations-runbook.md), and [docs/beta-pilot-plan.md](./docs/beta-pilot-plan.md) to onboard and operate the first brand pilot.
 
 ## Configuration
 

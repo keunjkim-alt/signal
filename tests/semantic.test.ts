@@ -47,6 +47,11 @@ test('discount optimization questions use saved recommendation snapshots',()=>{
   assert.equal(intelligenceMode('할인 없이 정상가 판매를 유지할 제품은?','profitability'),'discount');
 });
 
+test('production questions route to the real approved reorder execution queue',()=>{
+  assert.equal(intelligenceMode('생산오더 중 납기 위험과 다음 실행을 근거와 함께 보여줘','production'),'production');
+  assert.equal(intelligenceMode('검품 지연 공정을 보여줘','action'),'production');
+});
+
 test('routine recommendations stay on the fast deterministic route',()=>{
   assert.equal(requiresOpenAI('오늘 가장 먼저 실행할 재고 이동을 추천해줘'),false);
   assert.equal(requiresOpenAI('제품별 다음 주 판매량을 예측해줘'),false);
