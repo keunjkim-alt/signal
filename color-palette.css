@@ -1,0 +1,225 @@
+/* VIIMsignal Final Color Palette · v1.0.0 · LOCKED
+   Change config/viimsignal-color-palette.lock.json only through an explicit
+   palette revision. The production build validates every token below. */
+:root {
+  --viim-primary: #315FD5;
+  --viim-primary-hover: #284FB4;
+  --viim-secondary-blue: #5279D9;
+  --viim-slate: #6677AD;
+  --viim-navy: #101827;
+  --viim-soft-blue: #EDF3FF;
+  --viim-soft-slate: #F0F2FB;
+  --viim-page: #F5F7FB;
+  --viim-surface: #FFFFFF;
+  --viim-subtle: #F0F3F8;
+  --viim-border: #DCE3EE;
+  --viim-text: #111827;
+  --viim-body-text: #344054;
+  --viim-muted: #667085;
+  --viim-disabled: #98A2B3;
+  --viim-chart-muted: #D0D5DD;
+  --viim-attention: #C98781;
+  --viim-danger: #B65B55;
+  --viim-danger-soft: #F9EEEC;
+  --viim-attention-soft: #FCF5F4;
+  --viim-coral-border: #E7C8C5;
+  --viim-coral-text: #8C4540;
+  --viim-success: #3C7A69;
+  --viim-success-soft: #ECF4F1;
+
+  /* Legacy token bridge: existing screens inherit the locked palette. */
+  --canvas: var(--viim-page);
+  --surface: var(--viim-surface);
+  --ink: var(--viim-text);
+  --text: var(--viim-text);
+  --muted: var(--viim-muted);
+  --line: var(--viim-border);
+  --brand: var(--viim-primary);
+  --brand-2: var(--viim-secondary-blue);
+  --danger: var(--viim-danger);
+  --warning: var(--viim-attention);
+  --sales: var(--viim-body-text);
+  --sales-2: var(--viim-muted);
+  --target: var(--viim-slate);
+  --forecast: var(--viim-slate);
+  --growth: var(--viim-primary);
+  --risk: var(--viim-danger);
+  --operations: var(--viim-muted);
+  --compare: var(--viim-disabled);
+  --sales-soft: var(--viim-subtle);
+  --target-soft: var(--viim-soft-slate);
+  --forecast-soft: var(--viim-soft-slate);
+  --growth-soft: var(--viim-soft-blue);
+  --risk-soft: var(--viim-danger-soft);
+  --operations-soft: var(--viim-subtle);
+  --workspace-rail: var(--viim-navy);
+  --workspace-rail-soft: #1B2B48;
+  --workspace-active: var(--viim-primary);
+}
+
+/* Typography: color communicates emphasis, never basic hierarchy. */
+body { color: var(--viim-text); background: var(--viim-page); }
+.page-head h1,
+.panel h2,
+.panel h3,
+.kpi .value,
+.today-summary-grid strong,
+.today-summary-grid strong.accent,
+.today-evidence-item strong,
+.today-outcome h3,
+.designer-metric-grid strong,
+.data-governance-score strong,
+.data-governance-score span,
+.opportunity-score,
+.rank-value b,
+.bar-value,
+.waterfall-row strong { color: var(--viim-text); }
+.page-head p,
+.subtle,
+.kpi .label,
+.today-summary-grid span,
+.today-summary-grid small { color: var(--viim-muted); }
+.delta { color: var(--viim-primary); }
+.delta.down,
+.rank-value small.down { color: var(--viim-danger); }
+
+/* Large cards remain neutral; color is restricted to labels and edges. */
+.today-outcome.positive,
+.today-outcome.negative,
+.action-evidence-grid .positive,
+.action-evidence-grid .negative {
+  border: 1px solid var(--viim-border);
+  background: var(--viim-surface);
+}
+.today-outcome.positive { box-shadow: inset 3px 0 0 var(--viim-primary); }
+.today-outcome.negative { box-shadow: inset 3px 0 0 var(--viim-danger); }
+.today-outcome.positive header > strong,
+.today-outcome.positive > header strong { color: var(--viim-primary); }
+.today-outcome.negative header > strong,
+.today-outcome.negative > header strong { color: var(--viim-danger); }
+.today-constraints,
+.action-constraints {
+  border-color: var(--viim-coral-border);
+  background: var(--viim-surface);
+  box-shadow: inset 3px 0 0 var(--viim-attention);
+}
+.today-constraints > div span,
+.today-constraints p b { color: var(--viim-coral-text); }
+.target-scope,
+.scenario-v2.selected,
+.scenario.selected {
+  border-color: var(--viim-border);
+  background: var(--viim-surface);
+  box-shadow: inset 3px 0 0 var(--viim-slate);
+}
+.priority-label.p1,
+.tag.warning,
+.cover.warning,
+.upload-batch-state.mapping {
+  border-color: var(--viim-coral-border);
+  background: var(--viim-attention-soft);
+  color: var(--viim-coral-text);
+}
+.priority-label.p0,
+.tag.danger,
+.cover.danger {
+  border-color: var(--viim-coral-border);
+  background: var(--viim-danger-soft);
+  color: var(--viim-coral-text);
+}
+
+/* Selection remains blue; passive information remains neutral. */
+.workspace-rail { background: var(--viim-navy); }
+.workspace-item.active,
+.nav button.active,
+.btn.primary,
+.sales-tab.active,
+.period-tabs button.active { background: var(--viim-primary); color: var(--viim-surface); }
+.workspace-context,
+.ax-message.user p,
+.ax-panel-recommendations article.selected,
+.managed-source.active,
+.connector-choice.active {
+  background: var(--viim-soft-blue);
+}
+.data-provenance:not(.sample):not(.stale) { background: var(--viim-surface); }
+.data-provenance:not(.sample):not(.stale) strong { background: var(--viim-soft-blue); color: var(--viim-primary); }
+
+/* Charts: neutral by default, one blue focus, coral only for risk. */
+.fill,
+.rank-track i,
+.hour-col i,
+.store-pulse polyline,
+.kpi-spark polyline,
+.reason-row b,
+.design-flow-step em,
+.production-step em,
+.production-progress b,
+.quarter-month b { background: var(--viim-disabled); stroke: var(--viim-disabled); }
+.bar-row:first-of-type .fill,
+.rank-row:first-child .rank-track i,
+.hour-col:nth-last-child(2) i { background: var(--viim-primary); }
+.sales-area-canvas .actual-line,
+.fan-canvas .actual-line,
+.lifecycle-svg polyline.actual { stroke: var(--viim-body-text); }
+.sales-area-canvas .area { opacity: .16; }
+.sales-area-canvas stop { stop-color: var(--viim-disabled); }
+.sales-area-canvas .peak { fill: var(--viim-primary); }
+.sales-area-canvas .peak-guide { stroke: var(--viim-slate); }
+.sales-area-canvas .peak-label { fill: var(--viim-text); }
+.fan-canvas .target-line,
+.fan-canvas .base-line,
+.lifecycle-svg polyline.forecast { stroke: var(--viim-slate); }
+.fan-canvas stop { stop-color: var(--viim-slate); }
+.lifecycle-svg polyline.ly { stroke: var(--viim-disabled); }
+.lifecycle-svg circle { fill: var(--viim-body-text); }
+.goal-track i,
+.bullet-track i { background: var(--viim-body-text); }
+.goal-track b,
+.bullet-track b { background: var(--viim-slate); }
+.waterfall-col i,
+.waterfall-row b { background: var(--viim-disabled); }
+.waterfall-col.cost i { background: var(--viim-danger); }
+.waterfall-col.end i,
+.waterfall-row.end b { background: var(--viim-primary); }
+.profit-bubble { background: var(--viim-disabled); box-shadow: none; }
+.profit-bubble.high { background: var(--viim-primary); }
+.profit-bubble.low { background: var(--viim-danger); }
+.quadrant-plot {
+  background:
+    linear-gradient(90deg, transparent 0 50%, color-mix(in srgb, var(--viim-slate) 6%, transparent) 50%),
+    linear-gradient(0deg, color-mix(in srgb, var(--viim-danger) 8%, transparent) 0 50%, transparent 50%);
+}
+.sku-bubble { background: var(--viim-disabled); }
+.sku-bubble.risk { background: var(--viim-danger); }
+.sku-bubble.over { background: var(--viim-slate); color: var(--viim-surface); }
+.risk-heatmap .safe { background: var(--viim-subtle); color: var(--viim-body-text); }
+.risk-heatmap .watch { background: var(--viim-attention-soft); color: var(--viim-coral-text); }
+.risk-heatmap .danger { background: var(--viim-danger-soft); color: var(--viim-coral-text); }
+.repeat-ring {
+  background: conic-gradient(
+    var(--viim-primary) 0 54.2%,
+    var(--viim-disabled) 54.2% 82.9%,
+    var(--viim-chart-muted) 82.9% 100%
+  );
+}
+.repeat-legend .repeat { background: var(--viim-primary); }
+.repeat-legend .new { background: var(--viim-disabled); }
+.repeat-legend .guest { background: var(--viim-chart-muted); }
+.funnel-step.f0 { background: var(--viim-body-text); }
+.funnel-step.f1 { background: var(--viim-muted); }
+.funnel-step.f2 { background: var(--viim-disabled); }
+.contribution-chart b { background: var(--viim-disabled); }
+.contribution-chart > div:last-child b { background: var(--viim-primary); }
+.customer-hub-card { border-color: var(--viim-navy); background: var(--viim-navy); }
+
+/* Success green is limited to small operational statuses. */
+.coverage-legend i.connected,
+.catalog-dot.ready { background: var(--viim-success); }
+.coverage-cell.connected,
+.catalog-name em.ready,
+.managed-source > em.connected,
+.source-status.connected {
+  background: var(--viim-success-soft);
+  color: var(--viim-success);
+}

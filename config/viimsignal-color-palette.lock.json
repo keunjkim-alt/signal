@@ -1,0 +1,31 @@
+{
+  "name": "VIIMsignal Final Color Palette",
+  "version": "1.0.0",
+  "locked": true,
+  "tokens": {
+    "primary": "#315FD5",
+    "primary-hover": "#284FB4",
+    "secondary-blue": "#5279D9",
+    "slate": "#6677AD",
+    "navy": "#101827",
+    "soft-blue": "#EDF3FF",
+    "soft-slate": "#F0F2FB",
+    "page": "#F5F7FB",
+    "surface": "#FFFFFF",
+    "subtle": "#F0F3F8",
+    "border": "#DCE3EE",
+    "text": "#111827",
+    "body-text": "#344054",
+    "muted": "#667085",
+    "disabled": "#98A2B3",
+    "chart-muted": "#D0D5DD",
+    "attention": "#C98781",
+    "danger": "#B65B55",
+    "danger-soft": "#F9EEEC",
+    "attention-soft": "#FCF5F4",
+    "coral-border": "#E7C8C5",
+    "coral-text": "#8C4540",
+    "success": "#3C7A69",
+    "success-soft": "#ECF4F1"
+  }
+}
