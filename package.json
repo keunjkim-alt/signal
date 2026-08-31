@@ -12,6 +12,7 @@
     "diagnose:beta": "node scripts/closed-beta-diagnostics.mjs"
   },
   "dependencies": {
+    "@vercel/functions": "^3.9.5",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
