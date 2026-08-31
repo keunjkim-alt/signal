@@ -145,7 +145,8 @@ body { color: var(--viim-text); background: var(--viim-page); }
 .data-provenance:not(.sample):not(.stale) { background: var(--viim-surface); }
 .data-provenance:not(.sample):not(.stale) strong { background: var(--viim-soft-blue); color: var(--viim-primary); }
 
-/* Charts: neutral by default, one blue focus, coral only for risk. */
+/* Charts: neutral by default. Blue is reserved for an explicit selection or
+   a single peak marker; coral remains exclusive to risk and loss. */
 .fill,
 .rank-track i,
 .hour-col i,
@@ -158,7 +159,17 @@ body { color: var(--viim-text); background: var(--viim-page); }
 .quarter-month b { background: var(--viim-disabled); stroke: var(--viim-disabled); }
 .bar-row:first-of-type .fill,
 .rank-row:first-child .rank-track i,
-.hour-col:nth-last-child(2) i { background: var(--viim-primary); }
+.hour-col:nth-last-child(2) i { background: var(--viim-body-text); }
+.bar-row.is-selected .fill,
+.rank-row.is-selected .rank-track i,
+.hour-col.is-selected i { background: var(--viim-primary); }
+.connected-sales-row > i em,
+.phase3-mini i::after,
+.profit-channel-track i,
+.campaign-pair b,
+.campaign-effect-legend .lift,
+.margin-dot,
+.region-map b { background: var(--viim-body-text); }
 .sales-area-canvas .actual-line,
 .fan-canvas .actual-line,
 .lifecycle-svg polyline.actual { stroke: var(--viim-body-text); }
@@ -181,9 +192,9 @@ body { color: var(--viim-text); background: var(--viim-page); }
 .waterfall-row b { background: var(--viim-disabled); }
 .waterfall-col.cost i { background: var(--viim-danger); }
 .waterfall-col.end i,
-.waterfall-row.end b { background: var(--viim-primary); }
+.waterfall-row.end b { background: var(--viim-body-text); }
 .profit-bubble { background: var(--viim-disabled); box-shadow: none; }
-.profit-bubble.high { background: var(--viim-primary); }
+.profit-bubble.high { background: var(--viim-body-text); }
 .profit-bubble.low { background: var(--viim-danger); }
 .quadrant-plot {
   background:
@@ -198,20 +209,56 @@ body { color: var(--viim-text); background: var(--viim-page); }
 .risk-heatmap .danger { background: var(--viim-danger-soft); color: var(--viim-coral-text); }
 .repeat-ring {
   background: conic-gradient(
-    var(--viim-primary) 0 54.2%,
+    var(--viim-body-text) 0 54.2%,
     var(--viim-disabled) 54.2% 82.9%,
     var(--viim-chart-muted) 82.9% 100%
   );
 }
-.repeat-legend .repeat { background: var(--viim-primary); }
+.repeat-legend .repeat { background: var(--viim-body-text); }
 .repeat-legend .new { background: var(--viim-disabled); }
 .repeat-legend .guest { background: var(--viim-chart-muted); }
 .funnel-step.f0 { background: var(--viim-body-text); }
 .funnel-step.f1 { background: var(--viim-muted); }
 .funnel-step.f2 { background: var(--viim-disabled); }
 .contribution-chart b { background: var(--viim-disabled); }
-.contribution-chart > div:last-child b { background: var(--viim-primary); }
+.contribution-chart > div:last-child b { background: var(--viim-body-text); }
 .customer-hub-card { border-color: var(--viim-navy); background: var(--viim-navy); }
+
+/* Maps and dense chart tables use tonal depth instead of a blue gradient. */
+.map-land.china { fill: var(--viim-chart-muted); }
+.map-land.korea { fill: var(--viim-subtle); }
+.map-land.japan { fill: var(--viim-soft-slate); }
+.map-pulse { fill: var(--viim-disabled); stroke: var(--viim-surface); }
+.map-pulse.level-4 { fill: var(--viim-primary); }
+.map-pulse.level-2 { fill: var(--viim-body-text); }
+.map-pulse.level-1 { fill: var(--viim-chart-muted); }
+.map-label text { fill: var(--viim-body-text); }
+.map-legend .l4 { background: var(--viim-primary); }
+.map-legend .l2 { background: var(--viim-body-text); }
+.map-legend .l1 { background: var(--viim-chart-muted); }
+.legend i[style*="173d2b"] { background: var(--viim-body-text) !important; }
+.waterfall-row.start b,
+.goal-track i,
+.lifecycle-svg circle { background: var(--viim-body-text); fill: var(--viim-body-text); }
+
+/* Page content is available immediately; chart entrance motion is deliberately
+   short so it never feels like a loading delay. */
+.dashboard-body .fill,
+.dashboard-body .rank-track i,
+.dashboard-body .hour-col i,
+.dashboard-body .sales-area-canvas .area,
+.dashboard-body .sales-area-canvas .actual-line,
+.dashboard-body .fan-canvas .fan,
+.dashboard-body .fan-canvas .actual-line,
+.dashboard-body .sku-bubble,
+.dashboard-body .waterfall-col i,
+.dashboard-body .profit-bubble,
+.dashboard-body .contribution-chart b,
+.dashboard-body .ax-time-track i,
+.dashboard-body .ax-result-bar em {
+  animation-duration: .18s !important;
+  animation-delay: 0s !important;
+}
 
 /* Success green is limited to small operational statuses. */
 .coverage-legend i.connected,
