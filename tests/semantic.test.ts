@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {heuristicPlan,intelligenceMode,normalizeQuerySpec} from '../api/_lib/semantic.ts';
+import {heuristicPlan,intelligenceMode,normalizeQuerySpec,requiresOpenAI} from '../api/_lib/semantic.ts';
 
 test('inventory questions select an inventory metric and product dimension',()=>{
   const plan=heuristicPlan('7일 내 품절 위험 재고 제품을 보여줘','inventory');
@@ -45,4 +45,11 @@ test('forecast and product matching questions route to stored intelligence snaps
 test('discount optimization questions use saved recommendation snapshots',()=>{
   assert.equal(intelligenceMode('ARC-07의 최적 할인율을 추천해줘','profitability'),'discount');
   assert.equal(intelligenceMode('할인 없이 정상가 판매를 유지할 제품은?','profitability'),'discount');
+});
+
+test('routine recommendations stay on the fast deterministic route',()=>{
+  assert.equal(requiresOpenAI('오늘 가장 먼저 실행할 재고 이동을 추천해줘'),false);
+  assert.equal(requiresOpenAI('제품별 다음 주 판매량을 예측해줘'),false);
+  assert.equal(requiresOpenAI('오늘 판매 현황을 요약해줘'),false);
+  assert.equal(requiresOpenAI('매출이 감소한 원인을 설명해줘'),true);
 });

@@ -28,7 +28,7 @@ export function heuristicPlan(question:string,page='hub'){
 
 export function requiresOpenAI(question:string){
   const text=question.toLowerCase();
-  return ['왜','원인','추천','예측','전략','시나리오','어떻게','요약해','설명해','비교해서 판단'].some(token=>text.includes(token));
+  return ['왜','원인','전략','시나리오','어떻게','설명해','비교해서 판단'].some(token=>text.includes(token));
 }
 
 export function intelligenceMode(question:string,page='hub'):'matching'|'forecast'|'discount'|'customer'|'returns'|null{
