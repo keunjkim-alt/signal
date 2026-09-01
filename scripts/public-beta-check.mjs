@@ -23,6 +23,8 @@ await check('Sales onboarding file','/assets/templates/closed-beta/VIIMsignal_Cl
 await check('Inventory onboarding file','/assets/templates/closed-beta/VIIMsignal_Closed_Beta_Inventory.csv',({text})=>text.startsWith('sku_code,location_code,location_name,snapshot_at'));
 await check('Field mapping file','/assets/templates/closed-beta/VIIMsignal_Beta_Field_Mapping.csv',({text})=>text.startsWith('entity_type,standard_field,required'));
 await check('Quick start guide','/assets/templates/closed-beta/VIIMsignal_Beta_Quick_Start.txt',({text})=>text.includes('VIIMsignal')&&text.includes('로그인'));
+await check('Scenario baseline sales pack v2','/assets/templates/closed-beta/scenario-packs/VIIMsignal_Pack1_Baseline_Sales_90D_v2.csv',({text})=>text.startsWith('sold_at,channel_code,sku_code,quantity,net_sales')&&text.includes('data_pack_version'));
+await check('Scenario event inventory pack v2','/assets/templates/closed-beta/scenario-packs/VIIMsignal_Pack2_Event_Inventory_14D_v2.csv',({text})=>text.startsWith('sku_code,location_code,location_name,snapshot_at')&&text.includes('data_pack_version'));
 
 const report={service:'VIIMsignal',gate:'closed-beta-public',base,measuredAt:new Date().toISOString(),maxLatencyMs:maxLatency,ready:checks.every(item=>item.ok),checks};
 if(reportPath){const target=resolve(reportPath);await mkdir(dirname(target),{recursive:true});await writeFile(target,`${JSON.stringify(report,null,2)}\n`)}

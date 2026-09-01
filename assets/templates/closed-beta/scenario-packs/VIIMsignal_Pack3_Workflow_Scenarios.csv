@@ -1,0 +1,9 @@
+scenario_id,priority,trigger_type,product_code,sku_code,from_location_code,to_location_code,recommended_qty,forecast_28d_qty,available_qty,safety_stock_qty,expected_action,expected_outcome,owner,due_at,validation_status
+WF-001,P0,inventory_transfer,ARC-07,ARC-07-BLK-F,STORE-SEONGSU,STORE-GANGNAM,80,1750,14,35,성수 → 강남 재고 이동 승인,강남 품절 위험 해소,재고·물류팀,2026-09-01T16:00:00+09:00,expected
+WF-002,P0,inventory_transfer,FLOW-22,FLOW-22-BLK-F,STORE-HANNAM,STORE-BUSAN,90,1480,12,38,한남 → 부산 재고 이동 승인,부산 품절 위험 해소,재고·물류팀,2026-09-01T16:00:00+09:00,expected
+WF-003,P0,reorder,AIR-24,AIR-24-NVY-F,,DC-ONLINE,1297,1700,99,32,"1,297pcs 재주문 승인",생산오더 자동 생성,MD·생산SCM,2026-09-01T18:00:00+09:00,expected
+WF-004,P1,overstock_review,EASE-19,EASE-19-CRM-F,DC-ONLINE,,0,420,1334,30,정상가 유지·콘텐츠 개선 검토,불필요한 할인 방지,영업·상품팀,2026-09-02T12:00:00+09:00,expected
+WF-005,P1,overstock_review,MOSS-18,MOSS-18-BLK-F,DC-ONLINE,,0,190,1467,26,채널별 최소 할인 시뮬레이션,기여이익 방어와 재고 소진,영업·마케팅팀,2026-09-02T15:00:00+09:00,expected
+WF-006,P0,return_mitigation,EASE-19,EASE-19-CRM-F,,,0,420,1334,30,핏·상세정보 개선 과제 생성,반품률 2%p 개선,상품기획·이커머스,2026-09-01T17:00:00+09:00,expected
+WF-007,P1,production_progress,AIR-24,AIR-24-NVY-F,,DC-ONLINE,1297,1700,99,32,생산 계획 → 원부자재 전환,9월 14일 입고 목표 유지,생산·SCM팀,2026-09-02T16:00:00+09:00,expected
+WF-008,P1,inbound_receipt,ARC-07,ARC-07-BLK-F,FACTORY-B,DC-ONLINE,316,1167,95,35,검품 완료 후 입고 확정,가용재고 316pcs 증가,물류·검품팀,2026-09-11T14:00:00+09:00,expected

@@ -34,6 +34,7 @@ export default {async fetch(request:Request){
       requirePagePermission(context,'connections','update');const body=await bodyJson(request);
       if(body?.action==='save_mapping')return saveMapping(context,org,body);
       if(body?.action==='test_connection')return testConnection(body);
+      if(body?.action==='rollback_import')return rollbackImport(context,org,body);
       if(body?.action==='create_source'){
         const draft=normalizeConnectorDraft(body),rows=await insert('data_sources',{organization_id:org,brand_id:body.brand_id||null,source_type:draft.source_type,provider:draft.provider,name:draft.name,status:'draft',data_mode:'stale',sync_mode:draft.sync_mode,schedule:draft.schedule,config:draft.config,created_by:context.user.id});
         await audit(context,'data_source.created','data_source',rows?.[0]?.id,{provider:draft.provider,entity_type:draft.entity_type,activation:'registered_pending_sync'});return json({ok:true,source:rows?.[0],activation:'registered_pending_sync'},201);
@@ -76,6 +77,27 @@ async function saveMapping(context:any,org:string,body:any){
   const template=existing?(await update('mapping_templates',{id:`eq.${existing.id}`,organization_id:`eq.${org}`},{name,mapping,transformations,version:Number(existing.version||1)+1,active:true}))?.[0]:(await insert('mapping_templates',{organization_id:org,data_source_id:sourceId,name,entity_type:entityType,header_signature:signature,mapping,transformations,version:1,active:true,created_by:context.user.id}))?.[0];
   await audit(context,'mapping_template.saved','mapping_template',template.id,{entityType,headerSignature:signature,version:template.version,sourceId,fields:Object.keys(mapping)});
   return json({ok:true,template:{id:template.id,name:template.name,entityType:template.entity_type,headerSignature:template.header_signature,mapping:template.mapping,version:template.version,dataSourceId:template.data_source_id}},existing?200:201);
+}
+
+async function rollbackImport(context:any,org:string,body:any){
+  requireRole(context,['owner','admin']);
+  const jobId=String(body?.jobId||'');
+  if(!jobId||body?.confirmation!=='ROLLBACK')return json({ok:false,error:'되돌릴 적재 건과 확인 문구가 필요합니다.'},400);
+  const jobQuery=new URLSearchParams({id:`eq.${jobId}`,organization_id:`eq.${org}`,select:'id,raw_upload_id,entity_type,status,summary',limit:'1'}),job=((await supabase(`/rest/v1/import_jobs?${jobQuery}`,{serviceRole:true})).data||[])[0];
+  if(!job)return json({ok:false,error:'적재 작업을 찾을 수 없습니다.'},404);
+  if(job.summary?.rollback?.rolled_back_at)return json({ok:true,idempotent:true,job});
+  if(!job.raw_upload_id)return json({ok:false,error:'원본 업로드 식별자가 없어 안전하게 되돌릴 수 없습니다.'},409);
+  const uploadFilter=`organization_id=eq.${encodeURIComponent(org)}&raw_upload_id=eq.${encodeURIComponent(job.raw_upload_id)}`;
+  let deletedLines=0,deletedOrders=0,deletedSnapshots=0;
+  if(job.entity_type==='sales_order'){
+    deletedLines=((await supabase(`/rest/v1/sales_order_lines?${uploadFilter}`,{serviceRole:true,method:'DELETE',headers:{Prefer:'return=representation'}})).data||[]).length;
+    deletedOrders=((await supabase(`/rest/v1/sales_orders?${uploadFilter}`,{serviceRole:true,method:'DELETE',headers:{Prefer:'return=representation'}})).data||[]).length;
+  }else if(job.entity_type==='inventory_snapshot'){
+    deletedSnapshots=((await supabase(`/rest/v1/inventory_snapshots?${uploadFilter}`,{serviceRole:true,method:'DELETE',headers:{Prefer:'return=representation'}})).data||[]).length;
+  }else return json({ok:false,error:'판매·재고 적재만 되돌릴 수 있습니다.'},422);
+  const rolledBackAt=new Date().toISOString(),summary={...(job.summary||{}),rollback:{rolled_back_at:rolledBackAt,rolled_back_by:context.user.id,deleted_lines:deletedLines,deleted_orders:deletedOrders,deleted_snapshots:deletedSnapshots}},updated=(await update('import_jobs',{id:`eq.${job.id}`,organization_id:`eq.${org}`},{status:'failed',completed_at:rolledBackAt,summary}))?.[0];
+  await audit(context,'file_import.rolled_back','import_job',job.id,{entityType:job.entity_type,rawUploadId:job.raw_upload_id,deletedLines,deletedOrders,deletedSnapshots});
+  return json({ok:true,job:updated,deleted:{salesLines:deletedLines,salesOrders:deletedOrders,inventorySnapshots:deletedSnapshots}});
 }
 
 async function findTemplate(org:string,entityType:string,signature:string,sourceId:string|null){

@@ -1,0 +1,8 @@
+production_order_no,product_code,approved_qty,production_status,progress,factory,due_date,event_at,next_action,expected_result
+PO-260901-AIR24,AIR-24,1297,approved,0,미배정,2026-09-14,2026-09-01T18:10:00+09:00,생산 계획 확정,재주문 승인 이력과 연결
+PO-260901-AIR24,AIR-24,1297,planning,10,FACTORY-B,2026-09-14,2026-09-02T09:00:00+09:00,원부자재 발주,공장·납기 확정
+PO-260901-AIR24,AIR-24,1297,materials,25,FACTORY-B,2026-09-14,2026-09-04T10:00:00+09:00,재단 착수,원부자재 입고 완료
+PO-260901-AIR24,AIR-24,1297,cutting,42,FACTORY-B,2026-09-14,2026-09-06T10:00:00+09:00,봉제 투입,재단 수량 정합성 확인
+PO-260901-AIR24,AIR-24,1297,sewing,68,FACTORY-B,2026-09-14,2026-09-09T10:00:00+09:00,검품 배정,봉제 완료 수량 확인
+PO-260901-AIR24,AIR-24,1297,inspection,88,FACTORY-B,2026-09-14,2026-09-12T10:00:00+09:00,입고 확정,불량률 3% 이하 확인
+PO-260901-AIR24,AIR-24,1297,completed,100,FACTORY-B,2026-09-14,2026-09-14T14:00:00+09:00,WMS 입고,DC 가용재고 증가

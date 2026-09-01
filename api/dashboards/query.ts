@@ -48,11 +48,12 @@ async function inventoryWorkflowContext(context:any){
   return {org,transfers:transfers.data||[],movements:movements.data||[],snapshots:snapshots.data||[],skus:skus.data||[],products:products.data||[],locations:locations.data||[],forecasts:latestForecastRows(forecasts.data||[]),recommendations:recommendations.data||[]};
 }
 async function latestInventorySnapshots(org:string,limit=10000){
-  const jobQuery=new URLSearchParams({organization_id:`eq.${org}`,entity_type:'eq.inventory_snapshot',status:'in.(completed,partial)',select:'id,raw_upload_id,completed_at,created_at',order:'created_at.desc',limit:'1'}),jobs=(await supabase(`/rest/v1/import_jobs?${jobQuery}`,{serviceRole:true})).data||[],job=jobs[0],snapshotQuery=new URLSearchParams({organization_id:`eq.${org}`,select:'sku_id,location_id,snapshot_at,on_hand_qty,reserved_qty,available_qty',limit:String(limit)});
-  if(!job?.raw_upload_id)return supabase(`/rest/v1/inventory_snapshots?${snapshotQuery}`,{serviceRole:true});
-  snapshotQuery.set('raw_upload_id',`eq.${job.raw_upload_id}`);
-  const result=await supabase(`/rest/v1/inventory_snapshots?${snapshotQuery}`,{serviceRole:true});
-  return {...result,importJob:job,readMode:'latest_import'};
+  const latestQuery=new URLSearchParams({organization_id:`eq.${org}`,select:'snapshot_at,raw_upload_id',order:'snapshot_at.desc',limit:'1'}),latest=((await supabase(`/rest/v1/inventory_snapshots?${latestQuery}`,{serviceRole:true})).data||[])[0],snapshotQuery=new URLSearchParams({organization_id:`eq.${org}`,select:'sku_id,location_id,snapshot_at,on_hand_qty,reserved_qty,available_qty,in_transit_qty,damaged_qty,safety_stock_qty',limit:String(limit)});
+  if(!latest?.snapshot_at)return {...(await supabase(`/rest/v1/inventory_snapshots?${snapshotQuery}`,{serviceRole:true})),readMode:'organization'};
+  snapshotQuery.set('snapshot_at',`eq.${latest.snapshot_at}`);
+  const jobQuery=latest.raw_upload_id?new URLSearchParams({organization_id:`eq.${org}`,raw_upload_id:`eq.${latest.raw_upload_id}`,entity_type:'eq.inventory_snapshot',status:'in.(completed,partial)',select:'id,raw_upload_id,completed_at,created_at',order:'created_at.desc',limit:'1'}):null;
+  const [result,jobs]=await Promise.all([supabase(`/rest/v1/inventory_snapshots?${snapshotQuery}`,{serviceRole:true}),jobQuery?supabase(`/rest/v1/import_jobs?${jobQuery}`,{serviceRole:true}).then(value=>value.data||[]):Promise.resolve([])]);
+  return {...result,importJob:jobs[0]||null,readMode:'latest_snapshot',latestSnapshotAt:latest.snapshot_at};
 }
 async function customerReturnContext(context:any){
   const org=context.membership.organization_id,q=enc(org),end=new Date(),start=new Date(end.getTime()-90*86400000),[ordersResult,linesResult,productsResult,locationsResult]=await Promise.all([
