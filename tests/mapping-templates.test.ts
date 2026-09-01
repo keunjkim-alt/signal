@@ -26,6 +26,12 @@ test('manual mapping overrides a saved template while invalid source columns are
   assert.deepEqual(sanitizeMapping('sales_order',headers,{sku_code:'없는컬럼',unknown:'일시'}),{});
 });
 
+test('sales mapping preserves customer, shipping and return fields used by derived dashboards',()=>{
+  const headers=['returned_quantity','customer_token','shipping_region_1','shipping_region_2','order_status'];
+  const mapping=sanitizeMapping('sales_order',headers,Object.fromEntries(headers.map(field=>[field,field])));
+  assert.deepEqual(mapping,Object.fromEntries(headers.map(field=>[field,field])));
+});
+
 test('file type detection recommends sales only after comparing both schemas',()=>{
   const detection=detectEntityType({
     sales_order:{mapping:{sold_at:'판매일시',channel_code:'채널',sku_code:'품번',quantity:'수량',net_sales:'금액',product_name:'상품명'},validRows:98,errorRows:2,missingFields:[]},

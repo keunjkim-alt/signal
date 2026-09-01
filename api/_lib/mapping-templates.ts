@@ -1,6 +1,6 @@
 const ENTITY_FIELDS:Record<string,string[]>={
   product_master:['product_code','product_name','sku_code','category_l1','category_l2','season','image_url','barcode','color','size','list_price','unit_cost'],
-  sales_order:['sold_at','channel_code','sku_code','quantity','net_sales','unit_cost','channel_fee','marketing_cost','shipping_cost','return_cost','location_code','location_name','product_name','category','order_id','line_id','country_code','currency_code','source_updated_at'],
+  sales_order:['sold_at','channel_code','sku_code','quantity','net_sales','unit_cost','channel_fee','marketing_cost','shipping_cost','return_cost','returned_quantity','location_code','location_name','product_name','category','order_id','line_id','country_code','currency_code','customer_token','shipping_region_1','shipping_region_2','order_status','source_updated_at'],
   inventory_snapshot:['sku_code','location_code','location_name','snapshot_at','on_hand_qty','reserved_qty','available_qty','in_transit_qty','damaged_qty','safety_stock_qty']
 };
 
