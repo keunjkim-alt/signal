@@ -31,9 +31,9 @@ const uploadFieldSpecs={
 };
 let imageCursor=0;
 const nav=[
- ['DECIDE TODAY',[["action","오늘 결정할 일"]]],
- ['SIGNAL & PERFORMANCE',[['hub','판매 현황'],['targets','목표·마감 예측'],['profitability','수익성·할인'],['anomalies','지금 주목할 신호'],['sales','상품 수요·생애주기'],['customers','고객·지역'],['returns','반품·취소']]],
- ['DECISION',[['decisions','주요 의사결정']]],
+ ['DECIDE & EXECUTE',[["action","오늘의 액션"],['decisions','승인·결정 관리']]],
+ ['PERFORMANCE',[['hub','판매 현황'],['targets','목표·마감 전망'],['profitability','수익성·할인']]],
+ ['SIGNALS & INSIGHTS',[['anomalies','이상·기회 신호'],['sales','상품 수요·생애주기'],['customers','고객 인사이트'],['returns','반품·취소']]],
  ['TEAM EXECUTION',[['planning','상품기획'],['design','디자인'],['production','생산'],['inventory','재고 운영'],['marketing','마케팅'],['market','마켓레이더'],['designer','디자이너 360']]],
  ['DATA & ACCESS',[['connections','데이터 연결'],['permissions','사용자·권한']]]
 ];
@@ -41,15 +41,15 @@ function canViewPage(page){const user=state.currentUser;if(!user)return false;if
 function allowedNav(){return nav.map(([section,items])=>[section,items.filter(([id])=>canViewPage(id))]).filter(([,items])=>items.length)}
 const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const pageMeta={
- action:['오늘 결정할 일','판매·재고·생산·마케팅 신호에서 오늘 결정하고 실행해야 할 일을 제안합니다'],
+ action:['오늘의 액션','판매·재고·생산·마케팅 신호에서 오늘 판단하고 실행할 일을 우선순위로 제안합니다'],
  hub:['판매 현황','매장·채널·상품별 실적과 지금 주목해야 할 판매 신호를 확인합니다'],
  sales:['상품 수요·생애주기','상품별 실제·전년·예상 판매를 비교하고 다음 수요 결정을 지원합니다'],
- targets:['목표·마감 예측','현재 속도와 목표 간격을 확인하고 오늘 필요한 회복 결정을 찾습니다'],
+ targets:['목표·마감 전망','현재 속도와 목표 간격을 확인하고 월말 예상치와 필요한 회복 결정을 찾습니다'],
  profitability:['수익성·할인','채널·상품별 이익과 할인 효과를 연결해 오늘의 가격 결정을 지원합니다'],
  returns:['반품·취소','반품·취소 원인과 손실금액을 상품·채널·옵션별로 추적합니다'],
- anomalies:['지금 주목할 신호','평상시 범위를 벗어난 판매·재고·채널 신호와 필요한 대응을 우선순위로 확인합니다'],
- customers:['고객·지역','고객의 성별·연령대·배송지역·재구매 행동을 판매 데이터와 연결합니다'],
- decisions:['주요 의사결정','매출 영향이 큰 승인·조정 안건과 결정 이후 결과를 추적합니다'],
+ anomalies:['이상·기회 신호','평상시 범위를 벗어난 위험과 성장 기회를 감지하고 필요한 대응을 우선순위로 확인합니다'],
+ customers:['고객 인사이트','고객 구성·배송지역·재구매 행동과 이후 리뷰·VOC를 판매 데이터에 연결합니다'],
+ decisions:['승인·결정 관리','제안된 안건의 승인·보류·담당자와 결정 이후 실행 결과를 추적합니다'],
  planning:['상품기획 · Opportunity Board','시장 반응과 자사 상품 공백을 새로운 기획안으로 전환합니다'],
  design:['디자인 · Workbench','디자인 작업과 샘플 리뷰를 제품 판매 영향도와 함께 관리합니다'],
  production:['생산 · Production Pulse','승인된 생산오더의 공정·납기·검품·불량을 발주 단위로 관리합니다'],
@@ -144,7 +144,7 @@ const workflowActionQueues={
   {priority:'P1',title:'EASE-19 반품 피드백 반영',owner:'김서윤 · 품질팀',due:'17:00',basis:'컬러 사유 반품 10.8%',impact:'다음 샘플 수정 횟수 감소',status:'협업',source:'반품 · VOC · 샘플'}
  ]}
 };
-function workflowTodayQueue(page){const queue=workflowActionQueues[page];if(!queue)return '';const p0=queue.items.filter(item=>item.priority==='P0').length;return `<section class="card workflow-today-queue"><header><div><small>TEAM DECIDE TODAY</small><h2>${queue.team} · 오늘 실행할 일</h2><p>현재 페이지의 판매·외부시장·재고·일정 신호를 실행 가능한 업무로 정리했습니다.</p></div><div class="workflow-queue-summary"><span><b>${queue.items.length}</b>개 할 일</span><span><b>${p0}</b>개 긴급</span><span><b>${queue.impact}</b></span></div></header><div class="workflow-today-grid">${queue.items.map(item=>`<article class="${item.priority==='P0'?'urgent':''}"><div class="workflow-task-meta">${priorityLabel(item.priority)}${tag(item.status,item.priority==='P0'?'warning':'')}</div><h3>${item.title}</h3><p>${item.basis}</p><dl><div><dt>담당</dt><dd>${item.owner}</dd></div><div><dt>마감</dt><dd>${item.due}</dd></div><div><dt>예상 효과</dt><dd>${item.impact}</dd></div></dl><footer><small>${item.source}</small><button data-query="${axEscape(item.title)}의 근거와 오늘 실행 순서를 알려줘">VIIM AX로 근거 보기</button></footer></article>`).join('')}</div><div class="workflow-queue-foot"><span>완료·지연 상태는 PLM·ERP·WMS·캠페인 데이터와 연결해 갱신합니다.</span><button data-page="action">전사 오늘 결정할 일 보기 →</button></div></section>`}
+function workflowTodayQueue(page){const queue=workflowActionQueues[page];if(!queue)return '';const p0=queue.items.filter(item=>item.priority==='P0').length;return `<section class="card workflow-today-queue"><header><div><small>TEAM DECIDE TODAY</small><h2>${queue.team} · 오늘 실행할 일</h2><p>현재 페이지의 판매·외부시장·재고·일정 신호를 실행 가능한 업무로 정리했습니다.</p></div><div class="workflow-queue-summary"><span><b>${queue.items.length}</b>개 할 일</span><span><b>${p0}</b>개 긴급</span><span><b>${queue.impact}</b></span></div></header><div class="workflow-today-grid">${queue.items.map(item=>`<article class="${item.priority==='P0'?'urgent':''}"><div class="workflow-task-meta">${priorityLabel(item.priority)}${tag(item.status,item.priority==='P0'?'warning':'')}</div><h3>${item.title}</h3><p>${item.basis}</p><dl><div><dt>담당</dt><dd>${item.owner}</dd></div><div><dt>마감</dt><dd>${item.due}</dd></div><div><dt>예상 효과</dt><dd>${item.impact}</dd></div></dl><footer><small>${item.source}</small><button data-query="${axEscape(item.title)}의 근거와 오늘 실행 순서를 알려줘">VIIM AX로 근거 보기</button></footer></article>`).join('')}</div><div class="workflow-queue-foot"><span>완료·지연 상태는 PLM·ERP·WMS·캠페인 데이터와 연결해 갱신합니다.</span><button data-page="action">전사 오늘의 액션 보기 →</button></div></section>`}
 function currentTodayActions(){if(state.backendMode==='connected'&&state.todayActionsData)return state.todayActionsData.actions||[];return todayActions.map((action,index)=>({...action,key:`demo:${index}`,decision_status:state.todayActionStatuses[index]||'proposed',detail:todayActionDetails[index]}))}
 function todayDetail(action,index){return action.detail||{owner:action.owner,due:action.due,recommendation:action.recommendation,approveLabel:action.approve_label,adjustLabel:action.adjust_label,evidence:action.evidence||[],effectTitle:action.effect_title,effectLines:action.effect_lines||[],riskTitle:action.risk_title,riskLines:action.risk_lines||[],constraints:action.constraints||[]}}
 function todaySummary(){const actions=currentTodayActions(),server=state.backendMode==='connected'?state.todayActionsData?.summary:null,approved=server?.approved??actions.filter(action=>['approved','executed'].includes(action.decision_status)).length,pending=server?.pending??actions.length-approved,p0=server?.p0??actions.filter(action=>action.priority==='P0'&&!['approved','executed'].includes(action.decision_status)).length,due=server?.dueToday??3,impact=server?`₩${Math.round(Number(server.impactAmount||0)/1000000).toLocaleString()}M`:'₩73.9M';return `<div class="today-summary-grid"><div><span>오늘 결정</span><strong>${pending}건</strong><small>지금 결정 ${p0} · 전체 ${actions.length}</small></div><div><span>예상 효과</span><strong class="accent">${impact}</strong><small>미결정 안건의 매출·비용 영향</small></div><div><span>결정 마감</span><strong>${due}건</strong><small>오늘 마감</small></div><div><span>실행 전환</span><strong>${approved}건</strong><small>승인 후 실제 업무 큐 연결</small></div></div>`}

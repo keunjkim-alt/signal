@@ -4,10 +4,15 @@ import {readFileSync} from 'node:fs';
 import {normalizeBulkPage} from '../api/permissions/bulk.ts';
 
 test('current Korean navigation labels are accepted by beta bulk onboarding',()=>{
+  assert.equal(normalizeBulkPage('오늘의 액션'),'action');
+  assert.equal(normalizeBulkPage('승인·결정 관리'),'decisions');
   assert.equal(normalizeBulkPage('오늘 결정할 일'),'action');
   assert.equal(normalizeBulkPage('판매 현황'),'hub');
+  assert.equal(normalizeBulkPage('목표·마감 전망'),'targets');
   assert.equal(normalizeBulkPage('목표·마감 예측'),'targets');
+  assert.equal(normalizeBulkPage('이상·기회 신호'),'anomalies');
   assert.equal(normalizeBulkPage('지금 주목할 신호'),'anomalies');
+  assert.equal(normalizeBulkPage('고객 인사이트'),'customers');
   assert.equal(normalizeBulkPage('사용자·권한'),'permissions');
 });
 
