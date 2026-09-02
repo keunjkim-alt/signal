@@ -37,3 +37,18 @@
 .profit-bubble.low{background:rgba(188,112,100,.88)}
 .profit-bubble.high{background:rgba(95,137,114,.90)}
 @keyframes pulseRisk{0%,100%{box-shadow:0 0 0 0 rgba(188,112,100,.16)}50%{box-shadow:0 0 0 6px rgba(188,112,100,0)}}
+
+/* Inventory location card uses a stacked hierarchy in the narrow side panel. */
+.location-stock-row{padding:12px 0;border-bottom:1px solid var(--viim-border)}
+.location-stock-row:first-of-type{padding-top:4px}
+.location-stock-row:last-of-type{border-bottom:0}
+.location-stock-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:8px}
+.location-stock-heading>div{min-width:0;display:grid;gap:3px}
+.location-stock-heading strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;line-height:1.35;color:var(--viim-text)}
+.location-stock-heading span{font-size:9px;line-height:1.35;color:var(--viim-muted)}
+.location-stock-heading b{flex:0 0 auto;white-space:nowrap;font-size:12px;line-height:1.35;color:var(--viim-text);font-variant-numeric:tabular-nums}
+.location-stock-track{height:6px;overflow:hidden;border-radius:999px;background:var(--viim-chart-muted)}
+.location-stock-track i{display:block;height:100%;border-radius:inherit;background:var(--viim-body-text);transform-origin:left;animation:growX .45s ease both}
+.location-stock-row.is-risk .location-stock-heading span,.location-stock-row.is-risk .location-stock-heading b{color:var(--viim-danger)}
+.location-stock-row.is-risk .location-stock-track i{background:var(--viim-danger)}
+.inventory-viz-grid>.panel:not(.quadrant-panel){min-width:0}
