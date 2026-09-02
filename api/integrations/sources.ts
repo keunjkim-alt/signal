@@ -7,6 +7,7 @@ import {buildReconciliation,inventoryControlTotals,persistedControlTotals,salesC
 import {isSourceLifecycleAction,sourceLifecycleUpdate} from '../_lib/source-lifecycle.js';
 import {inspectConnectorDraft,normalizeConnectorDraft} from '../_lib/connector-config.js';
 import {credentialRegistry,probeConnector} from '../_lib/connector-runtime.js';
+import {refreshPostImportAnalytics} from '../_lib/post-import.js';
 
 const SUPPORTED_MAPPINGS=['product_master','sales_order','inventory_snapshot'];
 
@@ -35,6 +36,8 @@ export default {async fetch(request:Request){
       if(body?.action==='save_mapping')return saveMapping(context,org,body);
       if(body?.action==='test_connection')return testConnection(body);
       if(body?.action==='rollback_import')return rollbackImport(context,org,body);
+      if(body?.action==='preview_demo_cleanup')return previewDemoCleanup(context,org);
+      if(body?.action==='cleanup_demo_legacy')return cleanupDemoLegacy(context,org,body);
       if(body?.action==='create_source'){
         const draft=normalizeConnectorDraft(body),rows=await insert('data_sources',{organization_id:org,brand_id:body.brand_id||null,source_type:draft.source_type,provider:draft.provider,name:draft.name,status:'draft',data_mode:'stale',sync_mode:draft.sync_mode,schedule:draft.schedule,config:draft.config,created_by:context.user.id});
         await audit(context,'data_source.created','data_source',rows?.[0]?.id,{provider:draft.provider,entity_type:draft.entity_type,activation:'registered_pending_sync'});return json({ok:true,source:rows?.[0],activation:'registered_pending_sync'},201);
@@ -98,6 +101,43 @@ async function rollbackImport(context:any,org:string,body:any){
   const rolledBackAt=new Date().toISOString(),summary={...(job.summary||{}),rollback:{rolled_back_at:rolledBackAt,rolled_back_by:context.user.id,deleted_lines:deletedLines,deleted_orders:deletedOrders,deleted_snapshots:deletedSnapshots}},updated=(await update('import_jobs',{id:`eq.${job.id}`,organization_id:`eq.${org}`},{status:'failed',completed_at:rolledBackAt,summary}))?.[0];
   await audit(context,'file_import.rolled_back','import_job',job.id,{entityType:job.entity_type,rawUploadId:job.raw_upload_id,deletedLines,deletedOrders,deletedSnapshots});
   return json({ok:true,job:updated,deleted:{salesLines:deletedLines,salesOrders:deletedOrders,inventorySnapshots:deletedSnapshots}});
+}
+
+async function previewDemoCleanup(context:any,org:string){
+  requireRole(context,['owner','admin']);
+  const counts=await legacyDemoCounts(org);
+  return json({ok:true,counts,total:counts.salesOrders+counts.salesLines+counts.inventorySnapshots,scope:'untracked_source_rows',preserved:['registered_imports','raw_uploads','import_jobs','users','permissions','audit_logs','approved_actions']});
+}
+
+async function cleanupDemoLegacy(context:any,org:string,body:any){
+  requireRole(context,['owner','admin']);
+  if(body?.confirmation!=='DEMO CLEANUP')return json({ok:false,error:'확인 문구가 일치하지 않습니다.'},400);
+  const before=await legacyDemoCounts(org),filter=`organization_id=eq.${encodeURIComponent(org)}&raw_upload_id=is.null`,deleted:any={salesLines:0,salesOrders:0,inventorySnapshots:0,forecastSnapshots:0,discountRecommendations:0,featureSnapshots:0,queryCache:0};
+  deleted.salesLines=((await supabase(`/rest/v1/sales_order_lines?${filter}`,{serviceRole:true,method:'DELETE',headers:{Prefer:'return=representation'}})).data||[]).length;
+  deleted.salesOrders=((await supabase(`/rest/v1/sales_orders?${filter}`,{serviceRole:true,method:'DELETE',headers:{Prefer:'return=representation'}})).data||[]).length;
+  deleted.inventorySnapshots=((await supabase(`/rest/v1/inventory_snapshots?${filter}`,{serviceRole:true,method:'DELETE',headers:{Prefer:'return=representation'}})).data||[]).length;
+  for(const [table,key] of [['forecast_snapshots','forecastSnapshots'],['discount_recommendation_snapshots','discountRecommendations'],['analysis_feature_snapshots','featureSnapshots'],['ax_query_cache','queryCache']] as const){
+    try{deleted[key]=((await supabase(`/rest/v1/${table}?organization_id=eq.${encodeURIComponent(org)}`,{serviceRole:true,method:'DELETE',headers:{Prefer:'return=representation'}})).data||[]).length}catch{}
+  }
+  const latestQuery=new URLSearchParams({organization_id:`eq.${org}`,raw_upload_id:'not.is.null',select:'ordered_at',order:'ordered_at.desc',limit:'1'}),latest=((await supabase(`/rest/v1/sales_orders?${latestQuery}`,{serviceRole:true})).data||[])[0]?.ordered_at;
+  let analytics:any={status:'skipped',reason:'NO_REGISTERED_SALES'};
+  if(latest)try{analytics=await refreshPostImportAnalytics(org,{periodEnd:latest})}catch(error:any){analytics={status:'failed',error:String(error?.message||error)}}
+  await audit(context,'demo_legacy.cleaned','organization',org,{before,deleted,analytics:{status:analytics.status,completed:analytics.completed,failed:analytics.failed,asOfDate:analytics.asOfDate},preserved:['registered_imports','users','permissions','audit_logs','approved_actions']});
+  return json({ok:true,before,deleted,analytics,preserved:['registered_imports','raw_uploads','import_jobs','users','permissions','audit_logs','approved_actions']});
+}
+
+async function legacyDemoCounts(org:string){
+  const [salesOrders,salesLines,inventorySnapshots]=await Promise.all([
+    exactCount('sales_orders',org,'raw_upload_id=is.null'),
+    exactCount('sales_order_lines',org,'raw_upload_id=is.null'),
+    exactCount('inventory_snapshots',org,'raw_upload_id=is.null')
+  ]);
+  return {salesOrders,salesLines,inventorySnapshots};
+}
+
+async function exactCount(table:string,org:string,extra:string){
+  const {response}=await supabase(`/rest/v1/${table}?organization_id=eq.${encodeURIComponent(org)}&${extra}&select=id`,{serviceRole:true,headers:{Prefer:'count=exact',Range:'0-0'}}),range=response.headers.get('content-range')||'';
+  const total=Number(range.split('/')[1]);return Number.isFinite(total)?total:0;
 }
 
 async function findTemplate(org:string,entityType:string,signature:string,sourceId:string|null){

@@ -3,10 +3,21 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {inferSalesMapping,validateAndNormalizeSales} from '../api/_lib/sales.ts';
 import {inferMapping,parseCsv,validateAndNormalize} from '../api/_lib/wms.ts';
+import {inferProductMapping,validateAndNormalizeProducts} from '../api/_lib/product-master.ts';
 
 const fixture=(name:string)=>readFileSync(new URL(`../assets/templates/closed-beta/scenario-packs/${name}`,import.meta.url),'utf8');
 const sales=(name:string)=>{const rows=parseCsv(fixture(name));return {rows,result:validateAndNormalizeSales(rows,inferSalesMapping(Object.keys(rows[0])))}};
 const inventory=(name:string)=>{const rows=parseCsv(fixture(name));return {rows,result:validateAndNormalize(rows,inferMapping(Object.keys(rows[0])))}};
+
+test('product master pack covers every scenario SKU with image and cost fields',()=>{
+  const rows=parseCsv(fixture('VIIMsignal_Product_SKU_Master_v2.csv')),result=validateAndNormalizeProducts(rows,inferProductMapping(Object.keys(rows[0]))),scenarioSkus=new Set(sales('VIIMsignal_Pack2_Event_Sales_14D_v2.csv').result.validRows.map(row=>row.sku_code));
+  assert.equal(rows.length,12);
+  assert.equal(result.errors.length,0);
+  assert.deepEqual(result.missingFields,[]);
+  assert.deepEqual(new Set(result.validRows.map(row=>row.sku_code)),scenarioSkus);
+  assert.ok(result.validRows.every(row=>row.image_url?.startsWith('https://signal.viimstudio.ai/assets/products/')));
+  assert.ok(result.validRows.every(row=>row.list_price>row.unit_cost));
+});
 
 test('90-day baseline and 14-day event sales packs are fully importable',()=>{
   const baseline=sales('VIIMsignal_Pack1_Baseline_Sales_90D_v2.csv');

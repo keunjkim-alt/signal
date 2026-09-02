@@ -1,0 +1,13 @@
+product_code,product_name,sku_code,category_l1,category_l2,season,image_url,barcode,color,size,list_price,unit_cost
+ARC-07-BLK-F,Utility Jacket,ARC-07-BLK-F,OUTER,JACKET,2026FW,https://signal.viimstudio.ai/assets/products/9176213983.jpg,8801000000001,BLACK,FREE,248000,82000
+FLOW-22-BLK-F,Drape Pants,FLOW-22-BLK-F,BOTTOM,PANTS,2026FW,https://signal.viimstudio.ai/assets/products/9106231204.jpg,8801000000002,BLACK,FREE,158000,51000
+EASE-19-CRM-F,Layer Top,EASE-19-CRM-F,TOP,TOP,2026FW,https://signal.viimstudio.ai/assets/products/9175222986.jpg,8801000000003,CREAM,FREE,89000,27000
+CORE-55-WHT-F,Logo Tee,CORE-55-WHT-F,TOP,T-SHIRT,2026FW,https://signal.viimstudio.ai/assets/products/9176222987.jpg,8801000000004,WHITE,FREE,69000,19000
+AIR-24-NVY-F,Airy Volume Dress,AIR-24-NVY-F,DRESS,ONE-PIECE,2026FW,https://signal.viimstudio.ai/assets/products/9106241204.jpg,8801000000005,NAVY,FREE,198000,65000
+COVE-14-BLK-F,Maxi Dress,COVE-14-BLK-F,DRESS,ONE-PIECE,2026FW,https://signal.viimstudio.ai/assets/products/9106241224.jpg,8801000000006,BLACK,FREE,218000,72000
+EDGE-28-GRY-F,Zip Jacket,EDGE-28-GRY-F,OUTER,JACKET,2026FW,https://signal.viimstudio.ai/assets/products/9106213558.jpg,8801000000007,GREY,FREE,228000,76000
+FORM-42-DEN-F,Denim Skirt,FORM-42-DEN-F,BOTTOM,SKIRT,2026FW,https://signal.viimstudio.ai/assets/products/9106262202.jpg,8801000000008,DENIM,FREE,168000,56000
+LUME-09-BEG-F,Knit Cardigan,LUME-09-BEG-F,KNIT,CARDIGAN,2026FW,https://signal.viimstudio.ai/assets/products/9176212982.jpg,8801000000009,BEIGE,FREE,189000,62000
+MOSS-18-BLK-F,Volume Bermuda,MOSS-18-BLK-F,BOTTOM,PANTS,2026FW,https://signal.viimstudio.ai/assets/products/9176241981.jpg,8801000000010,BLACK,FREE,148000,48000
+NOVA-11-NVY-F,Volume Dress,NOVA-11-NVY-F,DRESS,ONE-PIECE,2026FW,https://signal.viimstudio.ai/assets/products/9106141101.jpg,8801000000011,NAVY,FREE,228000,78000
+WAVE-31-WHT-F,Sheer Shirt,WAVE-31-WHT-F,TOP,SHIRT,2026FW,https://signal.viimstudio.ai/assets/products/9106221201.jpg,8801000000012,WHITE,FREE,119000,36000
