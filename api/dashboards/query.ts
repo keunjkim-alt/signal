@@ -24,6 +24,14 @@ async function latestSalesTimestamp(organizationId:string){
   const query=new URLSearchParams({organization_id:`eq.${organizationId}`,select:'ordered_at',order:'ordered_at.desc',limit:'1'}),latest=(await supabase(`/rest/v1/sales_orders?${query}`,{serviceRole:true})).data?.[0]?.ordered_at;
   return latest||null;
 }
+async function salesLinesForOrders(organizationId:string,orderIds:string[]){
+  const result:any[]=[];
+  for(let index=0;index<orderIds.length;index+=300){
+    const batch=orderIds.slice(index,index+300),query=new URLSearchParams({organization_id:`eq.${organizationId}`,order_id:`in.(${batch.join(',')})`,select:'order_id,sku_id,quantity',limit:'5000'}),rows=(await supabase(`/rest/v1/sales_order_lines?${query}`,{serviceRole:true})).data||[];
+    result.push(...rows);
+  }
+  return result;
+}
 async function overviewRows(context:any,page:string,metric:string,dimension:string,periodDays:number,analysisEnd?:string|null){return (await runDashboardQuery(context,{page,metric,dimension,periodDays,analysisEnd,visualization:dimension==='day'?'area':'bar',limit:30,filters:{}})).data?.rows||[]}
 const sum=(rows:any[],key:string)=>rows.reduce((total,row)=>total+Number(row[key]||0),0);
 export function summarizeProfitabilityReadiness(rows:any[]=[]){
@@ -193,7 +201,7 @@ export default {async fetch(request:Request){
           supabase(`/rest/v1/sales_orders?organization_id=eq.${q}&ordered_at=gte.${encodeURIComponent(start.toISOString())}&ordered_at=lt.${encodeURIComponent(end.toISOString())}&select=id,location_id,country_code,channel_code&limit=10000`,{serviceRole:true}),
           supabase(`/rest/v1/data_sources?organization_id=eq.${encodeURIComponent(org)}&provider=eq.file_upload_inventory_snapshot&select=id,name,status,data_mode,last_synced_at,last_successful_sync_at,last_sync_error&order=last_synced_at.desc.nullslast&limit=1`,{serviceRole:true})
         ]);
-        const orderIds=new Set((orders.data||[]).map((row:any)=>String(row.id))),allLines=orderIds.size?(await supabase(`/rest/v1/sales_order_lines?organization_id=eq.${q}&select=order_id,sku_id,quantity&limit=20000`,{serviceRole:true})).data||[]:[],lines=allLines.filter((row:any)=>orderIds.has(String(row.order_id)));
+        const orderIds=(orders.data||[]).map((row:any)=>String(row.id)),lines=orderIds.length?await salesLinesForOrders(org,orderIds):[];
         const summary=summarizeInventorySnapshot({snapshots:snapshots.data||[],skus:skus.data||[],products:masterProducts.data||[],locations:masterLocations.data||[],orders:orders.data||[],lines,periodDays,allowedCountries:scopedValues(context,'countries'),allowedChannels:scopedValues(context,'channels'),allowedLocations:scopedValues(context,'locations')});
         const source=inventorySources.data?.[0]||null,stale=source?.data_mode==='stale'||source?.status==='error';
         const diagnostics={readAuthorization:'server',readMode:(snapshots as any).readMode||'organization',latestInventoryJobId:(snapshots as any).importJob?.id||null,snapshotRows:(snapshots.data||[]).length,skuRows:(skus.data||[]).length,productRows:(masterProducts.data||[]).length,locationRows:(masterLocations.data||[]).length,orderRows:(orders.data||[]).length,lineRows:lines.length,scopedProductRows:summary.products.length,scopedLocationRows:summary.locations.length,role:context.membership.role,dataScope:context.membership.data_scope||null};
