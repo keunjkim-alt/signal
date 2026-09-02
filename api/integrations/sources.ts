@@ -105,8 +105,8 @@ async function rollbackImport(context:any,org:string,body:any){
 
 async function previewDemoCleanup(context:any,org:string){
   requireRole(context,['owner','admin']);
-  const counts=await legacyDemoCounts(org);
-  return json({ok:true,counts,total:counts.salesOrders+counts.salesLines+counts.inventorySnapshots,scope:'untracked_source_rows',preserved:['registered_imports','raw_uploads','import_jobs','users','permissions','audit_logs','approved_actions']});
+  const [counts,salesContributions]=await Promise.all([legacyDemoCounts(org),recentSalesContributions(org)]);
+  return json({ok:true,counts,total:counts.salesOrders+counts.salesLines+counts.inventorySnapshots,salesContributions,scope:'untracked_source_rows',preserved:['registered_imports','raw_uploads','import_jobs','users','permissions','audit_logs','approved_actions']});
 }
 
 async function cleanupDemoLegacy(context:any,org:string,body:any){
@@ -139,6 +139,20 @@ async function exactCount(table:string,org:string,extra:string){
   const {response}=await supabase(`/rest/v1/${table}?organization_id=eq.${encodeURIComponent(org)}&${extra}&select=id`,{serviceRole:true,headers:{Prefer:'count=exact',Range:'0-0'}}),range=response.headers.get('content-range')||'';
   const total=Number(range.split('/')[1]);return Number.isFinite(total)?total:0;
 }
+
+async function recentSalesContributions(org:string){
+  const latestQuery=new URLSearchParams({organization_id:`eq.${org}`,select:'ordered_at',order:'ordered_at.desc',limit:'1'}),latest=((await supabase(`/rest/v1/sales_orders?${latestQuery}`,{serviceRole:true})).data||[])[0]?.ordered_at;
+  if(!latest)return [];
+  const end=new Date(latest);end.setUTCHours(24,0,0,0);const start=new Date(end.getTime()-14*86400000),orderQuery=new URLSearchParams({organization_id:`eq.${org}`,ordered_at:`gte.${start.toISOString()}`,select:'id,raw_upload_id,ordered_at',order:'ordered_at.asc',limit:'5000'});orderQuery.append('ordered_at',`lt.${end.toISOString()}`);
+  const orders=(await supabase(`/rest/v1/sales_orders?${orderQuery}`,{serviceRole:true})).data||[],orderIds=orders.map((row:any)=>row.id),uploadIds=[...new Set(orders.map((row:any)=>row.raw_upload_id).filter(Boolean))],lines:any[]=[];
+  for(const group of chunks(orderIds,100)){const filter=`in.(${group.join(',')})`;lines.push(...((await supabase(`/rest/v1/sales_order_lines?organization_id=eq.${encodeURIComponent(org)}&order_id=${encodeURIComponent(filter)}&select=order_id,quantity,net_sales&limit=10000`,{serviceRole:true})).data||[]))}
+  const uploads=uploadIds.length?(await supabase(`/rest/v1/raw_uploads?organization_id=eq.${encodeURIComponent(org)}&id=${encodeURIComponent(`in.(${uploadIds.join(',')})`)}&select=id,original_filename`,{serviceRole:true})).data||[]:[],uploadMap=new Map(uploads.map((row:any)=>[String(row.id),row.original_filename])),orderUpload=new Map(orders.map((row:any)=>[String(row.id),row.raw_upload_id])),groups=new Map<string,any>();
+  for(const order of orders){const key=String(order.raw_upload_id||'untracked'),current=groups.get(key)||{rawUploadId:order.raw_upload_id||null,filename:order.raw_upload_id?uploadMap.get(String(order.raw_upload_id))||'등록 파일':'원본 없는 테스트 데이터',orders:0,units:0,netSales:0};current.orders++;groups.set(key,current)}
+  for(const line of lines){const key=String(orderUpload.get(String(line.order_id))||'untracked'),current=groups.get(key);if(current){current.units+=Number(line.quantity||0);current.netSales+=Number(line.net_sales||0)}}
+  return [...groups.values()].sort((a,b)=>b.orders-a.orders);
+}
+
+function chunks<T>(items:T[],size:number){const result:T[][]=[];for(let index=0;index<items.length;index+=size)result.push(items.slice(index,index+size));return result}
 
 async function findTemplate(org:string,entityType:string,signature:string,sourceId:string|null){
   if(sourceId){const specific=new URLSearchParams({organization_id:`eq.${org}`,entity_type:`eq.${entityType}`,header_signature:`eq.${signature}`,data_source_id:`eq.${sourceId}`,active:'eq.true',select:'id,version',order:'version.desc,created_at.desc',limit:'1'}),row=((await supabase(`/rest/v1/mapping_templates?${specific}`,{serviceRole:true})).data||[])[0];if(row)return row}
