@@ -141,13 +141,9 @@ async function exactCount(table:string,org:string,extra:string){
 }
 
 async function recentSalesContributions(org:string){
-  const latestQuery=new URLSearchParams({organization_id:`eq.${org}`,select:'ordered_at',order:'ordered_at.desc',limit:'1'}),latest=((await supabase(`/rest/v1/sales_orders?${latestQuery}`,{serviceRole:true})).data||[])[0]?.ordered_at;
-  if(!latest)return [];
-  const end=new Date(latest);end.setUTCHours(24,0,0,0);const start=new Date(end.getTime()-14*86400000),orderQuery=new URLSearchParams({organization_id:`eq.${org}`,ordered_at:`gte.${start.toISOString()}`,select:'id,raw_upload_id,ordered_at,paid_amount',order:'ordered_at.asc',limit:'5000'});orderQuery.append('ordered_at',`lt.${end.toISOString()}`);
-  const orders=(await supabase(`/rest/v1/sales_orders?${orderQuery}`,{serviceRole:true})).data||[],uploadIds=[...new Set(orders.map((row:any)=>row.raw_upload_id).filter(Boolean))];
-  const uploads=uploadIds.length?(await supabase(`/rest/v1/raw_uploads?organization_id=eq.${encodeURIComponent(org)}&id=${encodeURIComponent(`in.(${uploadIds.join(',')})`)}&select=id,original_filename`,{serviceRole:true})).data||[]:[],uploadMap=new Map(uploads.map((row:any)=>[String(row.id),row.original_filename])),groups=new Map<string,any>();
-  for(const order of orders){const key=String(order.raw_upload_id||'untracked'),current=groups.get(key)||{rawUploadId:order.raw_upload_id||null,filename:order.raw_upload_id?uploadMap.get(String(order.raw_upload_id))||'등록 파일':'원본 없는 테스트 데이터',orders:0,netSales:0};current.orders++;current.netSales+=Number(order.paid_amount||0);groups.set(key,current)}
-  return [...groups.values()].sort((a,b)=>b.orders-a.orders);
+  const jobQuery=new URLSearchParams({organization_id:`eq.${org}`,entity_type:'eq.sales_order',select:'id,raw_upload_id,status,summary,created_at',order:'created_at.desc',limit:'100'}),jobs=(await supabase(`/rest/v1/import_jobs?${jobQuery}`,{serviceRole:true})).data||[],active=jobs.filter((job:any)=>job.raw_upload_id&&!job.summary?.rollback?.rolled_back_at),uploadIds=[...new Set(active.map((job:any)=>job.raw_upload_id))];
+  const uploads=uploadIds.length?(await supabase(`/rest/v1/raw_uploads?organization_id=eq.${encodeURIComponent(org)}&id=${encodeURIComponent(`in.(${uploadIds.join(',')})`)}&select=id,original_filename`,{serviceRole:true})).data||[]:[],uploadMap=new Map(uploads.map((row:any)=>[String(row.id),row.original_filename]));
+  return active.map((job:any)=>{const control=job.summary?.persistedControl||job.summary?.sourceControl||{};return {jobId:job.id,rawUploadId:job.raw_upload_id,filename:uploadMap.get(String(job.raw_upload_id))||'등록 파일',status:job.status,orders:Number(control.orders||0),rows:Number(control.rows||0),netSales:Number(control.netSales||0),createdAt:job.created_at}}).filter((row:any)=>row.orders||row.rows).sort((a:any,b:any)=>b.createdAt.localeCompare(a.createdAt));
 }
 
 async function findTemplate(org:string,entityType:string,signature:string,sourceId:string|null){
