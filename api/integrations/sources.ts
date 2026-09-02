@@ -9,7 +9,7 @@ import {inspectConnectorDraft,normalizeConnectorDraft} from '../_lib/connector-c
 import {credentialRegistry,probeConnector} from '../_lib/connector-runtime.js';
 import {refreshPostImportAnalytics} from '../_lib/post-import.js';
 
-const SUPPORTED_MAPPINGS=['product_master','sales_order','inventory_snapshot'];
+const SUPPORTED_MAPPINGS=['product_master','sales_order','inventory_snapshot','product_review'];
 
 export default {async fetch(request:Request){
   try{
@@ -26,7 +26,7 @@ export default {async fetch(request:Request){
         const query=new URLSearchParams({organization_id:`eq.${org}`,active:'eq.true',select:'id,name,entity_type,header_signature,mapping,transformations,version,data_source_id,created_at',order:'created_at.desc',limit:'100'});
         if(entityType)query.set('entity_type',`eq.${entityType}`);
         const templates=(await supabase(`/rest/v1/mapping_templates?${query}`,{serviceRole:true})).data||[];
-        return json({ok:true,templates,fields:entityType?mappingFields(entityType):{product_master:mappingFields('product_master'),sales_order:mappingFields('sales_order'),inventory_snapshot:mappingFields('inventory_snapshot')}});
+        return json({ok:true,templates,fields:entityType?mappingFields(entityType):{product_master:mappingFields('product_master'),sales_order:mappingFields('sales_order'),inventory_snapshot:mappingFields('inventory_snapshot'),product_review:mappingFields('product_review')}});
       }
       const query=new URLSearchParams({organization_id:`eq.${org}`,select:'id,brand_id,source_type,provider,name,status,data_mode,sync_mode,schedule,config,last_synced_at,last_successful_sync_at,last_sync_error,created_at,updated_at',order:'created_at.desc'}),sources=(await supabase(`/rest/v1/data_sources?${query}`,{serviceRole:true})).data;
       return json({ok:true,sources});
@@ -76,7 +76,7 @@ async function saveMapping(context:any,org:string,body:any){
   if(missing.length)return json({ok:false,error:`필수 매핑이 누락되었습니다: ${missing.join(', ')}`},422);
   const sourceId=body?.sourceId?String(body.sourceId):null;
   if(sourceId){const sourceQuery=new URLSearchParams({id:`eq.${sourceId}`,organization_id:`eq.${org}`,select:'id',limit:'1'}),source=((await supabase(`/rest/v1/data_sources?${sourceQuery}`,{serviceRole:true})).data||[])[0];if(!source)return json({ok:false,error:'선택한 데이터 소스를 찾을 수 없습니다.'},404)}
-  const signature=await headerSignature(headers),existing=await findTemplate(org,entityType,signature,sourceId),typeLabel=entityType==='product_master'?'상품 마스터':entityType==='sales_order'?'판매':'재고',name=String(body?.name||`${typeLabel} · ${headers.slice(0,3).join(' / ')}`).trim().slice(0,120),transformations=body?.transformations&&typeof body.transformations==='object'?body.transformations:{};
+  const signature=await headerSignature(headers),existing=await findTemplate(org,entityType,signature,sourceId),typeLabel=entityType==='product_master'?'상품 마스터':entityType==='sales_order'?'판매':entityType==='product_review'?'리뷰·VOC':'재고',name=String(body?.name||`${typeLabel} · ${headers.slice(0,3).join(' / ')}`).trim().slice(0,120),transformations=body?.transformations&&typeof body.transformations==='object'?body.transformations:{};
   const template=existing?(await update('mapping_templates',{id:`eq.${existing.id}`,organization_id:`eq.${org}`},{name,mapping,transformations,version:Number(existing.version||1)+1,active:true}))?.[0]:(await insert('mapping_templates',{organization_id:org,data_source_id:sourceId,name,entity_type:entityType,header_signature:signature,mapping,transformations,version:1,active:true,created_by:context.user.id}))?.[0];
   await audit(context,'mapping_template.saved','mapping_template',template.id,{entityType,headerSignature:signature,version:template.version,sourceId,fields:Object.keys(mapping)});
   return json({ok:true,template:{id:template.id,name:template.name,entityType:template.entity_type,headerSignature:template.header_signature,mapping:template.mapping,version:template.version,dataSourceId:template.data_source_id}},existing?200:201);
@@ -91,16 +91,18 @@ async function rollbackImport(context:any,org:string,body:any){
   if(job.summary?.rollback?.rolled_back_at)return json({ok:true,idempotent:true,job});
   if(!job.raw_upload_id)return json({ok:false,error:'원본 업로드 식별자가 없어 안전하게 되돌릴 수 없습니다.'},409);
   const uploadFilter=`organization_id=eq.${encodeURIComponent(org)}&raw_upload_id=eq.${encodeURIComponent(job.raw_upload_id)}`;
-  let deletedLines=0,deletedOrders=0,deletedSnapshots=0;
+  let deletedLines=0,deletedOrders=0,deletedSnapshots=0,deletedReviews=0;
   if(job.entity_type==='sales_order'){
     deletedLines=((await supabase(`/rest/v1/sales_order_lines?${uploadFilter}`,{serviceRole:true,method:'DELETE',headers:{Prefer:'return=representation'}})).data||[]).length;
     deletedOrders=((await supabase(`/rest/v1/sales_orders?${uploadFilter}`,{serviceRole:true,method:'DELETE',headers:{Prefer:'return=representation'}})).data||[]).length;
   }else if(job.entity_type==='inventory_snapshot'){
     deletedSnapshots=((await supabase(`/rest/v1/inventory_snapshots?${uploadFilter}`,{serviceRole:true,method:'DELETE',headers:{Prefer:'return=representation'}})).data||[]).length;
-  }else return json({ok:false,error:'판매·재고 적재만 되돌릴 수 있습니다.'},422);
-  const rolledBackAt=new Date().toISOString(),summary={...(job.summary||{}),rollback:{rolled_back_at:rolledBackAt,rolled_back_by:context.user.id,deleted_lines:deletedLines,deleted_orders:deletedOrders,deleted_snapshots:deletedSnapshots}},updated=(await update('import_jobs',{id:`eq.${job.id}`,organization_id:`eq.${org}`},{status:'failed',completed_at:rolledBackAt,summary}))?.[0];
-  await audit(context,'file_import.rolled_back','import_job',job.id,{entityType:job.entity_type,rawUploadId:job.raw_upload_id,deletedLines,deletedOrders,deletedSnapshots});
-  return json({ok:true,job:updated,deleted:{salesLines:deletedLines,salesOrders:deletedOrders,inventorySnapshots:deletedSnapshots}});
+  }else if(job.entity_type==='product_review'){
+    deletedReviews=((await supabase(`/rest/v1/product_reviews?${uploadFilter}`,{serviceRole:true,method:'DELETE',headers:{Prefer:'return=representation'}})).data||[]).length;
+  }else return json({ok:false,error:'상품 마스터를 제외한 판매·재고·리뷰 적재만 되돌릴 수 있습니다.'},422);
+  const rolledBackAt=new Date().toISOString(),summary={...(job.summary||{}),rollback:{rolled_back_at:rolledBackAt,rolled_back_by:context.user.id,deleted_lines:deletedLines,deleted_orders:deletedOrders,deleted_snapshots:deletedSnapshots,deleted_reviews:deletedReviews}},updated=(await update('import_jobs',{id:`eq.${job.id}`,organization_id:`eq.${org}`},{status:'failed',completed_at:rolledBackAt,summary}))?.[0];
+  await audit(context,'file_import.rolled_back','import_job',job.id,{entityType:job.entity_type,rawUploadId:job.raw_upload_id,deletedLines,deletedOrders,deletedSnapshots,deletedReviews});
+  return json({ok:true,job:updated,deleted:{salesLines:deletedLines,salesOrders:deletedOrders,inventorySnapshots:deletedSnapshots,reviews:deletedReviews}});
 }
 
 async function previewDemoCleanup(context:any,org:string){

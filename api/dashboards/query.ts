@@ -5,6 +5,7 @@ import {buildTransferCandidates,nextMovementStatus,summarizeInventorySnapshot} f
 import {MARKET_DIMENSIONS,MARKET_METRICS,normalizeQuerySpec} from '../_lib/semantic.js';
 import {audit,insert,requestContext,requirePagePermission,requireRole,scopedValues,supabase,update} from '../_lib/supabase.js';
 import {assertAnalyticsRefreshAllowed} from '../_lib/reconciliation.js';
+import {summarizeReviewInsights} from '../_lib/reviews.js';
 
 export async function runDashboardQuery(context:any,input:any){
   const spec=normalizeQuerySpec(input);const isMarket=MARKET_METRICS.includes(spec.metric)||MARKET_DIMENSIONS.includes(spec.dimension);if(['available_qty','inventory_cover_days','sell_through_rate'].includes(spec.metric)&&!['product','location'].includes(spec.dimension))spec.dimension='product';const currentEnd=new Date(),currentStart=new Date(currentEnd.getTime()-spec.periodDays*86400000);
@@ -81,6 +82,15 @@ async function customerReturnContext(context:any){
     supabase(`/rest/v1/locations?organization_id=eq.${q}&select=id,location_code,country_code&limit=5000`,{serviceRole:true})
   ]),locationMap=indexBy(locationsResult.data||[]),countries=scopedValues(context,'countries'),channels=scopedValues(context,'channels'),locations=scopedValues(context,'locations'),orders=(ordersResult.data||[]).filter((row:any)=>{const location:any=locationMap.get(String(row.location_id))||{};return (!countries||countries.includes(String(row.country_code||location.country_code||'')))&&(!channels||channels.includes(String(row.channel_code||'')))&&(!locations||locations.includes(String(location.location_code||'')))}),orderIds=new Set(orders.map((row:any)=>String(row.id))),lines=(linesResult.data||[]).filter((row:any)=>orderIds.has(String(row.order_id)));
   return {orders,lines,products:productsResult.data||[],periodDays:90};
+}
+
+export async function reviewInsights(context:any){
+  requirePagePermission(context,'customers','view');const org=context.membership.organization_id,q=enc(org),end=new Date(),start=new Date(end.getTime()-90*86400000),channels=scopedValues(context,'channels'),countries=scopedValues(context,'countries'),[reviewsResult,signalsResult,productsResult]=await Promise.all([
+    supabase(`/rest/v1/product_reviews?organization_id=eq.${q}&reviewed_at=gte.${encodeURIComponent(start.toISOString())}&reviewed_at=lt.${encodeURIComponent(end.toISOString())}&select=id,reviewed_at,platform,channel_code,product_id,sku_id,product_code,sku_code,rating,review_text,verified_purchase,helpful_count,image_review,country_code,color,size,seller_response_status&order=reviewed_at.desc&limit=20000`,{serviceRole:true}),
+    supabase(`/rest/v1/review_aspect_signals?organization_id=eq.${q}&select=review_id,aspect_code,aspect_label,sentiment,severity,confidence,return_risk,recommended_team,recommended_action&limit=50000`,{serviceRole:true}),
+    supabase(`/rest/v1/products?organization_id=eq.${q}&select=id,product_code,product_name,image_url&limit=5000`,{serviceRole:true})
+  ]),reviews=(reviewsResult.data||[]).filter((row:any)=>(!channels||channels.includes(String(row.channel_code||row.platform||'')))&&(!countries||countries.includes(String(row.country_code||'')))),reviewIds=new Set(reviews.map((row:any)=>String(row.id))),signals=(signalsResult.data||[]).filter((row:any)=>reviewIds.has(String(row.review_id)));
+  return {generatedAt:new Date().toISOString(),periodDays:90,...summarizeReviewInsights(reviews,signals,productsResult.data||[])};
 }
 export async function customerReturnInsights(context:any){
   const data=await customerReturnContext(context);
@@ -188,6 +198,7 @@ export default {async fetch(request:Request){
       if(resource==='product-intelligence'){const page=String(url.searchParams.get('page')||'market');requirePagePermission(context,page,'view');const data=await productIntelligence(context,page,Number(url.searchParams.get('limit'))||30);return json({ok:true,source:'precomputed_intelligence',...data})}
       if(resource==='discount-intelligence'){const page='profitability';requirePagePermission(context,page,'view');const data=await discountIntelligence(context,page,Number(url.searchParams.get('limit'))||40);return json({ok:true,source:'precomputed_discount_optimizer',...data})}
       if(resource==='customer-insights'){requirePagePermission(context,'customers','view');const data=await customerReturnContext(context);return json({ok:true,source:'supabase_customer_region',generatedAt:new Date().toISOString(),periodDays:data.periodDays,...summarizeCustomerInsights(data.orders)})}
+      if(resource==='review-insights'){const data=await reviewInsights(context);return json({ok:true,source:'precomputed_review_signals',...data})}
       if(resource==='return-insights'){requirePagePermission(context,'returns','view');const data=await customerReturnContext(context);return json({ok:true,source:'supabase_returns',generatedAt:new Date().toISOString(),periodDays:data.periodDays,...summarizeReturnInsights(data.orders,data.lines,data.products)})}
       if(resource==='inventory-workflows'){requirePagePermission(context,'inventory','view');const data=await inventoryWorkflowContext(context);return json({ok:true,source:'supabase_inventory_operations',generatedAt:new Date().toISOString(),...presentInventoryWorkflow(data)})}
       if(resource==='production-workflows'){const data=await productionWorkflow(context);return json({ok:true,source:'approved_reorder_queue',generatedAt:new Date().toISOString(),...data})}

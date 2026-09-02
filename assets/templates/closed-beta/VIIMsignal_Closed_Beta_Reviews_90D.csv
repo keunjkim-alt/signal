@@ -1,0 +1,481 @@
+review_id,reviewed_at,platform,channel_code,product_code,sku_code,product_name,rating,review_text,verified_purchase,helpful_count,image_review,customer_token,order_id,country_code,color,size,seller_response_status
+RV-00-00,2026-08-31T12:00:00.000Z,자사몰,자사몰,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,1,사이즈가 작게 나와 타이트하고 소매가 짧아요. 교환을 고민 중입니다.,true,0,true,CUST-0001,BETA-R-0-0,KR,BLACK,FREE,responded
+RV-00-01,2026-08-31T13:04:00.000Z,무신사,무신사,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,2,소재가 생각보다 얇아서 활용하기 어려워요.,true,3,false,CUST-0014,BETA-R-0-1,KR,BLACK,FREE,responded
+RV-00-02,2026-08-31T14:08:00.000Z,29CM,29CM,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,1,봉제 마감이 아쉽고 실밥이 보여요.,true,6,false,CUST-0027,BETA-R-0-2,KR,CREAM,FREE,responded
+RV-00-03,2026-08-31T15:12:00.000Z,네이버,네이버,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,5,가격 대비 만족스럽고 활용하기 좋아요.,true,9,true,CUST-0040,BETA-R-0-3,KR,WHITE,FREE,responded
+RV-00-04,2026-08-31T16:16:00.000Z,W컨셉,W컨셉,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,12,false,CUST-0053,BETA-R-0-4,KR,NAVY,FREE,responded
+RV-00-05,2026-08-31T17:20:00.000Z,자사몰,자사몰,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,15,false,CUST-0066,BETA-R-0-5,KR,BLACK,FREE,responded
+RV-00-06,2026-08-31T18:24:00.000Z,무신사,무신사,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,18,true,CUST-0079,BETA-R-0-6,KR,GREY,FREE,responded
+RV-00-07,2026-08-31T19:28:00.000Z,29CM,29CM,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,21,false,CUST-0092,BETA-R-0-7,KR,DENIM,FREE,responded
+RV-00-08,2026-08-31T12:32:00.000Z,네이버,네이버,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,24,false,CUST-0105,BETA-R-0-8,KR,BEIGE,FREE,responded
+RV-00-09,2026-08-31T13:36:00.000Z,W컨셉,W컨셉,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,27,true,CUST-0118,BETA-R-0-9,KR,BLACK,FREE,responded
+RV-00-10,2026-08-31T14:40:00.000Z,자사몰,자사몰,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,30,false,CUST-0131,BETA-R-0-10,KR,NAVY,FREE,responded
+RV-00-11,2026-08-31T15:44:00.000Z,무신사,무신사,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,2,소재가 얇고 색상이 화면과 달라 아쉽습니다.,true,2,false,CUST-0144,BETA-R-0-11,KR,WHITE,FREE,responded
+RV-01-00,2026-08-30T12:00:00.000Z,무신사,무신사,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,2,핏이 생각보다 작아요. 상세 실측을 다시 확인해주세요.,true,5,false,CUST-0018,BETA-R-1-0,KR,BLACK,FREE,pending
+RV-01-01,2026-08-30T13:04:00.000Z,29CM,29CM,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,1,원단이 얇고 비쳐요. 가격 대비 소재가 아쉽습니다.,true,8,false,CUST-0031,BETA-R-1-1,KR,BLACK,FREE,pending
+RV-01-02,2026-08-30T14:08:00.000Z,네이버,네이버,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,2,한 번 입었는데 올이 풀려 품질 확인이 필요합니다.,true,11,true,CUST-0044,BETA-R-1-2,KR,CREAM,FREE,pending
+RV-01-03,2026-08-30T15:12:00.000Z,W컨셉,W컨셉,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,14,false,CUST-0057,BETA-R-1-3,KR,WHITE,FREE,responded
+RV-01-04,2026-08-30T16:16:00.000Z,자사몰,자사몰,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,5,가격 대비 만족스럽고 활용하기 좋아요.,true,17,false,CUST-0070,BETA-R-1-4,KR,NAVY,FREE,responded
+RV-01-05,2026-08-30T17:20:00.000Z,무신사,무신사,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,20,true,CUST-0083,BETA-R-1-5,KR,BLACK,FREE,responded
+RV-01-06,2026-08-30T18:24:00.000Z,29CM,29CM,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,23,false,CUST-0096,BETA-R-1-6,KR,GREY,FREE,responded
+RV-01-07,2026-08-30T19:28:00.000Z,네이버,네이버,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,26,false,CUST-0109,BETA-R-1-7,KR,DENIM,FREE,responded
+RV-01-08,2026-08-30T12:32:00.000Z,W컨셉,W컨셉,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,5,가격 대비 만족스럽고 활용하기 좋아요.,true,29,true,CUST-0122,BETA-R-1-8,KR,BEIGE,FREE,responded
+RV-01-09,2026-08-30T13:36:00.000Z,자사몰,자사몰,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,1,false,CUST-0135,BETA-R-1-9,KR,BLACK,FREE,responded
+RV-01-10,2026-08-30T14:40:00.000Z,무신사,무신사,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,4,false,CUST-0148,BETA-R-1-10,KR,NAVY,FREE,responded
+RV-01-11,2026-08-30T15:44:00.000Z,29CM,29CM,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,1,화면보다 색상이 밝고 많이 비쳐요.,true,7,true,CUST-0161,BETA-R-1-11,KR,WHITE,FREE,pending
+RV-02-00,2026-08-29T12:00:00.000Z,29CM,29CM,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,1,사이즈가 작게 나와 타이트하고 소매가 짧아요. 교환을 고민 중입니다.,true,10,false,CUST-0035,BETA-R-2-0,KR,BLACK,FREE,pending
+RV-02-01,2026-08-29T13:04:00.000Z,네이버,네이버,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,2,소재가 생각보다 얇아서 활용하기 어려워요.,true,13,true,CUST-0048,BETA-R-2-1,KR,BLACK,FREE,pending
+RV-02-02,2026-08-29T14:08:00.000Z,W컨셉,W컨셉,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,1,봉제 마감이 아쉽고 실밥이 보여요.,true,16,false,CUST-0061,BETA-R-2-2,KR,CREAM,FREE,pending
+RV-02-03,2026-08-29T15:12:00.000Z,자사몰,자사몰,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,19,false,CUST-0074,BETA-R-2-3,KR,WHITE,FREE,responded
+RV-02-04,2026-08-29T16:16:00.000Z,무신사,무신사,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,22,true,CUST-0087,BETA-R-2-4,KR,NAVY,FREE,responded
+RV-02-05,2026-08-29T17:20:00.000Z,29CM,29CM,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,25,false,CUST-0100,BETA-R-2-5,KR,BLACK,FREE,responded
+RV-02-06,2026-08-29T18:24:00.000Z,네이버,네이버,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,28,false,CUST-0113,BETA-R-2-6,KR,GREY,FREE,responded
+RV-02-07,2026-08-29T19:28:00.000Z,W컨셉,W컨셉,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,0,true,CUST-0126,BETA-R-2-7,KR,DENIM,FREE,responded
+RV-02-08,2026-08-29T12:32:00.000Z,자사몰,자사몰,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,3,false,CUST-0139,BETA-R-2-8,KR,BEIGE,FREE,responded
+RV-02-09,2026-08-29T13:36:00.000Z,무신사,무신사,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,5,가격 대비 만족스럽고 활용하기 좋아요.,true,6,false,CUST-0152,BETA-R-2-9,KR,BLACK,FREE,responded
+RV-02-10,2026-08-29T14:40:00.000Z,29CM,29CM,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,9,true,CUST-0165,BETA-R-2-10,KR,NAVY,FREE,responded
+RV-02-11,2026-08-29T15:44:00.000Z,네이버,네이버,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,2,소재가 얇고 색상이 화면과 달라 아쉽습니다.,true,12,false,CUST-0178,BETA-R-2-11,KR,WHITE,FREE,pending
+RV-03-00,2026-08-28T12:00:00.000Z,네이버,네이버,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,2,핏이 생각보다 작아요. 상세 실측을 다시 확인해주세요.,true,15,true,CUST-0052,BETA-R-3-0,KR,BLACK,FREE,responded
+RV-03-01,2026-08-28T13:04:00.000Z,W컨셉,W컨셉,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,1,원단이 얇고 비쳐요. 가격 대비 소재가 아쉽습니다.,true,18,false,CUST-0065,BETA-R-3-1,KR,BLACK,FREE,responded
+RV-03-02,2026-08-28T14:08:00.000Z,자사몰,자사몰,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,2,한 번 입었는데 올이 풀려 품질 확인이 필요합니다.,true,21,false,CUST-0078,BETA-R-3-2,KR,CREAM,FREE,responded
+RV-03-03,2026-08-28T15:12:00.000Z,무신사,무신사,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,24,true,CUST-0091,BETA-R-3-3,KR,WHITE,FREE,responded
+RV-03-04,2026-08-28T16:16:00.000Z,29CM,29CM,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,27,false,CUST-0104,BETA-R-3-4,KR,NAVY,FREE,responded
+RV-03-05,2026-08-28T17:20:00.000Z,네이버,네이버,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,30,false,CUST-0117,BETA-R-3-5,KR,BLACK,FREE,responded
+RV-03-06,2026-08-28T18:24:00.000Z,W컨셉,W컨셉,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,5,가격 대비 만족스럽고 활용하기 좋아요.,true,2,true,CUST-0130,BETA-R-3-6,KR,GREY,FREE,responded
+RV-03-07,2026-08-28T19:28:00.000Z,자사몰,자사몰,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,5,false,CUST-0143,BETA-R-3-7,KR,DENIM,FREE,responded
+RV-03-08,2026-08-28T12:32:00.000Z,무신사,무신사,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,8,false,CUST-0156,BETA-R-3-8,KR,BEIGE,FREE,responded
+RV-03-09,2026-08-28T13:36:00.000Z,29CM,29CM,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,11,true,CUST-0169,BETA-R-3-9,KR,BLACK,FREE,responded
+RV-03-10,2026-08-28T14:40:00.000Z,네이버,네이버,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,5,가격 대비 만족스럽고 활용하기 좋아요.,true,14,false,CUST-0182,BETA-R-3-10,KR,NAVY,FREE,responded
+RV-03-11,2026-08-28T15:44:00.000Z,W컨셉,W컨셉,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,1,화면보다 색상이 밝고 많이 비쳐요.,true,17,false,CUST-0195,BETA-R-3-11,KR,WHITE,FREE,responded
+RV-04-00,2026-08-27T12:00:00.000Z,W컨셉,W컨셉,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,1,사이즈가 작게 나와 타이트하고 소매가 짧아요. 교환을 고민 중입니다.,true,20,false,CUST-0069,BETA-R-4-0,KR,BLACK,FREE,pending
+RV-04-01,2026-08-27T13:04:00.000Z,자사몰,자사몰,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,2,소재가 생각보다 얇아서 활용하기 어려워요.,true,23,false,CUST-0082,BETA-R-4-1,KR,BLACK,FREE,pending
+RV-04-02,2026-08-27T14:08:00.000Z,무신사,무신사,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,1,봉제 마감이 아쉽고 실밥이 보여요.,true,26,true,CUST-0095,BETA-R-4-2,KR,CREAM,FREE,pending
+RV-04-03,2026-08-27T15:12:00.000Z,29CM,29CM,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,29,false,CUST-0108,BETA-R-4-3,KR,WHITE,FREE,responded
+RV-04-04,2026-08-27T16:16:00.000Z,네이버,네이버,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,1,false,CUST-0121,BETA-R-4-4,KR,NAVY,FREE,responded
+RV-04-05,2026-08-27T17:20:00.000Z,W컨셉,W컨셉,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,4,true,CUST-0134,BETA-R-4-5,KR,BLACK,FREE,responded
+RV-04-06,2026-08-27T18:24:00.000Z,자사몰,자사몰,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,7,false,CUST-0147,BETA-R-4-6,KR,GREY,FREE,responded
+RV-04-07,2026-08-27T19:28:00.000Z,무신사,무신사,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,5,가격 대비 만족스럽고 활용하기 좋아요.,true,10,false,CUST-0160,BETA-R-4-7,KR,DENIM,FREE,responded
+RV-04-08,2026-08-27T12:32:00.000Z,29CM,29CM,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,13,true,CUST-0173,BETA-R-4-8,KR,BEIGE,FREE,responded
+RV-04-09,2026-08-27T13:36:00.000Z,네이버,네이버,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,16,false,CUST-0186,BETA-R-4-9,KR,BLACK,FREE,responded
+RV-04-10,2026-08-27T14:40:00.000Z,W컨셉,W컨셉,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,3,전체적으로 무난합니다. 조금 더 입어보고 판단할게요.,true,19,false,CUST-0199,BETA-R-4-10,KR,NAVY,FREE,responded
+RV-04-11,2026-08-27T15:44:00.000Z,자사몰,자사몰,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,2,소재가 얇고 색상이 화면과 달라 아쉽습니다.,true,22,true,CUST-0212,BETA-R-4-11,KR,WHITE,FREE,pending
+RV-05-00,2026-08-26T12:00:00.000Z,자사몰,자사몰,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,2,핏이 생각보다 작아요. 상세 실측을 다시 확인해주세요.,true,25,false,CUST-0086,BETA-R-5-0,KR,BLACK,FREE,pending
+RV-05-01,2026-08-26T13:04:00.000Z,무신사,무신사,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,1,원단이 얇고 비쳐요. 가격 대비 소재가 아쉽습니다.,true,28,true,CUST-0099,BETA-R-5-1,KR,BLACK,FREE,pending
+RV-05-02,2026-08-26T14:08:00.000Z,29CM,29CM,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,2,한 번 입었는데 올이 풀려 품질 확인이 필요합니다.,true,0,false,CUST-0112,BETA-R-5-2,KR,CREAM,FREE,pending
+RV-05-03,2026-08-26T15:12:00.000Z,네이버,네이버,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,3,false,CUST-0125,BETA-R-5-3,KR,WHITE,FREE,responded
+RV-05-04,2026-08-26T16:16:00.000Z,W컨셉,W컨셉,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,5,가격 대비 만족스럽고 활용하기 좋아요.,true,6,true,CUST-0138,BETA-R-5-4,KR,NAVY,FREE,responded
+RV-05-05,2026-08-26T17:20:00.000Z,자사몰,자사몰,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,9,false,CUST-0151,BETA-R-5-5,KR,BLACK,FREE,responded
+RV-05-06,2026-08-26T18:24:00.000Z,무신사,무신사,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,12,false,CUST-0164,BETA-R-5-6,KR,GREY,FREE,responded
+RV-05-07,2026-08-26T19:28:00.000Z,29CM,29CM,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,15,true,CUST-0177,BETA-R-5-7,KR,DENIM,FREE,responded
+RV-05-08,2026-08-26T12:32:00.000Z,네이버,네이버,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,5,가격 대비 만족스럽고 활용하기 좋아요.,true,18,false,CUST-0190,BETA-R-5-8,KR,BEIGE,FREE,responded
+RV-05-09,2026-08-26T13:36:00.000Z,W컨셉,W컨셉,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,3,전체적으로 무난합니다. 조금 더 입어보고 판단할게요.,true,21,false,CUST-0203,BETA-R-5-9,KR,BLACK,FREE,responded
+RV-05-10,2026-08-26T14:40:00.000Z,자사몰,자사몰,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,24,true,CUST-0216,BETA-R-5-10,KR,NAVY,FREE,responded
+RV-05-11,2026-08-26T15:44:00.000Z,무신사,무신사,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,1,화면보다 색상이 밝고 많이 비쳐요.,true,27,false,CUST-0229,BETA-R-5-11,KR,WHITE,FREE,pending
+RV-06-00,2026-08-25T12:00:00.000Z,무신사,무신사,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,1,사이즈가 작게 나와 타이트하고 소매가 짧아요. 교환을 고민 중입니다.,true,30,true,CUST-0103,BETA-R-6-0,KR,BLACK,FREE,responded
+RV-06-01,2026-08-25T13:04:00.000Z,29CM,29CM,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,2,소재가 생각보다 얇아서 활용하기 어려워요.,true,2,false,CUST-0116,BETA-R-6-1,KR,BLACK,FREE,responded
+RV-06-02,2026-08-25T14:08:00.000Z,네이버,네이버,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,1,봉제 마감이 아쉽고 실밥이 보여요.,true,5,false,CUST-0129,BETA-R-6-2,KR,CREAM,FREE,responded
+RV-06-03,2026-08-25T15:12:00.000Z,W컨셉,W컨셉,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,8,true,CUST-0142,BETA-R-6-3,KR,WHITE,FREE,responded
+RV-06-04,2026-08-25T16:16:00.000Z,자사몰,자사몰,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,11,false,CUST-0155,BETA-R-6-4,KR,NAVY,FREE,responded
+RV-06-05,2026-08-25T17:20:00.000Z,무신사,무신사,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,5,가격 대비 만족스럽고 활용하기 좋아요.,true,14,false,CUST-0168,BETA-R-6-5,KR,BLACK,FREE,responded
+RV-06-06,2026-08-25T18:24:00.000Z,29CM,29CM,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,17,true,CUST-0181,BETA-R-6-6,KR,GREY,FREE,responded
+RV-06-07,2026-08-25T19:28:00.000Z,네이버,네이버,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,20,false,CUST-0194,BETA-R-6-7,KR,DENIM,FREE,responded
+RV-06-08,2026-08-25T12:32:00.000Z,W컨셉,W컨셉,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,3,전체적으로 무난합니다. 조금 더 입어보고 판단할게요.,true,23,false,CUST-0207,BETA-R-6-8,KR,BEIGE,FREE,responded
+RV-06-09,2026-08-25T13:36:00.000Z,자사몰,자사몰,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,5,가격 대비 만족스럽고 활용하기 좋아요.,true,26,true,CUST-0220,BETA-R-6-9,KR,BLACK,FREE,responded
+RV-06-10,2026-08-25T14:40:00.000Z,무신사,무신사,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,29,false,CUST-0233,BETA-R-6-10,KR,NAVY,FREE,responded
+RV-06-11,2026-08-25T15:44:00.000Z,29CM,29CM,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,2,소재가 얇고 색상이 화면과 달라 아쉽습니다.,true,1,false,CUST-0246,BETA-R-6-11,KR,WHITE,FREE,responded
+RV-07-00,2026-08-24T12:00:00.000Z,29CM,29CM,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,2,핏이 생각보다 작아요. 상세 실측을 다시 확인해주세요.,true,4,false,CUST-0120,BETA-R-7-0,KR,BLACK,FREE,pending
+RV-07-01,2026-08-24T13:04:00.000Z,네이버,네이버,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,1,원단이 얇고 비쳐요. 가격 대비 소재가 아쉽습니다.,true,7,false,CUST-0133,BETA-R-7-1,KR,BLACK,FREE,pending
+RV-07-02,2026-08-24T14:08:00.000Z,W컨셉,W컨셉,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,2,한 번 입었는데 올이 풀려 품질 확인이 필요합니다.,true,10,true,CUST-0146,BETA-R-7-2,KR,CREAM,FREE,pending
+RV-07-03,2026-08-24T15:12:00.000Z,자사몰,자사몰,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,13,false,CUST-0159,BETA-R-7-3,KR,WHITE,FREE,responded
+RV-07-04,2026-08-24T16:16:00.000Z,무신사,무신사,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,16,false,CUST-0172,BETA-R-7-4,KR,NAVY,FREE,responded
+RV-07-05,2026-08-24T17:20:00.000Z,29CM,29CM,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,19,true,CUST-0185,BETA-R-7-5,KR,BLACK,FREE,responded
+RV-07-06,2026-08-24T18:24:00.000Z,네이버,네이버,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,5,가격 대비 만족스럽고 활용하기 좋아요.,true,22,false,CUST-0198,BETA-R-7-6,KR,GREY,FREE,responded
+RV-07-07,2026-08-24T19:28:00.000Z,W컨셉,W컨셉,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,3,전체적으로 무난합니다. 조금 더 입어보고 판단할게요.,true,25,false,CUST-0211,BETA-R-7-7,KR,DENIM,FREE,responded
+RV-07-08,2026-08-24T12:32:00.000Z,자사몰,자사몰,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,28,true,CUST-0224,BETA-R-7-8,KR,BEIGE,FREE,responded
+RV-07-09,2026-08-24T13:36:00.000Z,무신사,무신사,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,0,false,CUST-0237,BETA-R-7-9,KR,BLACK,FREE,responded
+RV-07-10,2026-08-24T14:40:00.000Z,29CM,29CM,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,5,가격 대비 만족스럽고 활용하기 좋아요.,true,3,false,CUST-0250,BETA-R-7-10,KR,NAVY,FREE,responded
+RV-07-11,2026-08-24T15:44:00.000Z,네이버,네이버,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,1,화면보다 색상이 밝고 많이 비쳐요.,true,6,true,CUST-0263,BETA-R-7-11,KR,WHITE,FREE,pending
+RV-08-00,2026-08-23T12:00:00.000Z,네이버,네이버,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,1,사이즈가 작게 나와 타이트하고 소매가 짧아요. 교환을 고민 중입니다.,true,9,false,CUST-0137,BETA-R-8-0,KR,BLACK,FREE,pending
+RV-08-01,2026-08-23T13:04:00.000Z,W컨셉,W컨셉,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,12,true,CUST-0150,BETA-R-8-1,KR,BLACK,FREE,responded
+RV-08-02,2026-08-23T14:08:00.000Z,자사몰,자사몰,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,15,false,CUST-0163,BETA-R-8-2,KR,CREAM,FREE,responded
+RV-08-03,2026-08-23T15:12:00.000Z,무신사,무신사,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,5,가격 대비 만족스럽고 활용하기 좋아요.,true,18,false,CUST-0176,BETA-R-8-3,KR,WHITE,FREE,responded
+RV-08-04,2026-08-23T16:16:00.000Z,29CM,29CM,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,21,true,CUST-0189,BETA-R-8-4,KR,NAVY,FREE,responded
+RV-08-05,2026-08-23T17:20:00.000Z,네이버,네이버,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,24,false,CUST-0202,BETA-R-8-5,KR,BLACK,FREE,responded
+RV-08-06,2026-08-23T18:24:00.000Z,W컨셉,W컨셉,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,3,전체적으로 무난합니다. 조금 더 입어보고 판단할게요.,true,27,false,CUST-0215,BETA-R-8-6,KR,GREY,FREE,responded
+RV-08-07,2026-08-23T19:28:00.000Z,자사몰,자사몰,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,5,가격 대비 만족스럽고 활용하기 좋아요.,true,30,true,CUST-0228,BETA-R-8-7,KR,DENIM,FREE,responded
+RV-08-08,2026-08-23T12:32:00.000Z,무신사,무신사,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,2,false,CUST-0241,BETA-R-8-8,KR,BEIGE,FREE,responded
+RV-08-09,2026-08-23T13:36:00.000Z,29CM,29CM,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,5,false,CUST-0254,BETA-R-8-9,KR,BLACK,FREE,responded
+RV-08-10,2026-08-23T14:40:00.000Z,네이버,네이버,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,8,true,CUST-0267,BETA-R-8-10,KR,NAVY,FREE,responded
+RV-08-11,2026-08-23T15:44:00.000Z,W컨셉,W컨셉,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,5,가격 대비 만족스럽고 활용하기 좋아요.,true,11,false,CUST-0280,BETA-R-8-11,KR,WHITE,FREE,responded
+RV-09-00,2026-08-22T12:00:00.000Z,W컨셉,W컨셉,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,5,가격 대비 만족스럽고 활용하기 좋아요.,true,14,true,CUST-0154,BETA-R-9-0,KR,BLACK,FREE,responded
+RV-09-01,2026-08-22T13:04:00.000Z,자사몰,자사몰,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,17,false,CUST-0167,BETA-R-9-1,KR,BLACK,FREE,responded
+RV-09-02,2026-08-22T14:08:00.000Z,무신사,무신사,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,20,false,CUST-0180,BETA-R-9-2,KR,CREAM,FREE,responded
+RV-09-03,2026-08-22T15:12:00.000Z,29CM,29CM,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,23,true,CUST-0193,BETA-R-9-3,KR,WHITE,FREE,responded
+RV-09-04,2026-08-22T16:16:00.000Z,네이버,네이버,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,5,가격 대비 만족스럽고 활용하기 좋아요.,true,26,false,CUST-0206,BETA-R-9-4,KR,NAVY,FREE,responded
+RV-09-05,2026-08-22T17:20:00.000Z,W컨셉,W컨셉,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,3,전체적으로 무난합니다. 조금 더 입어보고 판단할게요.,true,29,false,CUST-0219,BETA-R-9-5,KR,BLACK,FREE,responded
+RV-09-06,2026-08-22T18:24:00.000Z,자사몰,자사몰,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,1,true,CUST-0232,BETA-R-9-6,KR,GREY,FREE,responded
+RV-09-07,2026-08-22T19:28:00.000Z,무신사,무신사,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,4,false,CUST-0245,BETA-R-9-7,KR,DENIM,FREE,responded
+RV-09-08,2026-08-22T12:32:00.000Z,29CM,29CM,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,5,가격 대비 만족스럽고 활용하기 좋아요.,true,7,false,CUST-0258,BETA-R-9-8,KR,BEIGE,FREE,responded
+RV-09-09,2026-08-22T13:36:00.000Z,네이버,네이버,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,10,true,CUST-0271,BETA-R-9-9,KR,BLACK,FREE,responded
+RV-09-10,2026-08-22T14:40:00.000Z,W컨셉,W컨셉,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,13,false,CUST-0284,BETA-R-9-10,KR,NAVY,FREE,responded
+RV-09-11,2026-08-22T15:44:00.000Z,자사몰,자사몰,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,1,화면보다 색상이 밝고 많이 비쳐요.,true,16,false,CUST-0297,BETA-R-9-11,KR,WHITE,FREE,responded
+RV-10-00,2026-08-21T12:00:00.000Z,자사몰,자사몰,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,19,false,CUST-0171,BETA-R-10-0,KR,BLACK,FREE,responded
+RV-10-01,2026-08-21T13:04:00.000Z,무신사,무신사,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,5,가격 대비 만족스럽고 활용하기 좋아요.,true,22,false,CUST-0184,BETA-R-10-1,KR,BLACK,FREE,responded
+RV-10-02,2026-08-21T14:08:00.000Z,29CM,29CM,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,1,봉제 마감이 아쉽고 실밥이 보여요.,true,25,true,CUST-0197,BETA-R-10-2,KR,CREAM,FREE,pending
+RV-10-03,2026-08-21T15:12:00.000Z,네이버,네이버,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,28,false,CUST-0210,BETA-R-10-3,KR,WHITE,FREE,responded
+RV-10-04,2026-08-21T16:16:00.000Z,W컨셉,W컨셉,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,3,전체적으로 무난합니다. 조금 더 입어보고 판단할게요.,true,0,false,CUST-0223,BETA-R-10-4,KR,NAVY,FREE,responded
+RV-10-05,2026-08-21T17:20:00.000Z,자사몰,자사몰,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,5,가격 대비 만족스럽고 활용하기 좋아요.,true,3,true,CUST-0236,BETA-R-10-5,KR,BLACK,FREE,responded
+RV-10-06,2026-08-21T18:24:00.000Z,무신사,무신사,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,6,false,CUST-0249,BETA-R-10-6,KR,GREY,FREE,responded
+RV-10-07,2026-08-21T19:28:00.000Z,29CM,29CM,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,9,false,CUST-0262,BETA-R-10-7,KR,DENIM,FREE,responded
+RV-10-08,2026-08-21T12:32:00.000Z,네이버,네이버,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,12,true,CUST-0275,BETA-R-10-8,KR,BEIGE,FREE,responded
+RV-10-09,2026-08-21T13:36:00.000Z,W컨셉,W컨셉,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,5,가격 대비 만족스럽고 활용하기 좋아요.,true,15,false,CUST-0288,BETA-R-10-9,KR,BLACK,FREE,responded
+RV-10-10,2026-08-21T14:40:00.000Z,자사몰,자사몰,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,18,false,CUST-0301,BETA-R-10-10,KR,NAVY,FREE,responded
+RV-10-11,2026-08-21T15:44:00.000Z,무신사,무신사,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,21,true,CUST-0314,BETA-R-10-11,KR,WHITE,FREE,responded
+RV-11-00,2026-08-20T12:00:00.000Z,무신사,무신사,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,24,false,CUST-0188,BETA-R-11-0,KR,BLACK,FREE,responded
+RV-11-01,2026-08-20T13:04:00.000Z,29CM,29CM,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,1,원단이 얇고 비쳐요. 가격 대비 소재가 아쉽습니다.,true,27,true,CUST-0201,BETA-R-11-1,KR,BLACK,FREE,pending
+RV-11-02,2026-08-20T14:08:00.000Z,네이버,네이버,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,5,가격 대비 만족스럽고 활용하기 좋아요.,true,30,false,CUST-0214,BETA-R-11-2,KR,CREAM,FREE,responded
+RV-11-03,2026-08-20T15:12:00.000Z,W컨셉,W컨셉,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,3,전체적으로 무난합니다. 조금 더 입어보고 판단할게요.,true,2,false,CUST-0227,BETA-R-11-3,KR,WHITE,FREE,responded
+RV-11-04,2026-08-20T16:16:00.000Z,자사몰,자사몰,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,5,true,CUST-0240,BETA-R-11-4,KR,NAVY,FREE,responded
+RV-11-05,2026-08-20T17:20:00.000Z,무신사,무신사,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,8,false,CUST-0253,BETA-R-11-5,KR,BLACK,FREE,responded
+RV-11-06,2026-08-20T18:24:00.000Z,29CM,29CM,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,5,가격 대비 만족스럽고 활용하기 좋아요.,true,11,false,CUST-0266,BETA-R-11-6,KR,GREY,FREE,responded
+RV-11-07,2026-08-20T19:28:00.000Z,네이버,네이버,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,14,true,CUST-0279,BETA-R-11-7,KR,DENIM,FREE,responded
+RV-11-08,2026-08-20T12:32:00.000Z,W컨셉,W컨셉,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,17,false,CUST-0292,BETA-R-11-8,KR,BEIGE,FREE,responded
+RV-11-09,2026-08-20T13:36:00.000Z,자사몰,자사몰,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,20,false,CUST-0305,BETA-R-11-9,KR,BLACK,FREE,responded
+RV-11-10,2026-08-20T14:40:00.000Z,무신사,무신사,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,23,true,CUST-0318,BETA-R-11-10,KR,NAVY,FREE,responded
+RV-11-11,2026-08-20T15:44:00.000Z,29CM,29CM,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,26,false,CUST-0331,BETA-R-11-11,KR,WHITE,FREE,responded
+RV-12-00,2026-08-19T12:00:00.000Z,29CM,29CM,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,1,사이즈가 작게 나와 타이트하고 소매가 짧아요. 교환을 고민 중입니다.,true,29,true,CUST-0205,BETA-R-12-0,KR,BLACK,FREE,responded
+RV-12-01,2026-08-19T13:04:00.000Z,네이버,네이버,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,1,false,CUST-0218,BETA-R-12-1,KR,BLACK,FREE,responded
+RV-12-02,2026-08-19T14:08:00.000Z,W컨셉,W컨셉,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,3,전체적으로 무난합니다. 조금 더 입어보고 판단할게요.,true,4,false,CUST-0231,BETA-R-12-2,KR,CREAM,FREE,responded
+RV-12-03,2026-08-19T15:12:00.000Z,자사몰,자사몰,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,5,가격 대비 만족스럽고 활용하기 좋아요.,true,7,true,CUST-0244,BETA-R-12-3,KR,WHITE,FREE,responded
+RV-12-04,2026-08-19T16:16:00.000Z,무신사,무신사,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,10,false,CUST-0257,BETA-R-12-4,KR,NAVY,FREE,responded
+RV-12-05,2026-08-19T17:20:00.000Z,29CM,29CM,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,13,false,CUST-0270,BETA-R-12-5,KR,BLACK,FREE,responded
+RV-12-06,2026-08-19T18:24:00.000Z,네이버,네이버,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,16,true,CUST-0283,BETA-R-12-6,KR,GREY,FREE,responded
+RV-12-07,2026-08-19T19:28:00.000Z,W컨셉,W컨셉,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,5,가격 대비 만족스럽고 활용하기 좋아요.,true,19,false,CUST-0296,BETA-R-12-7,KR,DENIM,FREE,responded
+RV-12-08,2026-08-19T12:32:00.000Z,자사몰,자사몰,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,22,false,CUST-0309,BETA-R-12-8,KR,BEIGE,FREE,responded
+RV-12-09,2026-08-19T13:36:00.000Z,무신사,무신사,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,25,true,CUST-0322,BETA-R-12-9,KR,BLACK,FREE,responded
+RV-12-10,2026-08-19T14:40:00.000Z,29CM,29CM,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,28,false,CUST-0335,BETA-R-12-10,KR,NAVY,FREE,responded
+RV-12-11,2026-08-19T15:44:00.000Z,네이버,네이버,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,5,가격 대비 만족스럽고 활용하기 좋아요.,true,0,false,CUST-0348,BETA-R-12-11,KR,WHITE,FREE,responded
+RV-13-00,2026-08-18T12:00:00.000Z,네이버,네이버,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,5,가격 대비 만족스럽고 활용하기 좋아요.,true,3,false,CUST-0222,BETA-R-13-0,KR,BLACK,FREE,responded
+RV-13-01,2026-08-18T13:04:00.000Z,W컨셉,W컨셉,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,3,전체적으로 무난합니다. 조금 더 입어보고 판단할게요.,true,6,false,CUST-0235,BETA-R-13-1,KR,BLACK,FREE,responded
+RV-13-02,2026-08-18T14:08:00.000Z,자사몰,자사몰,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,9,true,CUST-0248,BETA-R-13-2,KR,CREAM,FREE,responded
+RV-13-03,2026-08-18T15:12:00.000Z,무신사,무신사,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,12,false,CUST-0261,BETA-R-13-3,KR,WHITE,FREE,responded
+RV-13-04,2026-08-18T16:16:00.000Z,29CM,29CM,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,5,가격 대비 만족스럽고 활용하기 좋아요.,true,15,false,CUST-0274,BETA-R-13-4,KR,NAVY,FREE,responded
+RV-13-05,2026-08-18T17:20:00.000Z,네이버,네이버,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,18,true,CUST-0287,BETA-R-13-5,KR,BLACK,FREE,responded
+RV-13-06,2026-08-18T18:24:00.000Z,W컨셉,W컨셉,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,21,false,CUST-0300,BETA-R-13-6,KR,GREY,FREE,responded
+RV-13-07,2026-08-18T19:28:00.000Z,자사몰,자사몰,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,24,false,CUST-0313,BETA-R-13-7,KR,DENIM,FREE,responded
+RV-13-08,2026-08-18T12:32:00.000Z,무신사,무신사,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,27,true,CUST-0326,BETA-R-13-8,KR,BEIGE,FREE,responded
+RV-13-09,2026-08-18T13:36:00.000Z,29CM,29CM,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,30,false,CUST-0339,BETA-R-13-9,KR,BLACK,FREE,responded
+RV-13-10,2026-08-18T14:40:00.000Z,네이버,네이버,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,2,false,CUST-0352,BETA-R-13-10,KR,NAVY,FREE,responded
+RV-13-11,2026-08-18T15:44:00.000Z,W컨셉,W컨셉,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,1,화면보다 색상이 밝고 많이 비쳐요.,true,5,true,CUST-0365,BETA-R-13-11,KR,WHITE,FREE,pending
+RV-14-00,2026-08-17T12:00:00.000Z,W컨셉,W컨셉,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,3,전체적으로 무난합니다. 조금 더 입어보고 판단할게요.,true,8,false,CUST-0239,BETA-R-14-0,KR,BLACK,FREE,responded
+RV-14-01,2026-08-17T13:04:00.000Z,자사몰,자사몰,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,5,가격 대비 만족스럽고 활용하기 좋아요.,true,11,true,CUST-0252,BETA-R-14-1,KR,BLACK,FREE,responded
+RV-14-02,2026-08-17T14:08:00.000Z,무신사,무신사,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,1,봉제 마감이 아쉽고 실밥이 보여요.,true,14,false,CUST-0265,BETA-R-14-2,KR,CREAM,FREE,pending
+RV-14-03,2026-08-17T15:12:00.000Z,29CM,29CM,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,17,false,CUST-0278,BETA-R-14-3,KR,WHITE,FREE,responded
+RV-14-04,2026-08-17T16:16:00.000Z,네이버,네이버,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,20,true,CUST-0291,BETA-R-14-4,KR,NAVY,FREE,responded
+RV-14-05,2026-08-17T17:20:00.000Z,W컨셉,W컨셉,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,5,가격 대비 만족스럽고 활용하기 좋아요.,true,23,false,CUST-0304,BETA-R-14-5,KR,BLACK,FREE,responded
+RV-14-06,2026-08-17T18:24:00.000Z,자사몰,자사몰,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,26,false,CUST-0317,BETA-R-14-6,KR,GREY,FREE,responded
+RV-14-07,2026-08-17T19:28:00.000Z,무신사,무신사,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,29,true,CUST-0330,BETA-R-14-7,KR,DENIM,FREE,responded
+RV-14-08,2026-08-17T12:32:00.000Z,29CM,29CM,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,1,false,CUST-0343,BETA-R-14-8,KR,BEIGE,FREE,responded
+RV-14-09,2026-08-17T13:36:00.000Z,네이버,네이버,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,5,가격 대비 만족스럽고 활용하기 좋아요.,true,4,false,CUST-0356,BETA-R-14-9,KR,BLACK,FREE,responded
+RV-14-10,2026-08-17T14:40:00.000Z,W컨셉,W컨셉,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,7,true,CUST-0369,BETA-R-14-10,KR,NAVY,FREE,responded
+RV-14-11,2026-08-17T15:44:00.000Z,자사몰,자사몰,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,10,false,CUST-0382,BETA-R-14-11,KR,WHITE,FREE,responded
+RV-15-00,2026-08-16T12:00:00.000Z,자사몰,자사몰,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,13,true,CUST-0256,BETA-R-15-0,KR,BLACK,FREE,responded
+RV-15-01,2026-08-16T13:04:00.000Z,무신사,무신사,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,1,원단이 얇고 비쳐요. 가격 대비 소재가 아쉽습니다.,true,16,false,CUST-0269,BETA-R-15-1,KR,BLACK,FREE,responded
+RV-15-02,2026-08-16T14:08:00.000Z,29CM,29CM,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,5,가격 대비 만족스럽고 활용하기 좋아요.,true,19,false,CUST-0282,BETA-R-15-2,KR,CREAM,FREE,responded
+RV-15-03,2026-08-16T15:12:00.000Z,네이버,네이버,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,22,true,CUST-0295,BETA-R-15-3,KR,WHITE,FREE,responded
+RV-15-04,2026-08-16T16:16:00.000Z,W컨셉,W컨셉,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,25,false,CUST-0308,BETA-R-15-4,KR,NAVY,FREE,responded
+RV-15-05,2026-08-16T17:20:00.000Z,자사몰,자사몰,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,28,false,CUST-0321,BETA-R-15-5,KR,BLACK,FREE,responded
+RV-15-06,2026-08-16T18:24:00.000Z,무신사,무신사,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,0,true,CUST-0334,BETA-R-15-6,KR,GREY,FREE,responded
+RV-15-07,2026-08-16T19:28:00.000Z,29CM,29CM,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,3,false,CUST-0347,BETA-R-15-7,KR,DENIM,FREE,responded
+RV-15-08,2026-08-16T12:32:00.000Z,네이버,네이버,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,6,false,CUST-0360,BETA-R-15-8,KR,BEIGE,FREE,responded
+RV-15-09,2026-08-16T13:36:00.000Z,W컨셉,W컨셉,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,9,true,CUST-0373,BETA-R-15-9,KR,BLACK,FREE,responded
+RV-15-10,2026-08-16T14:40:00.000Z,자사몰,자사몰,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,5,가격 대비 만족스럽고 활용하기 좋아요.,true,12,false,CUST-0386,BETA-R-15-10,KR,NAVY,FREE,responded
+RV-15-11,2026-08-16T15:44:00.000Z,무신사,무신사,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,15,false,CUST-0399,BETA-R-15-11,KR,WHITE,FREE,responded
+RV-16-00,2026-08-15T12:00:00.000Z,무신사,무신사,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,1,사이즈가 작게 나와 타이트하고 소매가 짧아요. 교환을 고민 중입니다.,true,18,false,CUST-0273,BETA-R-16-0,KR,BLACK,FREE,pending
+RV-16-01,2026-08-15T13:04:00.000Z,29CM,29CM,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,21,false,CUST-0286,BETA-R-16-1,KR,BLACK,FREE,responded
+RV-16-02,2026-08-15T14:08:00.000Z,네이버,네이버,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,24,true,CUST-0299,BETA-R-16-2,KR,CREAM,FREE,responded
+RV-16-03,2026-08-15T15:12:00.000Z,W컨셉,W컨셉,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,5,가격 대비 만족스럽고 활용하기 좋아요.,true,27,false,CUST-0312,BETA-R-16-3,KR,WHITE,FREE,responded
+RV-16-04,2026-08-15T16:16:00.000Z,자사몰,자사몰,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,30,false,CUST-0325,BETA-R-16-4,KR,NAVY,FREE,responded
+RV-16-05,2026-08-15T17:20:00.000Z,무신사,무신사,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,2,true,CUST-0338,BETA-R-16-5,KR,BLACK,FREE,responded
+RV-16-06,2026-08-15T18:24:00.000Z,29CM,29CM,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,5,false,CUST-0351,BETA-R-16-6,KR,GREY,FREE,responded
+RV-16-07,2026-08-15T19:28:00.000Z,네이버,네이버,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,5,가격 대비 만족스럽고 활용하기 좋아요.,true,8,false,CUST-0364,BETA-R-16-7,KR,DENIM,FREE,responded
+RV-16-08,2026-08-15T12:32:00.000Z,W컨셉,W컨셉,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,11,true,CUST-0377,BETA-R-16-8,KR,BEIGE,FREE,responded
+RV-16-09,2026-08-15T13:36:00.000Z,자사몰,자사몰,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,14,false,CUST-0390,BETA-R-16-9,KR,BLACK,FREE,responded
+RV-16-10,2026-08-15T14:40:00.000Z,무신사,무신사,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,17,false,CUST-0403,BETA-R-16-10,KR,NAVY,FREE,responded
+RV-16-11,2026-08-15T15:44:00.000Z,29CM,29CM,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,5,가격 대비 만족스럽고 활용하기 좋아요.,true,20,true,CUST-0416,BETA-R-16-11,KR,WHITE,FREE,responded
+RV-17-00,2026-08-14T12:00:00.000Z,29CM,29CM,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,5,가격 대비 만족스럽고 활용하기 좋아요.,true,23,false,CUST-0290,BETA-R-17-0,KR,BLACK,FREE,responded
+RV-17-01,2026-08-14T13:04:00.000Z,네이버,네이버,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,26,true,CUST-0303,BETA-R-17-1,KR,BLACK,FREE,responded
+RV-17-02,2026-08-14T14:08:00.000Z,W컨셉,W컨셉,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,29,false,CUST-0316,BETA-R-17-2,KR,CREAM,FREE,responded
+RV-17-03,2026-08-14T15:12:00.000Z,자사몰,자사몰,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,1,false,CUST-0329,BETA-R-17-3,KR,WHITE,FREE,responded
+RV-17-04,2026-08-14T16:16:00.000Z,무신사,무신사,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,4,true,CUST-0342,BETA-R-17-4,KR,NAVY,FREE,responded
+RV-17-05,2026-08-14T17:20:00.000Z,29CM,29CM,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,7,false,CUST-0355,BETA-R-17-5,KR,BLACK,FREE,responded
+RV-17-06,2026-08-14T18:24:00.000Z,네이버,네이버,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,10,false,CUST-0368,BETA-R-17-6,KR,GREY,FREE,responded
+RV-17-07,2026-08-14T19:28:00.000Z,W컨셉,W컨셉,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,13,true,CUST-0381,BETA-R-17-7,KR,DENIM,FREE,responded
+RV-17-08,2026-08-14T12:32:00.000Z,자사몰,자사몰,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,5,가격 대비 만족스럽고 활용하기 좋아요.,true,16,false,CUST-0394,BETA-R-17-8,KR,BEIGE,FREE,responded
+RV-17-09,2026-08-14T13:36:00.000Z,무신사,무신사,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,19,false,CUST-0407,BETA-R-17-9,KR,BLACK,FREE,responded
+RV-17-10,2026-08-14T14:40:00.000Z,29CM,29CM,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,22,true,CUST-0420,BETA-R-17-10,KR,NAVY,FREE,responded
+RV-17-11,2026-08-14T15:44:00.000Z,네이버,네이버,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,1,화면보다 색상이 밝고 많이 비쳐요.,true,25,false,CUST-0013,BETA-R-17-11,KR,WHITE,FREE,pending
+RV-18-00,2026-08-13T12:00:00.000Z,네이버,네이버,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,28,true,CUST-0307,BETA-R-18-0,KR,BLACK,FREE,responded
+RV-18-01,2026-08-13T13:04:00.000Z,W컨셉,W컨셉,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,5,가격 대비 만족스럽고 활용하기 좋아요.,true,0,false,CUST-0320,BETA-R-18-1,KR,BLACK,FREE,responded
+RV-18-02,2026-08-13T14:08:00.000Z,자사몰,자사몰,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,1,봉제 마감이 아쉽고 실밥이 보여요.,true,3,false,CUST-0333,BETA-R-18-2,KR,CREAM,FREE,responded
+RV-18-03,2026-08-13T15:12:00.000Z,무신사,무신사,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,6,true,CUST-0346,BETA-R-18-3,KR,WHITE,FREE,responded
+RV-18-04,2026-08-13T16:16:00.000Z,29CM,29CM,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,9,false,CUST-0359,BETA-R-18-4,KR,NAVY,FREE,responded
+RV-18-05,2026-08-13T17:20:00.000Z,네이버,네이버,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,5,가격 대비 만족스럽고 활용하기 좋아요.,true,12,false,CUST-0372,BETA-R-18-5,KR,BLACK,FREE,responded
+RV-18-06,2026-08-13T18:24:00.000Z,W컨셉,W컨셉,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,15,true,CUST-0385,BETA-R-18-6,KR,GREY,FREE,responded
+RV-18-07,2026-08-13T19:28:00.000Z,자사몰,자사몰,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,18,false,CUST-0398,BETA-R-18-7,KR,DENIM,FREE,responded
+RV-18-08,2026-08-13T12:32:00.000Z,무신사,무신사,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,21,false,CUST-0411,BETA-R-18-8,KR,BEIGE,FREE,responded
+RV-18-09,2026-08-13T13:36:00.000Z,29CM,29CM,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,5,가격 대비 만족스럽고 활용하기 좋아요.,true,24,true,CUST-0004,BETA-R-18-9,KR,BLACK,FREE,responded
+RV-18-10,2026-08-13T14:40:00.000Z,네이버,네이버,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,3,전체적으로 무난합니다. 조금 더 입어보고 판단할게요.,true,27,false,CUST-0017,BETA-R-18-10,KR,NAVY,FREE,responded
+RV-18-11,2026-08-13T15:44:00.000Z,W컨셉,W컨셉,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,30,false,CUST-0030,BETA-R-18-11,KR,WHITE,FREE,responded
+RV-19-00,2026-08-12T12:00:00.000Z,W컨셉,W컨셉,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,2,false,CUST-0324,BETA-R-19-0,KR,BLACK,FREE,responded
+RV-19-01,2026-08-12T13:04:00.000Z,자사몰,자사몰,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,1,원단이 얇고 비쳐요. 가격 대비 소재가 아쉽습니다.,true,5,false,CUST-0337,BETA-R-19-1,KR,BLACK,FREE,pending
+RV-19-02,2026-08-12T14:08:00.000Z,무신사,무신사,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,8,true,CUST-0350,BETA-R-19-2,KR,CREAM,FREE,responded
+RV-19-03,2026-08-12T15:12:00.000Z,29CM,29CM,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,11,false,CUST-0363,BETA-R-19-3,KR,WHITE,FREE,responded
+RV-19-04,2026-08-12T16:16:00.000Z,네이버,네이버,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,14,false,CUST-0376,BETA-R-19-4,KR,NAVY,FREE,responded
+RV-19-05,2026-08-12T17:20:00.000Z,W컨셉,W컨셉,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,17,true,CUST-0389,BETA-R-19-5,KR,BLACK,FREE,responded
+RV-19-06,2026-08-12T18:24:00.000Z,자사몰,자사몰,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,5,가격 대비 만족스럽고 활용하기 좋아요.,true,20,false,CUST-0402,BETA-R-19-6,KR,GREY,FREE,responded
+RV-19-07,2026-08-12T19:28:00.000Z,무신사,무신사,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,23,false,CUST-0415,BETA-R-19-7,KR,DENIM,FREE,responded
+RV-19-08,2026-08-12T12:32:00.000Z,29CM,29CM,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,26,true,CUST-0008,BETA-R-19-8,KR,BEIGE,FREE,responded
+RV-19-09,2026-08-12T13:36:00.000Z,네이버,네이버,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,3,전체적으로 무난합니다. 조금 더 입어보고 판단할게요.,true,29,false,CUST-0021,BETA-R-19-9,KR,BLACK,FREE,responded
+RV-19-10,2026-08-12T14:40:00.000Z,W컨셉,W컨셉,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,5,가격 대비 만족스럽고 활용하기 좋아요.,true,1,false,CUST-0034,BETA-R-19-10,KR,NAVY,FREE,responded
+RV-19-11,2026-08-12T15:44:00.000Z,자사몰,자사몰,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,4,true,CUST-0047,BETA-R-19-11,KR,WHITE,FREE,responded
+RV-20-00,2026-08-11T12:00:00.000Z,자사몰,자사몰,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,1,사이즈가 작게 나와 타이트하고 소매가 짧아요. 교환을 고민 중입니다.,true,7,false,CUST-0341,BETA-R-20-0,KR,BLACK,FREE,pending
+RV-20-01,2026-08-11T13:04:00.000Z,무신사,무신사,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,10,true,CUST-0354,BETA-R-20-1,KR,BLACK,FREE,responded
+RV-20-02,2026-08-11T14:08:00.000Z,29CM,29CM,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,13,false,CUST-0367,BETA-R-20-2,KR,CREAM,FREE,responded
+RV-20-03,2026-08-11T15:12:00.000Z,네이버,네이버,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,5,가격 대비 만족스럽고 활용하기 좋아요.,true,16,false,CUST-0380,BETA-R-20-3,KR,WHITE,FREE,responded
+RV-20-04,2026-08-11T16:16:00.000Z,W컨셉,W컨셉,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,19,true,CUST-0393,BETA-R-20-4,KR,NAVY,FREE,responded
+RV-20-05,2026-08-11T17:20:00.000Z,자사몰,자사몰,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,22,false,CUST-0406,BETA-R-20-5,KR,BLACK,FREE,responded
+RV-20-06,2026-08-11T18:24:00.000Z,무신사,무신사,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,25,false,CUST-0419,BETA-R-20-6,KR,GREY,FREE,responded
+RV-20-07,2026-08-11T19:28:00.000Z,29CM,29CM,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,5,가격 대비 만족스럽고 활용하기 좋아요.,true,28,true,CUST-0012,BETA-R-20-7,KR,DENIM,FREE,responded
+RV-20-08,2026-08-11T12:32:00.000Z,네이버,네이버,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,3,전체적으로 무난합니다. 조금 더 입어보고 판단할게요.,true,0,false,CUST-0025,BETA-R-20-8,KR,BEIGE,FREE,responded
+RV-20-09,2026-08-11T13:36:00.000Z,W컨셉,W컨셉,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,3,false,CUST-0038,BETA-R-20-9,KR,BLACK,FREE,responded
+RV-20-10,2026-08-11T14:40:00.000Z,자사몰,자사몰,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,6,true,CUST-0051,BETA-R-20-10,KR,NAVY,FREE,responded
+RV-20-11,2026-08-11T15:44:00.000Z,무신사,무신사,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,5,가격 대비 만족스럽고 활용하기 좋아요.,true,9,false,CUST-0064,BETA-R-20-11,KR,WHITE,FREE,responded
+RV-21-00,2026-08-10T12:00:00.000Z,무신사,무신사,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,12,true,CUST-0358,BETA-R-21-0,KR,BLACK,FREE,responded
+RV-21-01,2026-08-10T13:04:00.000Z,29CM,29CM,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,15,false,CUST-0371,BETA-R-21-1,KR,BLACK,FREE,responded
+RV-21-02,2026-08-10T14:08:00.000Z,네이버,네이버,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,18,false,CUST-0384,BETA-R-21-2,KR,CREAM,FREE,responded
+RV-21-03,2026-08-10T15:12:00.000Z,W컨셉,W컨셉,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,21,true,CUST-0397,BETA-R-21-3,KR,WHITE,FREE,responded
+RV-21-04,2026-08-10T16:16:00.000Z,자사몰,자사몰,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,5,가격 대비 만족스럽고 활용하기 좋아요.,true,24,false,CUST-0410,BETA-R-21-4,KR,NAVY,FREE,responded
+RV-21-05,2026-08-10T17:20:00.000Z,무신사,무신사,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,27,false,CUST-0003,BETA-R-21-5,KR,BLACK,FREE,responded
+RV-21-06,2026-08-10T18:24:00.000Z,29CM,29CM,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,30,true,CUST-0016,BETA-R-21-6,KR,GREY,FREE,responded
+RV-21-07,2026-08-10T19:28:00.000Z,네이버,네이버,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,3,전체적으로 무난합니다. 조금 더 입어보고 판단할게요.,true,2,false,CUST-0029,BETA-R-21-7,KR,DENIM,FREE,responded
+RV-21-08,2026-08-10T12:32:00.000Z,W컨셉,W컨셉,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,5,가격 대비 만족스럽고 활용하기 좋아요.,true,5,false,CUST-0042,BETA-R-21-8,KR,BEIGE,FREE,responded
+RV-21-09,2026-08-10T13:36:00.000Z,자사몰,자사몰,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,8,true,CUST-0055,BETA-R-21-9,KR,BLACK,FREE,responded
+RV-21-10,2026-08-10T14:40:00.000Z,무신사,무신사,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,11,false,CUST-0068,BETA-R-21-10,KR,NAVY,FREE,responded
+RV-21-11,2026-08-10T15:44:00.000Z,29CM,29CM,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,1,화면보다 색상이 밝고 많이 비쳐요.,true,14,false,CUST-0081,BETA-R-21-11,KR,WHITE,FREE,responded
+RV-22-00,2026-08-09T12:00:00.000Z,29CM,29CM,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,17,false,CUST-0375,BETA-R-22-0,KR,BLACK,FREE,responded
+RV-22-01,2026-08-09T13:04:00.000Z,네이버,네이버,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,5,가격 대비 만족스럽고 활용하기 좋아요.,true,20,false,CUST-0388,BETA-R-22-1,KR,BLACK,FREE,responded
+RV-22-02,2026-08-09T14:08:00.000Z,W컨셉,W컨셉,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,1,봉제 마감이 아쉽고 실밥이 보여요.,true,23,true,CUST-0401,BETA-R-22-2,KR,CREAM,FREE,pending
+RV-22-03,2026-08-09T15:12:00.000Z,자사몰,자사몰,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,26,false,CUST-0414,BETA-R-22-3,KR,WHITE,FREE,responded
+RV-22-04,2026-08-09T16:16:00.000Z,무신사,무신사,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,29,false,CUST-0007,BETA-R-22-4,KR,NAVY,FREE,responded
+RV-22-05,2026-08-09T17:20:00.000Z,29CM,29CM,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,5,가격 대비 만족스럽고 활용하기 좋아요.,true,1,true,CUST-0020,BETA-R-22-5,KR,BLACK,FREE,responded
+RV-22-06,2026-08-09T18:24:00.000Z,네이버,네이버,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,3,전체적으로 무난합니다. 조금 더 입어보고 판단할게요.,true,4,false,CUST-0033,BETA-R-22-6,KR,GREY,FREE,responded
+RV-22-07,2026-08-09T19:28:00.000Z,W컨셉,W컨셉,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,7,false,CUST-0046,BETA-R-22-7,KR,DENIM,FREE,responded
+RV-22-08,2026-08-09T12:32:00.000Z,자사몰,자사몰,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,10,true,CUST-0059,BETA-R-22-8,KR,BEIGE,FREE,responded
+RV-22-09,2026-08-09T13:36:00.000Z,무신사,무신사,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,5,가격 대비 만족스럽고 활용하기 좋아요.,true,13,false,CUST-0072,BETA-R-22-9,KR,BLACK,FREE,responded
+RV-22-10,2026-08-09T14:40:00.000Z,29CM,29CM,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,16,false,CUST-0085,BETA-R-22-10,KR,NAVY,FREE,responded
+RV-22-11,2026-08-09T15:44:00.000Z,네이버,네이버,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,19,true,CUST-0098,BETA-R-22-11,KR,WHITE,FREE,responded
+RV-23-00,2026-08-08T12:00:00.000Z,네이버,네이버,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,22,false,CUST-0392,BETA-R-23-0,KR,BLACK,FREE,responded
+RV-23-01,2026-08-08T13:04:00.000Z,W컨셉,W컨셉,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,1,원단이 얇고 비쳐요. 가격 대비 소재가 아쉽습니다.,true,25,true,CUST-0405,BETA-R-23-1,KR,BLACK,FREE,pending
+RV-23-02,2026-08-08T14:08:00.000Z,자사몰,자사몰,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,5,가격 대비 만족스럽고 활용하기 좋아요.,true,28,false,CUST-0418,BETA-R-23-2,KR,CREAM,FREE,responded
+RV-23-03,2026-08-08T15:12:00.000Z,무신사,무신사,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,0,false,CUST-0011,BETA-R-23-3,KR,WHITE,FREE,responded
+RV-23-04,2026-08-08T16:16:00.000Z,29CM,29CM,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,3,true,CUST-0024,BETA-R-23-4,KR,NAVY,FREE,responded
+RV-23-05,2026-08-08T17:20:00.000Z,네이버,네이버,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,3,전체적으로 무난합니다. 조금 더 입어보고 판단할게요.,true,6,false,CUST-0037,BETA-R-23-5,KR,BLACK,FREE,responded
+RV-23-06,2026-08-08T18:24:00.000Z,W컨셉,W컨셉,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,5,가격 대비 만족스럽고 활용하기 좋아요.,true,9,false,CUST-0050,BETA-R-23-6,KR,GREY,FREE,responded
+RV-23-07,2026-08-08T19:28:00.000Z,자사몰,자사몰,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,12,true,CUST-0063,BETA-R-23-7,KR,DENIM,FREE,responded
+RV-23-08,2026-08-08T12:32:00.000Z,무신사,무신사,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,15,false,CUST-0076,BETA-R-23-8,KR,BEIGE,FREE,responded
+RV-23-09,2026-08-08T13:36:00.000Z,29CM,29CM,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,18,false,CUST-0089,BETA-R-23-9,KR,BLACK,FREE,responded
+RV-23-10,2026-08-08T14:40:00.000Z,네이버,네이버,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,5,가격 대비 만족스럽고 활용하기 좋아요.,true,21,true,CUST-0102,BETA-R-23-10,KR,NAVY,FREE,responded
+RV-23-11,2026-08-08T15:44:00.000Z,W컨셉,W컨셉,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,24,false,CUST-0115,BETA-R-23-11,KR,WHITE,FREE,responded
+RV-24-00,2026-08-07T12:00:00.000Z,W컨셉,W컨셉,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,1,사이즈가 작게 나와 타이트하고 소매가 짧아요. 교환을 고민 중입니다.,true,27,true,CUST-0409,BETA-R-24-0,KR,BLACK,FREE,responded
+RV-24-01,2026-08-07T13:04:00.000Z,자사몰,자사몰,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,30,false,CUST-0002,BETA-R-24-1,KR,BLACK,FREE,responded
+RV-24-02,2026-08-07T14:08:00.000Z,무신사,무신사,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,2,false,CUST-0015,BETA-R-24-2,KR,CREAM,FREE,responded
+RV-24-03,2026-08-07T15:12:00.000Z,29CM,29CM,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,5,가격 대비 만족스럽고 활용하기 좋아요.,true,5,true,CUST-0028,BETA-R-24-3,KR,WHITE,FREE,responded
+RV-24-04,2026-08-07T16:16:00.000Z,네이버,네이버,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,3,전체적으로 무난합니다. 조금 더 입어보고 판단할게요.,true,8,false,CUST-0041,BETA-R-24-4,KR,NAVY,FREE,responded
+RV-24-05,2026-08-07T17:20:00.000Z,W컨셉,W컨셉,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,11,false,CUST-0054,BETA-R-24-5,KR,BLACK,FREE,responded
+RV-24-06,2026-08-07T18:24:00.000Z,자사몰,자사몰,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,14,true,CUST-0067,BETA-R-24-6,KR,GREY,FREE,responded
+RV-24-07,2026-08-07T19:28:00.000Z,무신사,무신사,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,5,가격 대비 만족스럽고 활용하기 좋아요.,true,17,false,CUST-0080,BETA-R-24-7,KR,DENIM,FREE,responded
+RV-24-08,2026-08-07T12:32:00.000Z,29CM,29CM,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,20,false,CUST-0093,BETA-R-24-8,KR,BEIGE,FREE,responded
+RV-24-09,2026-08-07T13:36:00.000Z,네이버,네이버,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,23,true,CUST-0106,BETA-R-24-9,KR,BLACK,FREE,responded
+RV-24-10,2026-08-07T14:40:00.000Z,W컨셉,W컨셉,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,26,false,CUST-0119,BETA-R-24-10,KR,NAVY,FREE,responded
+RV-24-11,2026-08-07T15:44:00.000Z,자사몰,자사몰,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,29,false,CUST-0132,BETA-R-24-11,KR,WHITE,FREE,responded
+RV-25-00,2026-08-06T12:00:00.000Z,자사몰,자사몰,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,5,가격 대비 만족스럽고 활용하기 좋아요.,true,1,false,CUST-0006,BETA-R-25-0,KR,BLACK,FREE,responded
+RV-25-01,2026-08-06T13:04:00.000Z,무신사,무신사,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,4,false,CUST-0019,BETA-R-25-1,KR,BLACK,FREE,responded
+RV-25-02,2026-08-06T14:08:00.000Z,29CM,29CM,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,7,true,CUST-0032,BETA-R-25-2,KR,CREAM,FREE,responded
+RV-25-03,2026-08-06T15:12:00.000Z,네이버,네이버,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,3,전체적으로 무난합니다. 조금 더 입어보고 판단할게요.,true,10,false,CUST-0045,BETA-R-25-3,KR,WHITE,FREE,responded
+RV-25-04,2026-08-06T16:16:00.000Z,W컨셉,W컨셉,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,5,가격 대비 만족스럽고 활용하기 좋아요.,true,13,false,CUST-0058,BETA-R-25-4,KR,NAVY,FREE,responded
+RV-25-05,2026-08-06T17:20:00.000Z,자사몰,자사몰,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,16,true,CUST-0071,BETA-R-25-5,KR,BLACK,FREE,responded
+RV-25-06,2026-08-06T18:24:00.000Z,무신사,무신사,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,19,false,CUST-0084,BETA-R-25-6,KR,GREY,FREE,responded
+RV-25-07,2026-08-06T19:28:00.000Z,29CM,29CM,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,22,false,CUST-0097,BETA-R-25-7,KR,DENIM,FREE,responded
+RV-25-08,2026-08-06T12:32:00.000Z,네이버,네이버,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,5,가격 대비 만족스럽고 활용하기 좋아요.,true,25,true,CUST-0110,BETA-R-25-8,KR,BEIGE,FREE,responded
+RV-25-09,2026-08-06T13:36:00.000Z,W컨셉,W컨셉,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,28,false,CUST-0123,BETA-R-25-9,KR,BLACK,FREE,responded
+RV-25-10,2026-08-06T14:40:00.000Z,자사몰,자사몰,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,0,false,CUST-0136,BETA-R-25-10,KR,NAVY,FREE,responded
+RV-25-11,2026-08-06T15:44:00.000Z,무신사,무신사,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,1,화면보다 색상이 밝고 많이 비쳐요.,true,3,true,CUST-0149,BETA-R-25-11,KR,WHITE,FREE,pending
+RV-26-00,2026-08-05T12:00:00.000Z,무신사,무신사,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,6,false,CUST-0023,BETA-R-26-0,KR,BLACK,FREE,responded
+RV-26-01,2026-08-05T13:04:00.000Z,29CM,29CM,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,5,가격 대비 만족스럽고 활용하기 좋아요.,true,9,true,CUST-0036,BETA-R-26-1,KR,BLACK,FREE,responded
+RV-26-02,2026-08-05T14:08:00.000Z,네이버,네이버,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,1,봉제 마감이 아쉽고 실밥이 보여요.,true,12,false,CUST-0049,BETA-R-26-2,KR,CREAM,FREE,pending
+RV-26-03,2026-08-05T15:12:00.000Z,W컨셉,W컨셉,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,15,false,CUST-0062,BETA-R-26-3,KR,WHITE,FREE,responded
+RV-26-04,2026-08-05T16:16:00.000Z,자사몰,자사몰,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,18,true,CUST-0075,BETA-R-26-4,KR,NAVY,FREE,responded
+RV-26-05,2026-08-05T17:20:00.000Z,무신사,무신사,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,5,가격 대비 만족스럽고 활용하기 좋아요.,true,21,false,CUST-0088,BETA-R-26-5,KR,BLACK,FREE,responded
+RV-26-06,2026-08-05T18:24:00.000Z,29CM,29CM,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,24,false,CUST-0101,BETA-R-26-6,KR,GREY,FREE,responded
+RV-26-07,2026-08-05T19:28:00.000Z,네이버,네이버,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,27,true,CUST-0114,BETA-R-26-7,KR,DENIM,FREE,responded
+RV-26-08,2026-08-05T12:32:00.000Z,W컨셉,W컨셉,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,30,false,CUST-0127,BETA-R-26-8,KR,BEIGE,FREE,responded
+RV-26-09,2026-08-05T13:36:00.000Z,자사몰,자사몰,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,2,false,CUST-0140,BETA-R-26-9,KR,BLACK,FREE,responded
+RV-26-10,2026-08-05T14:40:00.000Z,무신사,무신사,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,5,true,CUST-0153,BETA-R-26-10,KR,NAVY,FREE,responded
+RV-26-11,2026-08-05T15:44:00.000Z,29CM,29CM,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,8,false,CUST-0166,BETA-R-26-11,KR,WHITE,FREE,responded
+RV-27-00,2026-08-04T12:00:00.000Z,29CM,29CM,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,11,true,CUST-0040,BETA-R-27-0,KR,BLACK,FREE,responded
+RV-27-01,2026-08-04T13:04:00.000Z,네이버,네이버,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,1,원단이 얇고 비쳐요. 가격 대비 소재가 아쉽습니다.,true,14,false,CUST-0053,BETA-R-27-1,KR,BLACK,FREE,responded
+RV-27-02,2026-08-04T14:08:00.000Z,W컨셉,W컨셉,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,5,가격 대비 만족스럽고 활용하기 좋아요.,true,17,false,CUST-0066,BETA-R-27-2,KR,CREAM,FREE,responded
+RV-27-03,2026-08-04T15:12:00.000Z,자사몰,자사몰,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,20,true,CUST-0079,BETA-R-27-3,KR,WHITE,FREE,responded
+RV-27-04,2026-08-04T16:16:00.000Z,무신사,무신사,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,23,false,CUST-0092,BETA-R-27-4,KR,NAVY,FREE,responded
+RV-27-05,2026-08-04T17:20:00.000Z,29CM,29CM,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,26,false,CUST-0105,BETA-R-27-5,KR,BLACK,FREE,responded
+RV-27-06,2026-08-04T18:24:00.000Z,네이버,네이버,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,5,가격 대비 만족스럽고 활용하기 좋아요.,true,29,true,CUST-0118,BETA-R-27-6,KR,GREY,FREE,responded
+RV-27-07,2026-08-04T19:28:00.000Z,W컨셉,W컨셉,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,1,false,CUST-0131,BETA-R-27-7,KR,DENIM,FREE,responded
+RV-27-08,2026-08-04T12:32:00.000Z,자사몰,자사몰,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,4,false,CUST-0144,BETA-R-27-8,KR,BEIGE,FREE,responded
+RV-27-09,2026-08-04T13:36:00.000Z,무신사,무신사,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,7,true,CUST-0157,BETA-R-27-9,KR,BLACK,FREE,responded
+RV-27-10,2026-08-04T14:40:00.000Z,29CM,29CM,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,5,가격 대비 만족스럽고 활용하기 좋아요.,true,10,false,CUST-0170,BETA-R-27-10,KR,NAVY,FREE,responded
+RV-27-11,2026-08-04T15:44:00.000Z,네이버,네이버,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,13,false,CUST-0183,BETA-R-27-11,KR,WHITE,FREE,responded
+RV-28-00,2026-08-03T12:00:00.000Z,네이버,네이버,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,1,사이즈가 작게 나와 타이트하고 소매가 짧아요. 교환을 고민 중입니다.,true,16,false,CUST-0057,BETA-R-28-0,KR,BLACK,FREE,pending
+RV-28-01,2026-08-03T13:04:00.000Z,W컨셉,W컨셉,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,19,false,CUST-0070,BETA-R-28-1,KR,BLACK,FREE,responded
+RV-28-02,2026-08-03T14:08:00.000Z,자사몰,자사몰,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,22,true,CUST-0083,BETA-R-28-2,KR,CREAM,FREE,responded
+RV-28-03,2026-08-03T15:12:00.000Z,무신사,무신사,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,5,가격 대비 만족스럽고 활용하기 좋아요.,true,25,false,CUST-0096,BETA-R-28-3,KR,WHITE,FREE,responded
+RV-28-04,2026-08-03T16:16:00.000Z,29CM,29CM,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,28,false,CUST-0109,BETA-R-28-4,KR,NAVY,FREE,responded
+RV-28-05,2026-08-03T17:20:00.000Z,네이버,네이버,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,0,true,CUST-0122,BETA-R-28-5,KR,BLACK,FREE,responded
+RV-28-06,2026-08-03T18:24:00.000Z,W컨셉,W컨셉,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,3,false,CUST-0135,BETA-R-28-6,KR,GREY,FREE,responded
+RV-28-07,2026-08-03T19:28:00.000Z,자사몰,자사몰,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,6,false,CUST-0148,BETA-R-28-7,KR,DENIM,FREE,responded
+RV-28-08,2026-08-03T12:32:00.000Z,무신사,무신사,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,9,true,CUST-0161,BETA-R-28-8,KR,BEIGE,FREE,responded
+RV-28-09,2026-08-03T13:36:00.000Z,29CM,29CM,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,12,false,CUST-0174,BETA-R-28-9,KR,BLACK,FREE,responded
+RV-28-10,2026-08-03T14:40:00.000Z,네이버,네이버,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,15,false,CUST-0187,BETA-R-28-10,KR,NAVY,FREE,responded
+RV-28-11,2026-08-03T15:44:00.000Z,W컨셉,W컨셉,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,5,가격 대비 만족스럽고 활용하기 좋아요.,true,18,true,CUST-0200,BETA-R-28-11,KR,WHITE,FREE,responded
+RV-29-00,2026-08-02T12:00:00.000Z,W컨셉,W컨셉,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,5,가격 대비 만족스럽고 활용하기 좋아요.,true,21,false,CUST-0074,BETA-R-29-0,KR,BLACK,FREE,responded
+RV-29-01,2026-08-02T13:04:00.000Z,자사몰,자사몰,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,24,true,CUST-0087,BETA-R-29-1,KR,BLACK,FREE,responded
+RV-29-02,2026-08-02T14:08:00.000Z,무신사,무신사,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,27,false,CUST-0100,BETA-R-29-2,KR,CREAM,FREE,responded
+RV-29-03,2026-08-02T15:12:00.000Z,29CM,29CM,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,30,false,CUST-0113,BETA-R-29-3,KR,WHITE,FREE,responded
+RV-29-04,2026-08-02T16:16:00.000Z,네이버,네이버,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,5,가격 대비 만족스럽고 활용하기 좋아요.,true,2,true,CUST-0126,BETA-R-29-4,KR,NAVY,FREE,responded
+RV-29-05,2026-08-02T17:20:00.000Z,W컨셉,W컨셉,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,5,false,CUST-0139,BETA-R-29-5,KR,BLACK,FREE,responded
+RV-29-06,2026-08-02T18:24:00.000Z,자사몰,자사몰,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,8,false,CUST-0152,BETA-R-29-6,KR,GREY,FREE,responded
+RV-29-07,2026-08-02T19:28:00.000Z,무신사,무신사,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,11,true,CUST-0165,BETA-R-29-7,KR,DENIM,FREE,responded
+RV-29-08,2026-08-02T12:32:00.000Z,29CM,29CM,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,5,가격 대비 만족스럽고 활용하기 좋아요.,true,14,false,CUST-0178,BETA-R-29-8,KR,BEIGE,FREE,responded
+RV-29-09,2026-08-02T13:36:00.000Z,네이버,네이버,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,17,false,CUST-0191,BETA-R-29-9,KR,BLACK,FREE,responded
+RV-29-10,2026-08-02T14:40:00.000Z,W컨셉,W컨셉,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,20,true,CUST-0204,BETA-R-29-10,KR,NAVY,FREE,responded
+RV-29-11,2026-08-02T15:44:00.000Z,자사몰,자사몰,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,1,화면보다 색상이 밝고 많이 비쳐요.,true,23,false,CUST-0217,BETA-R-29-11,KR,WHITE,FREE,pending
+RV-30-00,2026-08-01T12:00:00.000Z,자사몰,자사몰,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,26,true,CUST-0091,BETA-R-30-0,KR,BLACK,FREE,responded
+RV-30-01,2026-08-01T13:04:00.000Z,무신사,무신사,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,5,가격 대비 만족스럽고 활용하기 좋아요.,true,29,false,CUST-0104,BETA-R-30-1,KR,BLACK,FREE,responded
+RV-30-02,2026-08-01T14:08:00.000Z,29CM,29CM,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,1,봉제 마감이 아쉽고 실밥이 보여요.,true,1,false,CUST-0117,BETA-R-30-2,KR,CREAM,FREE,responded
+RV-30-03,2026-08-01T15:12:00.000Z,네이버,네이버,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,4,true,CUST-0130,BETA-R-30-3,KR,WHITE,FREE,responded
+RV-30-04,2026-08-01T16:16:00.000Z,W컨셉,W컨셉,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,7,false,CUST-0143,BETA-R-30-4,KR,NAVY,FREE,responded
+RV-30-05,2026-08-01T17:20:00.000Z,자사몰,자사몰,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,10,false,CUST-0156,BETA-R-30-5,KR,BLACK,FREE,responded
+RV-30-06,2026-08-01T18:24:00.000Z,무신사,무신사,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,13,true,CUST-0169,BETA-R-30-6,KR,GREY,FREE,responded
+RV-30-07,2026-08-01T19:28:00.000Z,29CM,29CM,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,16,false,CUST-0182,BETA-R-30-7,KR,DENIM,FREE,responded
+RV-30-08,2026-08-01T12:32:00.000Z,네이버,네이버,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,19,false,CUST-0195,BETA-R-30-8,KR,BEIGE,FREE,responded
+RV-30-09,2026-08-01T13:36:00.000Z,W컨셉,W컨셉,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,5,가격 대비 만족스럽고 활용하기 좋아요.,true,22,true,CUST-0208,BETA-R-30-9,KR,BLACK,FREE,responded
+RV-30-10,2026-08-01T14:40:00.000Z,자사몰,자사몰,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,25,false,CUST-0221,BETA-R-30-10,KR,NAVY,FREE,responded
+RV-30-11,2026-08-01T15:44:00.000Z,무신사,무신사,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,28,false,CUST-0234,BETA-R-30-11,KR,WHITE,FREE,responded
+RV-31-00,2026-07-31T12:00:00.000Z,무신사,무신사,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,0,false,CUST-0108,BETA-R-31-0,KR,BLACK,FREE,responded
+RV-31-01,2026-07-31T13:04:00.000Z,29CM,29CM,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,1,원단이 얇고 비쳐요. 가격 대비 소재가 아쉽습니다.,true,3,false,CUST-0121,BETA-R-31-1,KR,BLACK,FREE,pending
+RV-31-02,2026-07-31T14:08:00.000Z,네이버,네이버,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,5,가격 대비 만족스럽고 활용하기 좋아요.,true,6,true,CUST-0134,BETA-R-31-2,KR,CREAM,FREE,responded
+RV-31-03,2026-07-31T15:12:00.000Z,W컨셉,W컨셉,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,9,false,CUST-0147,BETA-R-31-3,KR,WHITE,FREE,responded
+RV-31-04,2026-07-31T16:16:00.000Z,자사몰,자사몰,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,12,false,CUST-0160,BETA-R-31-4,KR,NAVY,FREE,responded
+RV-31-05,2026-07-31T17:20:00.000Z,무신사,무신사,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,15,true,CUST-0173,BETA-R-31-5,KR,BLACK,FREE,responded
+RV-31-06,2026-07-31T18:24:00.000Z,29CM,29CM,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,5,가격 대비 만족스럽고 활용하기 좋아요.,true,18,false,CUST-0186,BETA-R-31-6,KR,GREY,FREE,responded
+RV-31-07,2026-07-31T19:28:00.000Z,네이버,네이버,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,21,false,CUST-0199,BETA-R-31-7,KR,DENIM,FREE,responded
+RV-31-08,2026-07-31T12:32:00.000Z,W컨셉,W컨셉,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,24,true,CUST-0212,BETA-R-31-8,KR,BEIGE,FREE,responded
+RV-31-09,2026-07-31T13:36:00.000Z,자사몰,자사몰,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,27,false,CUST-0225,BETA-R-31-9,KR,BLACK,FREE,responded
+RV-31-10,2026-07-31T14:40:00.000Z,무신사,무신사,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,5,가격 대비 만족스럽고 활용하기 좋아요.,true,30,false,CUST-0238,BETA-R-31-10,KR,NAVY,FREE,responded
+RV-31-11,2026-07-31T15:44:00.000Z,29CM,29CM,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,3,전체적으로 무난합니다. 조금 더 입어보고 판단할게요.,true,2,true,CUST-0251,BETA-R-31-11,KR,WHITE,FREE,responded
+RV-32-00,2026-07-30T12:00:00.000Z,29CM,29CM,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,1,사이즈가 작게 나와 타이트하고 소매가 짧아요. 교환을 고민 중입니다.,true,5,false,CUST-0125,BETA-R-32-0,KR,BLACK,FREE,pending
+RV-32-01,2026-07-30T13:04:00.000Z,네이버,네이버,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,8,true,CUST-0138,BETA-R-32-1,KR,BLACK,FREE,responded
+RV-32-02,2026-07-30T14:08:00.000Z,W컨셉,W컨셉,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,11,false,CUST-0151,BETA-R-32-2,KR,CREAM,FREE,responded
+RV-32-03,2026-07-30T15:12:00.000Z,자사몰,자사몰,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,14,false,CUST-0164,BETA-R-32-3,KR,WHITE,FREE,responded
+RV-32-04,2026-07-30T16:16:00.000Z,무신사,무신사,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,17,true,CUST-0177,BETA-R-32-4,KR,NAVY,FREE,responded
+RV-32-05,2026-07-30T17:20:00.000Z,29CM,29CM,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,20,false,CUST-0190,BETA-R-32-5,KR,BLACK,FREE,responded
+RV-32-06,2026-07-30T18:24:00.000Z,네이버,네이버,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,23,false,CUST-0203,BETA-R-32-6,KR,GREY,FREE,responded
+RV-32-07,2026-07-30T19:28:00.000Z,W컨셉,W컨셉,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,5,가격 대비 만족스럽고 활용하기 좋아요.,true,26,true,CUST-0216,BETA-R-32-7,KR,DENIM,FREE,responded
+RV-32-08,2026-07-30T12:32:00.000Z,자사몰,자사몰,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,29,false,CUST-0229,BETA-R-32-8,KR,BEIGE,FREE,responded
+RV-32-09,2026-07-30T13:36:00.000Z,무신사,무신사,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,1,false,CUST-0242,BETA-R-32-9,KR,BLACK,FREE,responded
+RV-32-10,2026-07-30T14:40:00.000Z,29CM,29CM,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,3,전체적으로 무난합니다. 조금 더 입어보고 판단할게요.,true,4,true,CUST-0255,BETA-R-32-10,KR,NAVY,FREE,responded
+RV-32-11,2026-07-30T15:44:00.000Z,네이버,네이버,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,5,가격 대비 만족스럽고 활용하기 좋아요.,true,7,false,CUST-0268,BETA-R-32-11,KR,WHITE,FREE,responded
+RV-33-00,2026-07-29T12:00:00.000Z,네이버,네이버,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,5,가격 대비 만족스럽고 활용하기 좋아요.,true,10,true,CUST-0142,BETA-R-33-0,KR,BLACK,FREE,responded
+RV-33-01,2026-07-29T13:04:00.000Z,W컨셉,W컨셉,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,13,false,CUST-0155,BETA-R-33-1,KR,BLACK,FREE,responded
+RV-33-02,2026-07-29T14:08:00.000Z,자사몰,자사몰,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,16,false,CUST-0168,BETA-R-33-2,KR,CREAM,FREE,responded
+RV-33-03,2026-07-29T15:12:00.000Z,무신사,무신사,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,19,true,CUST-0181,BETA-R-33-3,KR,WHITE,FREE,responded
+RV-33-04,2026-07-29T16:16:00.000Z,29CM,29CM,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,5,가격 대비 만족스럽고 활용하기 좋아요.,true,22,false,CUST-0194,BETA-R-33-4,KR,NAVY,FREE,responded
+RV-33-05,2026-07-29T17:20:00.000Z,네이버,네이버,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,25,false,CUST-0207,BETA-R-33-5,KR,BLACK,FREE,responded
+RV-33-06,2026-07-29T18:24:00.000Z,W컨셉,W컨셉,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,28,true,CUST-0220,BETA-R-33-6,KR,GREY,FREE,responded
+RV-33-07,2026-07-29T19:28:00.000Z,자사몰,자사몰,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,0,false,CUST-0233,BETA-R-33-7,KR,DENIM,FREE,responded
+RV-33-08,2026-07-29T12:32:00.000Z,무신사,무신사,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,5,가격 대비 만족스럽고 활용하기 좋아요.,true,3,false,CUST-0246,BETA-R-33-8,KR,BEIGE,FREE,responded
+RV-33-09,2026-07-29T13:36:00.000Z,29CM,29CM,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,3,전체적으로 무난합니다. 조금 더 입어보고 판단할게요.,true,6,true,CUST-0259,BETA-R-33-9,KR,BLACK,FREE,responded
+RV-33-10,2026-07-29T14:40:00.000Z,네이버,네이버,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,9,false,CUST-0272,BETA-R-33-10,KR,NAVY,FREE,responded
+RV-33-11,2026-07-29T15:44:00.000Z,W컨셉,W컨셉,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,1,화면보다 색상이 밝고 많이 비쳐요.,true,12,false,CUST-0285,BETA-R-33-11,KR,WHITE,FREE,responded
+RV-34-00,2026-07-28T12:00:00.000Z,W컨셉,W컨셉,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,15,false,CUST-0159,BETA-R-34-0,KR,BLACK,FREE,responded
+RV-34-01,2026-07-28T13:04:00.000Z,자사몰,자사몰,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,18,false,CUST-0172,BETA-R-34-1,KR,BLACK,FREE,responded
+RV-34-02,2026-07-28T14:08:00.000Z,무신사,무신사,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,1,봉제 마감이 아쉽고 실밥이 보여요.,true,21,true,CUST-0185,BETA-R-34-2,KR,CREAM,FREE,pending
+RV-34-03,2026-07-28T15:12:00.000Z,29CM,29CM,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,24,false,CUST-0198,BETA-R-34-3,KR,WHITE,FREE,responded
+RV-34-04,2026-07-28T16:16:00.000Z,네이버,네이버,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,27,false,CUST-0211,BETA-R-34-4,KR,NAVY,FREE,responded
+RV-34-05,2026-07-28T17:20:00.000Z,W컨셉,W컨셉,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,5,가격 대비 만족스럽고 활용하기 좋아요.,true,30,true,CUST-0224,BETA-R-34-5,KR,BLACK,FREE,responded
+RV-34-06,2026-07-28T18:24:00.000Z,자사몰,자사몰,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,2,false,CUST-0237,BETA-R-34-6,KR,GREY,FREE,responded
+RV-34-07,2026-07-28T19:28:00.000Z,무신사,무신사,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,5,false,CUST-0250,BETA-R-34-7,KR,DENIM,FREE,responded
+RV-34-08,2026-07-28T12:32:00.000Z,29CM,29CM,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,3,전체적으로 무난합니다. 조금 더 입어보고 판단할게요.,true,8,true,CUST-0263,BETA-R-34-8,KR,BEIGE,FREE,responded
+RV-34-09,2026-07-28T13:36:00.000Z,네이버,네이버,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,5,가격 대비 만족스럽고 활용하기 좋아요.,true,11,false,CUST-0276,BETA-R-34-9,KR,BLACK,FREE,responded
+RV-34-10,2026-07-28T14:40:00.000Z,W컨셉,W컨셉,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,14,false,CUST-0289,BETA-R-34-10,KR,NAVY,FREE,responded
+RV-34-11,2026-07-28T15:44:00.000Z,자사몰,자사몰,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,17,true,CUST-0302,BETA-R-34-11,KR,WHITE,FREE,responded
+RV-35-00,2026-07-27T12:00:00.000Z,자사몰,자사몰,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,20,false,CUST-0176,BETA-R-35-0,KR,BLACK,FREE,responded
+RV-35-01,2026-07-27T13:04:00.000Z,무신사,무신사,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,1,원단이 얇고 비쳐요. 가격 대비 소재가 아쉽습니다.,true,23,true,CUST-0189,BETA-R-35-1,KR,BLACK,FREE,pending
+RV-35-02,2026-07-27T14:08:00.000Z,29CM,29CM,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,5,가격 대비 만족스럽고 활용하기 좋아요.,true,26,false,CUST-0202,BETA-R-35-2,KR,CREAM,FREE,responded
+RV-35-03,2026-07-27T15:12:00.000Z,네이버,네이버,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,29,false,CUST-0215,BETA-R-35-3,KR,WHITE,FREE,responded
+RV-35-04,2026-07-27T16:16:00.000Z,W컨셉,W컨셉,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,1,true,CUST-0228,BETA-R-35-4,KR,NAVY,FREE,responded
+RV-35-05,2026-07-27T17:20:00.000Z,자사몰,자사몰,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,4,false,CUST-0241,BETA-R-35-5,KR,BLACK,FREE,responded
+RV-35-06,2026-07-27T18:24:00.000Z,무신사,무신사,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,5,가격 대비 만족스럽고 활용하기 좋아요.,true,7,false,CUST-0254,BETA-R-35-6,KR,GREY,FREE,responded
+RV-35-07,2026-07-27T19:28:00.000Z,29CM,29CM,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,3,전체적으로 무난합니다. 조금 더 입어보고 판단할게요.,true,10,true,CUST-0267,BETA-R-35-7,KR,DENIM,FREE,responded
+RV-35-08,2026-07-27T12:32:00.000Z,네이버,네이버,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,13,false,CUST-0280,BETA-R-35-8,KR,BEIGE,FREE,responded
+RV-35-09,2026-07-27T13:36:00.000Z,W컨셉,W컨셉,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,16,false,CUST-0293,BETA-R-35-9,KR,BLACK,FREE,responded
+RV-35-10,2026-07-27T14:40:00.000Z,자사몰,자사몰,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,5,가격 대비 만족스럽고 활용하기 좋아요.,true,19,true,CUST-0306,BETA-R-35-10,KR,NAVY,FREE,responded
+RV-35-11,2026-07-27T15:44:00.000Z,무신사,무신사,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,22,false,CUST-0319,BETA-R-35-11,KR,WHITE,FREE,responded
+RV-36-00,2026-07-26T12:00:00.000Z,무신사,무신사,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,1,사이즈가 작게 나와 타이트하고 소매가 짧아요. 교환을 고민 중입니다.,true,25,true,CUST-0193,BETA-R-36-0,KR,BLACK,FREE,responded
+RV-36-01,2026-07-26T13:04:00.000Z,29CM,29CM,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,28,false,CUST-0206,BETA-R-36-1,KR,BLACK,FREE,responded
+RV-36-02,2026-07-26T14:08:00.000Z,네이버,네이버,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,0,false,CUST-0219,BETA-R-36-2,KR,CREAM,FREE,responded
+RV-36-03,2026-07-26T15:12:00.000Z,W컨셉,W컨셉,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,5,가격 대비 만족스럽고 활용하기 좋아요.,true,3,true,CUST-0232,BETA-R-36-3,KR,WHITE,FREE,responded
+RV-36-04,2026-07-26T16:16:00.000Z,자사몰,자사몰,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,6,false,CUST-0245,BETA-R-36-4,KR,NAVY,FREE,responded
+RV-36-05,2026-07-26T17:20:00.000Z,무신사,무신사,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,9,false,CUST-0258,BETA-R-36-5,KR,BLACK,FREE,responded
+RV-36-06,2026-07-26T18:24:00.000Z,29CM,29CM,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,3,전체적으로 무난합니다. 조금 더 입어보고 판단할게요.,true,12,true,CUST-0271,BETA-R-36-6,KR,GREY,FREE,responded
+RV-36-07,2026-07-26T19:28:00.000Z,네이버,네이버,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,5,가격 대비 만족스럽고 활용하기 좋아요.,true,15,false,CUST-0284,BETA-R-36-7,KR,DENIM,FREE,responded
+RV-36-08,2026-07-26T12:32:00.000Z,W컨셉,W컨셉,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,18,false,CUST-0297,BETA-R-36-8,KR,BEIGE,FREE,responded
+RV-36-09,2026-07-26T13:36:00.000Z,자사몰,자사몰,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,21,true,CUST-0310,BETA-R-36-9,KR,BLACK,FREE,responded
+RV-36-10,2026-07-26T14:40:00.000Z,무신사,무신사,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,24,false,CUST-0323,BETA-R-36-10,KR,NAVY,FREE,responded
+RV-36-11,2026-07-26T15:44:00.000Z,29CM,29CM,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,5,가격 대비 만족스럽고 활용하기 좋아요.,true,27,false,CUST-0336,BETA-R-36-11,KR,WHITE,FREE,responded
+RV-37-00,2026-07-25T12:00:00.000Z,29CM,29CM,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,5,가격 대비 만족스럽고 활용하기 좋아요.,true,30,false,CUST-0210,BETA-R-37-0,KR,BLACK,FREE,responded
+RV-37-01,2026-07-25T13:04:00.000Z,네이버,네이버,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,2,false,CUST-0223,BETA-R-37-1,KR,BLACK,FREE,responded
+RV-37-02,2026-07-25T14:08:00.000Z,W컨셉,W컨셉,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,5,true,CUST-0236,BETA-R-37-2,KR,CREAM,FREE,responded
+RV-37-03,2026-07-25T15:12:00.000Z,자사몰,자사몰,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,8,false,CUST-0249,BETA-R-37-3,KR,WHITE,FREE,responded
+RV-37-04,2026-07-25T16:16:00.000Z,무신사,무신사,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,5,가격 대비 만족스럽고 활용하기 좋아요.,true,11,false,CUST-0262,BETA-R-37-4,KR,NAVY,FREE,responded
+RV-37-05,2026-07-25T17:20:00.000Z,29CM,29CM,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,3,전체적으로 무난합니다. 조금 더 입어보고 판단할게요.,true,14,true,CUST-0275,BETA-R-37-5,KR,BLACK,FREE,responded
+RV-37-06,2026-07-25T18:24:00.000Z,네이버,네이버,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,17,false,CUST-0288,BETA-R-37-6,KR,GREY,FREE,responded
+RV-37-07,2026-07-25T19:28:00.000Z,W컨셉,W컨셉,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,20,false,CUST-0301,BETA-R-37-7,KR,DENIM,FREE,responded
+RV-37-08,2026-07-25T12:32:00.000Z,자사몰,자사몰,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,5,가격 대비 만족스럽고 활용하기 좋아요.,true,23,true,CUST-0314,BETA-R-37-8,KR,BEIGE,FREE,responded
+RV-37-09,2026-07-25T13:36:00.000Z,무신사,무신사,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,26,false,CUST-0327,BETA-R-37-9,KR,BLACK,FREE,responded
+RV-37-10,2026-07-25T14:40:00.000Z,29CM,29CM,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,29,false,CUST-0340,BETA-R-37-10,KR,NAVY,FREE,responded
+RV-37-11,2026-07-25T15:44:00.000Z,네이버,네이버,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,1,화면보다 색상이 밝고 많이 비쳐요.,true,1,true,CUST-0353,BETA-R-37-11,KR,WHITE,FREE,pending
+RV-38-00,2026-07-24T12:00:00.000Z,네이버,네이버,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,4,false,CUST-0227,BETA-R-38-0,KR,BLACK,FREE,responded
+RV-38-01,2026-07-24T13:04:00.000Z,W컨셉,W컨셉,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,5,가격 대비 만족스럽고 활용하기 좋아요.,true,7,true,CUST-0240,BETA-R-38-1,KR,BLACK,FREE,responded
+RV-38-02,2026-07-24T14:08:00.000Z,자사몰,자사몰,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,1,봉제 마감이 아쉽고 실밥이 보여요.,true,10,false,CUST-0253,BETA-R-38-2,KR,CREAM,FREE,pending
+RV-38-03,2026-07-24T15:12:00.000Z,무신사,무신사,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,13,false,CUST-0266,BETA-R-38-3,KR,WHITE,FREE,responded
+RV-38-04,2026-07-24T16:16:00.000Z,29CM,29CM,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,3,전체적으로 무난합니다. 조금 더 입어보고 판단할게요.,true,16,true,CUST-0279,BETA-R-38-4,KR,NAVY,FREE,responded
+RV-38-05,2026-07-24T17:20:00.000Z,네이버,네이버,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,5,가격 대비 만족스럽고 활용하기 좋아요.,true,19,false,CUST-0292,BETA-R-38-5,KR,BLACK,FREE,responded
+RV-38-06,2026-07-24T18:24:00.000Z,W컨셉,W컨셉,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,22,false,CUST-0305,BETA-R-38-6,KR,GREY,FREE,responded
+RV-38-07,2026-07-24T19:28:00.000Z,자사몰,자사몰,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,25,true,CUST-0318,BETA-R-38-7,KR,DENIM,FREE,responded
+RV-38-08,2026-07-24T12:32:00.000Z,무신사,무신사,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,28,false,CUST-0331,BETA-R-38-8,KR,BEIGE,FREE,responded
+RV-38-09,2026-07-24T13:36:00.000Z,29CM,29CM,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,5,가격 대비 만족스럽고 활용하기 좋아요.,true,0,false,CUST-0344,BETA-R-38-9,KR,BLACK,FREE,responded
+RV-38-10,2026-07-24T14:40:00.000Z,네이버,네이버,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,3,true,CUST-0357,BETA-R-38-10,KR,NAVY,FREE,responded
+RV-38-11,2026-07-24T15:44:00.000Z,W컨셉,W컨셉,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,6,false,CUST-0370,BETA-R-38-11,KR,WHITE,FREE,responded
+RV-39-00,2026-07-23T12:00:00.000Z,W컨셉,W컨셉,ARC-07-BLK-F,ARC-07-BLK-F,Utility Jacket,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,9,true,CUST-0244,BETA-R-39-0,KR,BLACK,FREE,responded
+RV-39-01,2026-07-23T13:04:00.000Z,자사몰,자사몰,FLOW-22-BLK-F,FLOW-22-BLK-F,Drape Pants,1,원단이 얇고 비쳐요. 가격 대비 소재가 아쉽습니다.,true,12,false,CUST-0257,BETA-R-39-1,KR,BLACK,FREE,responded
+RV-39-02,2026-07-23T14:08:00.000Z,무신사,무신사,EASE-19-CRM-F,EASE-19-CRM-F,Layer Top,5,가격 대비 만족스럽고 활용하기 좋아요.,true,15,false,CUST-0270,BETA-R-39-2,KR,CREAM,FREE,responded
+RV-39-03,2026-07-23T15:12:00.000Z,29CM,29CM,CORE-55-WHT-F,CORE-55-WHT-F,Logo Tee,3,전체적으로 무난합니다. 조금 더 입어보고 판단할게요.,true,18,true,CUST-0283,BETA-R-39-3,KR,WHITE,FREE,responded
+RV-39-04,2026-07-23T16:16:00.000Z,네이버,네이버,AIR-24-NVY-F,AIR-24-NVY-F,Airy Volume Dress,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,21,false,CUST-0296,BETA-R-39-4,KR,NAVY,FREE,responded
+RV-39-05,2026-07-23T17:20:00.000Z,W컨셉,W컨셉,COVE-14-BLK-F,COVE-14-BLK-F,Maxi Dress,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,24,false,CUST-0309,BETA-R-39-5,KR,BLACK,FREE,responded
+RV-39-06,2026-07-23T18:24:00.000Z,자사몰,자사몰,EDGE-28-GRY-F,EDGE-28-GRY-F,Zip Jacket,5,가격 대비 만족스럽고 활용하기 좋아요.,true,27,true,CUST-0322,BETA-R-39-6,KR,GREY,FREE,responded
+RV-39-07,2026-07-23T19:28:00.000Z,무신사,무신사,FORM-42-DEN-F,FORM-42-DEN-F,Denim Skirt,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,30,false,CUST-0335,BETA-R-39-7,KR,DENIM,FREE,responded
+RV-39-08,2026-07-23T12:32:00.000Z,29CM,29CM,LUME-09-BEG-F,LUME-09-BEG-F,Knit Cardigan,5,소재가 부드럽고 핏이 좋아요. 화면과 색상도 같습니다.,true,2,false,CUST-0348,BETA-R-39-8,KR,BEIGE,FREE,responded
+RV-39-09,2026-07-23T13:36:00.000Z,네이버,네이버,MOSS-18-BLK-F,MOSS-18-BLK-F,Volume Bermuda,4,배송이 빠르고 포장이 깔끔해 만족합니다.,true,5,true,CUST-0361,BETA-R-39-9,KR,BLACK,FREE,responded
+RV-39-10,2026-07-23T14:40:00.000Z,W컨셉,W컨셉,NOVA-11-NVY-F,NOVA-11-NVY-F,Volume Dress,3,생각했던 것과 비슷하고 데일리로 입기 괜찮아요.,true,8,false,CUST-0374,BETA-R-39-10,KR,NAVY,FREE,responded
+RV-39-11,2026-07-23T15:44:00.000Z,자사몰,자사몰,WAVE-31-WHT-F,WAVE-31-WHT-F,Sheer Shirt,4,디자인이 예쁘고 코디하기 좋아서 자주 입게 됩니다.,true,11,false,CUST-0387,BETA-R-39-11,KR,WHITE,FREE,responded
