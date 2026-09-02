@@ -7,14 +7,24 @@ import {audit,insert,requestContext,requirePagePermission,requireRole,scopedValu
 import {assertAnalyticsRefreshAllowed} from '../_lib/reconciliation.js';
 
 export async function runDashboardQuery(context:any,input:any){
-  const spec=normalizeQuerySpec(input);const isMarket=MARKET_METRICS.includes(spec.metric)||MARKET_DIMENSIONS.includes(spec.dimension);if(['available_qty','inventory_cover_days','sell_through_rate'].includes(spec.metric)&&!['product','location'].includes(spec.dimension))spec.dimension='product';const end=new Date();const start=new Date(end.getTime()-spec.periodDays*86400000);
-  if(isMarket){if(!MARKET_METRICS.includes(spec.metric))spec.metric='exposure_score';if(!['brand','platform','day','category','market_product'].includes(spec.dimension))spec.dimension='brand';const payload={p_organization_id:context.membership.organization_id,p_page_key:String(input.page||'market'),p_metric:spec.metric,p_dimension:spec.dimension,p_start:start.toISOString().slice(0,10),p_end:end.toISOString().slice(0,10),p_platform:spec.filters.platform||null,p_limit:spec.limit};const data=(await supabase('/rest/v1/rpc/query_market_dashboard',{method:'POST',token:context.accessToken,body:payload})).data;return {spec,data}}
+  const spec=normalizeQuerySpec(input);const isMarket=MARKET_METRICS.includes(spec.metric)||MARKET_DIMENSIONS.includes(spec.dimension);if(['available_qty','inventory_cover_days','sell_through_rate'].includes(spec.metric)&&!['product','location'].includes(spec.dimension))spec.dimension='product';const currentEnd=new Date(),currentStart=new Date(currentEnd.getTime()-spec.periodDays*86400000);
+  if(isMarket){if(!MARKET_METRICS.includes(spec.metric))spec.metric='exposure_score';if(!['brand','platform','day','category','market_product'].includes(spec.dimension))spec.dimension='brand';const payload={p_organization_id:context.membership.organization_id,p_page_key:String(input.page||'market'),p_metric:spec.metric,p_dimension:spec.dimension,p_start:currentStart.toISOString().slice(0,10),p_end:currentEnd.toISOString().slice(0,10),p_platform:spec.filters.platform||null,p_limit:spec.limit};const data=(await supabase('/rest/v1/rpc/query_market_dashboard',{method:'POST',token:context.accessToken,body:payload})).data;return {spec,data}}
+  const anchor=input?.analysisEnd||await latestSalesTimestamp(context.membership.organization_id),{start,end}=calendarWindow(spec.periodDays,anchor,currentEnd);
   const payload={p_organization_id:context.membership.organization_id,p_page_key:String(input.page||'hub'),p_metric:spec.metric,p_dimension:spec.dimension,p_start:start.toISOString(),p_end:end.toISOString(),p_countries:scopedValues(context,'countries',spec.filters.country),p_channels:scopedValues(context,'channels',spec.filters.channel),p_locations:scopedValues(context,'locations')};
   const data=(await supabase('/rest/v1/rpc/query_sales_dashboard',{method:'POST',token:context.accessToken,body:payload})).data;
   return {spec,data};
 }
 
-async function overviewRows(context:any,page:string,metric:string,dimension:string,periodDays:number){return (await runDashboardQuery(context,{page,metric,dimension,periodDays,visualization:dimension==='day'?'area':'bar',limit:30,filters:{}})).data?.rows||[]}
+export function calendarWindow(periodDays:number,anchorValue?:string|null,now=new Date()){
+  const days=Math.min(366,Math.max(1,Number(periodDays)||1)),parsed=anchorValue?new Date(anchorValue):now,anchor=Number.isNaN(parsed.getTime())?now:parsed;
+  const end=new Date(Date.UTC(anchor.getUTCFullYear(),anchor.getUTCMonth(),anchor.getUTCDate()+1)),start=new Date(end.getTime()-days*86400000);
+  return {start,end};
+}
+async function latestSalesTimestamp(organizationId:string){
+  const query=new URLSearchParams({organization_id:`eq.${organizationId}`,select:'ordered_at',order:'ordered_at.desc',limit:'1'}),latest=(await supabase(`/rest/v1/sales_orders?${query}`,{serviceRole:true})).data?.[0]?.ordered_at;
+  return latest||null;
+}
+async function overviewRows(context:any,page:string,metric:string,dimension:string,periodDays:number,analysisEnd?:string|null){return (await runDashboardQuery(context,{page,metric,dimension,periodDays,analysisEnd,visualization:dimension==='day'?'area':'bar',limit:30,filters:{}})).data?.rows||[]}
 const sum=(rows:any[],key:string)=>rows.reduce((total,row)=>total+Number(row[key]||0),0);
 export function summarizeProfitabilityReadiness(rows:any[]=[]){
   const total=rows.length,costCovered=rows.filter(row=>Number(row.unit_cost||0)>0).length,variableCostCovered=rows.filter(row=>['channel_fee','marketing_cost','shipping_cost','return_cost'].some(key=>Number(row[key]||0)>0)).length;
@@ -22,9 +32,9 @@ export function summarizeProfitabilityReadiness(rows:any[]=[]){
   return {totalLines:total,costCoveredLines:costCovered,variableCostCoveredLines:variableCostCovered,costCoveragePct:pct(costCovered),variableCostCoveragePct:pct(variableCostCovered),ready:total>0&&pct(costCovered)>=80&&pct(variableCostCovered)>=50};
 }
 async function profitabilitySummary(context:any){
-  requirePagePermission(context,'profitability','view');const org=context.membership.organization_id;
+  requirePagePermission(context,'profitability','view');const org=context.membership.organization_id,analysisEnd=await latestSalesTimestamp(org);
   const [channels,products,costResult]=await Promise.all([
-    overviewRows(context,'profitability','contribution_margin','channel',60),overviewRows(context,'profitability','contribution_margin','product',60),
+    overviewRows(context,'profitability','contribution_margin','channel',60,analysisEnd),overviewRows(context,'profitability','contribution_margin','product',60,analysisEnd),
     supabase(`/rest/v1/sales_order_lines?organization_id=eq.${enc(org)}&select=unit_cost,channel_fee,marketing_cost,shipping_cost,return_cost&order=created_at.desc&limit=10000`,{serviceRole:true})
   ]);
   const readiness=summarizeProfitabilityReadiness(costResult.data||[]),netSales=sum(channels,'net_sales'),contributionMargin=sum(channels,'contribution_margin');
@@ -174,7 +184,7 @@ export default {async fetch(request:Request){
       if(resource==='inventory-workflows'){requirePagePermission(context,'inventory','view');const data=await inventoryWorkflowContext(context);return json({ok:true,source:'supabase_inventory_operations',generatedAt:new Date().toISOString(),...presentInventoryWorkflow(data)})}
       if(resource==='production-workflows'){const data=await productionWorkflow(context);return json({ok:true,source:'approved_reorder_queue',generatedAt:new Date().toISOString(),...data})}
       if(resource==='inventory-operations'){
-        requirePagePermission(context,'inventory','view');const org=context.membership.organization_id,q=encodeURIComponent(org),periodDays=14,end=new Date(),start=new Date(end.getTime()-periodDays*86400000);
+        requirePagePermission(context,'inventory','view');const org=context.membership.organization_id,q=encodeURIComponent(org),periodDays=14,analysisEnd=await latestSalesTimestamp(org),{start,end}=calendarWindow(periodDays,analysisEnd);
         const [snapshots,skus,masterProducts,masterLocations,orders,inventorySources]=await Promise.all([
           latestInventorySnapshots(org,10000),
           supabase(`/rest/v1/skus?organization_id=eq.${q}&select=id,sku_code,product_id,size,color&limit=5000`,{serviceRole:true}),
@@ -190,8 +200,9 @@ export default {async fetch(request:Request){
         return json({ok:true,source:'supabase_inventory',dataMode:stale?'stale':'connected',generatedAt:new Date().toISOString(),lastSnapshotAt:summary.latestSnapshotAt,lastSuccessfulSyncAt:source?.last_successful_sync_at||null,sourceStatus:source,hasData:summary.products.length>0,products:summary.products,locations:summary.locations,diagnostics});
       }
       requirePagePermission(context,'hub','view');
+      const analysisEnd=await latestSalesTimestamp(context.membership.organization_id);
       const [channels,locations,products,daily,inventory]=await Promise.all([
-        overviewRows(context,'hub','net_sales','channel',14),overviewRows(context,'hub','net_sales','location',14),overviewRows(context,'hub','net_sales','product',14),overviewRows(context,'hub','net_sales','day',14),overviewRows(context,'inventory','available_qty','product',14)
+        overviewRows(context,'hub','net_sales','channel',14,analysisEnd),overviewRows(context,'hub','net_sales','location',14,analysisEnd),overviewRows(context,'hub','net_sales','product',14,analysisEnd),overviewRows(context,'hub','net_sales','day',14,analysisEnd),overviewRows(context,'inventory','available_qty','product',14,analysisEnd)
       ]);
       const sourceQuery=new URLSearchParams({organization_id:`eq.${context.membership.organization_id}`,select:'id,name,provider,status,data_mode,last_synced_at,last_successful_sync_at,last_sync_error',order:'last_synced_at.desc.nullslast'}),sources=(await supabase(`/rest/v1/data_sources?${sourceQuery}`,{serviceRole:true})).data||[],salesSources=sources.filter((item:any)=>String(item.provider||'').includes('sales')||item.source_type!=='file'),stale=salesSources.some((item:any)=>item.data_mode==='stale'||item.status==='error'),lastSuccessful=salesSources.map((item:any)=>item.last_successful_sync_at).filter(Boolean).sort().at(-1)||null;
       return json({ok:true,source:'supabase',dataMode:stale?'stale':'connected',generatedAt:new Date().toISOString(),lastSuccessfulSyncAt:lastSuccessful,sources:salesSources,hasData:channels.length>0,summary:{netSales:sum(channels,'net_sales'),quantity:sum(channels,'quantity'),orders:sum(channels,'orders'),contributionMargin:sum(channels,'contribution_margin')},channels,locations,products,daily,inventory});
