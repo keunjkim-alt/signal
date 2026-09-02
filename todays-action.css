@@ -388,3 +388,178 @@
   .today-next-queue > header { align-items: flex-start; flex-direction: column; }
   .today-all-button { width: 100%; justify-content: center; }
 }
+
+/* Today's Action v2 — decision-first layout */
+.today-situation {
+  margin-bottom: 18px;
+  padding: 18px;
+  border-radius: 16px;
+  box-shadow: none;
+}
+.today-situation > h2 {
+  margin: 0 0 14px;
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.45;
+  letter-spacing: -.02em;
+}
+.today-situation .today-summary-grid { margin-bottom: 0; }
+.today-situation .today-summary-grid > div {
+  min-height: 88px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 5px;
+}
+.today-situation .today-summary-grid strong {
+  grid-row: auto;
+  grid-column: auto;
+  color: var(--ink);
+  font-size: 23px;
+}
+.today-situation .today-summary-grid > div:first-child strong { color: var(--danger); }
+.today-situation .today-summary-grid strong.accent { color: var(--viim-success, #3c7a69); }
+.today-focus-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  align-items: stretch;
+  gap: 18px;
+}
+.today-action-identity {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.today-action-mark {
+  flex: 0 0 72px;
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--viim-subtle, #f0f3f8);
+  color: var(--brand);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+}
+.today-decision-card { min-width: 0; gap: 14px; padding: 20px; }
+.today-decision-header h2 { margin-top: 5px; font-size: 20px; }
+.today-confidence {
+  padding: 0;
+  background: transparent;
+  text-align: right;
+}
+.today-confidence strong { font-size: 14px; }
+.today-evidence-strip {
+  grid-template-columns: minmax(150px, .7fr) repeat(3, minmax(120px, 1fr));
+  padding: 14px 16px;
+  background: var(--viim-subtle, #f0f3f8);
+}
+.today-evidence-title,
+.today-evidence-item { min-height: 58px; }
+.today-evidence-title strong { font-size: 14px; }
+.today-evidence-item { padding: 0 14px; text-align: center; }
+.today-evidence-item strong { font-size: 17px; }
+.today-evidence-item span { font-size: 10px; }
+.today-outcome { min-height: 0; padding: 14px; background: var(--surface) !important; }
+.today-outcome.positive { box-shadow: inset 3px 0 0 var(--brand); }
+.today-outcome.negative { box-shadow: inset 3px 0 0 var(--danger); }
+.today-outcome header > strong { font-size: 12px; }
+.today-outcome h3 { margin: 8px 0 5px; font-size: 16px; }
+.today-outcome p { font-size: 11px; }
+details.today-constraints {
+  display: block;
+  padding: 0;
+  border-color: var(--line);
+  background: var(--surface);
+  box-shadow: inset 3px 0 0 var(--warning);
+}
+.today-constraints summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 14px;
+  cursor: pointer;
+}
+.today-constraints summary span { color: var(--viim-coral-text, #8c4540); font-size: 11px; font-weight: 800; }
+.today-constraints summary strong { font-size: 12px; }
+.today-constraints > p { margin: 0 14px 10px; font-size: 12px; }
+.today-decision-footer {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) auto auto auto auto;
+  background: var(--surface);
+  border-color: var(--line);
+}
+.today-decision-footer .today-approve { background: var(--brand); color: #fff; }
+.today-execution-panel {
+  min-width: 0;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: none;
+}
+.today-execution-panel header h2 { margin: 0 0 5px; font-size: 16px; }
+.today-execution-panel header p { margin: 0; color: var(--muted); font-size: 11px; }
+.today-execution-panel ol { display: grid; gap: 14px; margin: 20px 0; padding: 0; list-style: none; }
+.today-execution-panel li {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+.today-execution-panel li > b {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--viim-subtle, #f0f3f8);
+  color: var(--muted);
+  font-size: 10px;
+}
+.today-execution-panel li.done > b { background: var(--viim-success-soft, #ecf4f1); color: var(--viim-success, #3c7a69); }
+.today-execution-panel li.waiting > b { background: var(--viim-attention-soft, #fcf5f4); color: var(--viim-coral-text, #8c4540); }
+.today-execution-panel li div { display: grid; gap: 2px; }
+.today-execution-panel li strong { font-size: 11px; }
+.today-execution-panel li small { color: var(--muted); font-size: 9px; }
+.today-execution-panel li em {
+  padding: 5px 8px;
+  border-radius: 99px;
+  background: var(--viim-subtle, #f0f3f8);
+  color: var(--muted);
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 700;
+}
+.today-automation-note { display: grid; gap: 4px; padding: 12px; border-radius: 10px; background: var(--viim-soft-blue, #edf3ff); }
+.today-automation-note strong { color: var(--brand); font-size: 10px; }
+.today-automation-note span { color: var(--muted); font-size: 9px; line-height: 1.45; }
+.today-next-queue { margin-top: 18px; }
+.today-next-queue .today-queue-list { gap: 0; }
+.today-next-queue .today-queue-row {
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+}
+.today-next-queue .today-queue-row:last-child { border-bottom: 0; }
+.today-next-queue .today-queue-row:hover,
+.today-next-queue .today-queue-row:focus-visible { background: var(--viim-soft-blue, #edf3ff); box-shadow: none; transform: none; }
+
+@media (max-width: 1320px) {
+  .today-focus-layout { grid-template-columns: minmax(0, 1fr) 280px; }
+  .today-decision-footer { grid-template-columns: 1fr 1fr; }
+  .today-decision-footer > div { grid-column: 1 / -1; }
+}
+@media (max-width: 1050px) {
+  .today-focus-layout { grid-template-columns: 1fr; }
+  .today-execution-panel ol { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 820px) {
+  .today-action-identity { align-items: flex-start; }
+  .today-action-mark { display: none; }
+  .today-execution-panel ol { grid-template-columns: 1fr; }
+  .today-decision-footer { display: flex; }
+}
