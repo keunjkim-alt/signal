@@ -1,11 +1,11 @@
 import * as XLSX from 'xlsx';
 import {errorResponse,json} from '../_lib/http.js';
 import {audit,insert,requestContext,requireRole,supabase} from '../_lib/supabase.js';
+import {defaultPermissionPages} from '../_lib/default-permissions.js';
 
 const roles=new Set(['owner','admin','manager','member','viewer']);
 const roleAliases:any={'대표':'owner','전체 관리자':'admin','관리자':'admin','팀 관리자':'manager','팀장':'manager','팀 구성원':'member','구성원':'member','조회 전용':'viewer','조회':'viewer'};
 const pageAliases:any={'오늘의 액션':'action','오늘 결정할 일':'action','판매 현황':'hub','판매 허브':'hub','목표·마감 전망':'targets','목표·마감 예측':'targets','전사 목표·마감예측':'targets','수익성·할인':'profitability','수익성·할인 분석':'profitability','이상·기회 신호':'anomalies','지금 주목할 신호':'anomalies','판매 이상 감지':'anomalies','상품 수요·생애주기':'sales','제품 판매·생애주기':'sales','고객 인사이트':'customers','고객·지역':'customers','고객·지역 분석':'customers','반품·취소':'returns','반품·취소 분석':'returns','승인·결정 관리':'decisions','주요 의사결정':'decisions','경영 의사결정':'decisions','상품기획':'planning','디자인':'design','생산':'production','재고 운영':'inventory','마케팅':'marketing','마켓레이더':'market','디자이너 360':'designer','데이터 연결':'connections','데이터 연결 관리':'connections','사용자·권한':'permissions','사용자·권한 관리':'permissions'};
-const defaultPages:any={owner:['*'],admin:['*'],manager:['hub'],member:['hub'],viewer:['hub']};
 export function normalizeBulkPage(value:string){return pageAliases[String(value||'').trim()]||String(value||'').trim()}
 const value=(row:any,names:string[])=>{const key=Object.keys(row).find(k=>names.includes(String(k).trim().toLowerCase()));return key?row[key]:null};
 const list=(input:any)=>String(input||'').split(/[,;|]/).map(x=>x.trim()).filter(Boolean);
@@ -24,7 +24,7 @@ export default {async fetch(request:Request){
       try{
         const invitation=(await supabase('/auth/v1/invite',{serviceRole:true,method:'POST',body:{email,data:{display_name:displayName},redirect_to:process.env.APP_URL||undefined}})).data,userId=invitation.id||invitation.user?.id;if(!userId)throw new Error('초대 사용자 ID가 없습니다.');
         const membership=(await insert('organization_memberships',{organization_id:org,user_id:userId,role,team_code:team||null,status:'invited',data_scope:{brands:'all',countries:'all',channels:'all',locations:'all'}},{upsert:true,onConflict:'organization_id,user_id'}))?.[0];
-        const requested=list(value(row,['pages','페이지','허용 페이지'])),pageKeys=(requested.length?requested.map(normalizeBulkPage):defaultPages[role]).filter(p=>p!=='*');
+        const requested=list(value(row,['pages','페이지','허용 페이지'])),pageKeys=(requested.length?requested.map(normalizeBulkPage):defaultPermissionPages(role,team)).filter(p=>p!=='*');
         if(pageKeys.length)await insert('page_permissions',pageKeys.map(page_key=>({organization_id:org,membership_id:membership.id,page_key,can_view:true,can_update:role!=='viewer',can_approve:['owner','admin','manager'].includes(role),data_scope:{}})),{upsert:true,onConflict:'membership_id,page_key'});
         results.push({row:index+2,email,status:'invited',role,team_code:team,pageCount:pageKeys.length});
       }catch(error:any){results.push({row:index+2,email,status:'error',message:error.message})}
