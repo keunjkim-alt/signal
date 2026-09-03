@@ -15,7 +15,7 @@ const SUPPORTED=['product_master','inventory_snapshot','sales_order','product_re
 
 export default {async fetch(request:Request){
   if(request.method!=='POST')return json({ok:false,error:'Method not allowed'},405);
-  let sourceId:string|null=null,rawUploadId:string|null=null,importJobId:string|null=null;
+  let sourceId:string|null=null,rawUploadId:string|null=null,importJobId:string|null=null,importSummary:any=null;
   try{
     const form=await request.formData(),file=form.get('file');
     if(!(file instanceof File))return json({ok:false,error:'file is required'},400);
@@ -49,14 +49,15 @@ export default {async fetch(request:Request){
     }
     const upload=await persistRawFile(file,fileBytes,checksum,org,context.user.id,sourceId,entityType);
     rawUploadId=upload.id;
-    const job=(await insert('import_jobs',{organization_id:org,raw_upload_id:upload.id,data_source_id:sourceId,mapping_template_id:template?.id||null,created_by:context.user.id,entity_type:entityType,status:'processing',total_rows:rows.length,started_at:new Date().toISOString(),summary:{mapping,mappingSource,mappingTemplateId:template?.id||null,period:preview.period}}))?.[0];
+    importSummary={mapping,mappingSource,mappingTemplateId:template?.id||null,period:preview.period};
+    const job=(await insert('import_jobs',{organization_id:org,raw_upload_id:upload.id,data_source_id:sourceId,mapping_template_id:template?.id||null,created_by:context.user.id,entity_type:entityType,status:'processing',total_rows:rows.length,started_at:new Date().toISOString(),summary:importSummary}))?.[0];
     importJobId=job.id;
     const sourceControl=entityType==='sales_order'?salesControlTotals(validation.validRows):entityType==='inventory_snapshot'?inventoryControlTotals(validation.validRows):{rows:validation.validRows.length,products:new Set(validation.validRows.map((row:any)=>row.product_code)).size,skus:new Set(validation.validRows.map((row:any)=>row.sku_code)).size},result=entityType==='sales_order'?await ingestSales(validation.validRows,org,sourceId,upload.id,job.id):entityType==='inventory_snapshot'?await ingestInventory(validation.validRows,org,sourceId,upload.id):entityType==='product_review'?await ingestReviews(validation.validRows,org,sourceId,upload.id,job.id):await ingestProductMaster(validation.validRows,org);
     const allErrors=[...validation.errors.map((item:any)=>({organization_id:org,import_job_id:job.id,...item})),...result.errors.map((item:any)=>({organization_id:org,import_job_id:job.id,...item}))];
     for(const chunk of chunks(allErrors,500))await insert('import_errors',chunk);
     const directlyCounted=['product_master','product_review'].includes(entityType),completedAt=new Date().toISOString(),persistedControl=directlyCounted?result.summary.persistedControl:await persistedControlTotals(org,{id:job.id,raw_upload_id:upload.id,entity_type:entityType}),reconciliation=directlyCounted?{entityType,status:'matched',matched:true,checkedAt:completedAt,filename:file.name,jobId:job.id,source:sourceControl,persisted:persistedControl,checks:[{key:'rows',label:'정상 행',unit:'행',source:result.successRows,persisted:result.successRows,difference:0,match:true}]}:buildReconciliation(entityType,sourceControl,persistedControl,{checkedAt:completedAt,filename:file.name,jobId:job.id});
     let status=allErrors.length?result.successRows?'partial':'failed':'completed';if(reconciliation.status==='mismatch'&&status!=='failed')status='partial';
-    const baseSummary={mapping,mappingSource,mappingTemplateId:template?.id||null,period:preview.period,...result.summary,sourceControl,persistedControl,reconciliation};
+    const baseSummary={mapping,mappingSource,mappingTemplateId:template?.id||null,period:preview.period,...result.summary,sourceControl,persistedControl,reconciliation};importSummary=baseSummary;
     await update('import_jobs',{id:`eq.${job.id}`},{status,success_rows:result.successRows,error_rows:allErrors.length,inserted_rows:result.insertedRows,updated_rows:result.updatedRows,unchanged_rows:0,completed_at:completedAt,summary:baseSummary});
     await update('raw_uploads',{id:`eq.${upload.id}`},{status:status==='failed'?'failed':'completed'});
     const qualityBlocked=shouldBlockAnalytics(reconciliation),syncError=qualityBlocked?'원천 파일과 운영 DB 합계가 일치하지 않아 분석 갱신을 차단했습니다.':status==='failed'?`${allErrors.length}개 행 적재 실패`:null;
@@ -73,7 +74,7 @@ export default {async fetch(request:Request){
     invalidateDashboardCache(org);return json({ok:true,mode:'import',duplicate:false,job:{id:job.id,status,totalRows:rows.length,successRows:result.successRows,errorRows:allErrors.length,insertedRows:result.insertedRows,updatedRows:result.updatedRows,reconciliation,analytics},preview,source:await sourceSummary(sourceId)},status==='failed'?422:201);
   }catch(error:any){
     const failedAt=new Date().toISOString();
-    if(importJobId){try{await update('import_jobs',{id:`eq.${importJobId}`},{status:'failed',completed_at:failedAt})}catch{}}
+    if(importJobId){try{await update('import_jobs',{id:`eq.${importJobId}`},{status:'failed',completed_at:failedAt,summary:{...(importSummary||{}),failure:{message:String(error?.message||error||'적재 처리 실패').slice(0,500),failed_at:failedAt}}})}catch{}}
     if(rawUploadId){try{await update('raw_uploads',{id:`eq.${rawUploadId}`},{status:'failed'})}catch{}}
     if(sourceId){try{await update('data_sources',{id:`eq.${sourceId}`},{status:'error',data_mode:'stale',last_sync_error:String(error?.message||error),last_synced_at:new Date().toISOString(),updated_at:new Date().toISOString()})}catch{}}
     console.error('[file_import.failed]',{importJobId,rawUploadId,sourceId,error:String(error?.message||error)});
