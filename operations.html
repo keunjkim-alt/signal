@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>VIIMsignal · 운영 모니터링</title>
+  <link rel="stylesheet" href="./operations.css?v=20260903a">
+</head>
+<body>
+  <header class="ops-header">
+    <div class="ops-brand"><span>VIIMsignal</span><strong>운영 모니터링</strong></div>
+    <nav><a href="./">대시보드로 돌아가기</a><button id="refresh" type="button">새로고침</button></nav>
+  </header>
+  <main>
+    <section class="ops-intro">
+      <div><small>ADMIN OPERATIONS</small><h1>서비스가 실제로 잘 작동하는지 한눈에 확인합니다.</h1><p>데이터 연결, 파일 적재, 분석 파이프라인, API와 AX 응답 상태를 회사 단위로 점검합니다.</p></div>
+      <label>조회 기간<select id="days"><option value="1">최근 24시간</option><option value="7" selected>최근 7일</option><option value="30">최근 30일</option></select></label>
+    </section>
+    <div id="status" class="status loading">운영 상태를 불러오는 중입니다.</div>
+    <div id="content" hidden></div>
+  </main>
+  <script src="./operations.js?v=20260903a" defer></script>
+</body>
+</html>
