@@ -8,6 +8,7 @@ import {chooseMapping,detectEntityType,headerSignature} from '../_lib/mapping-te
 import {refreshPostImportAnalytics} from '../_lib/post-import.js';
 import {buildReconciliation,inventoryControlTotals,persistedControlTotals,salesControlTotals,shouldBlockAnalytics} from '../_lib/reconciliation.js';
 import {connectorSystemContext} from '../_lib/connector-auth.js';
+import {invalidateDashboardCache} from '../_lib/dashboard-cache.js';
 
 const MAX_SIZE=20*1024*1024;
 const SUPPORTED=['product_master','inventory_snapshot','sales_order','product_review'];
@@ -69,7 +70,7 @@ export default {async fetch(request:Request){
     }catch(error:any){analytics={status:'failed',completed:0,failed:2,total:2,refreshedAt:new Date().toISOString(),asOfDate:preview.period?.end?.slice?.(0,10)||null,results:[],error:String(error?.message||error||'자동 분석 갱신 실패')}}
     if(qualityBlocked)await audit(context,'data_quality.reconciliation_blocked','import_job',job.id,{entityType,filename:file.name,sourceId,checks:reconciliation.checks.filter((check:any)=>!check.match)});
     await audit(context,'file_import.completed','import_job',job.id,{entityType,status,totalRows:rows.length,successRows:result.successRows,errorRows:allErrors.length,sourceId,mappingSource,mappingTemplateId:template?.id||null,reconciliation:reconciliation.status,analytics:{status:analytics.status,completed:analytics.completed,failed:analytics.failed,asOfDate:analytics.asOfDate}});
-    return json({ok:true,mode:'import',duplicate:false,job:{id:job.id,status,totalRows:rows.length,successRows:result.successRows,errorRows:allErrors.length,insertedRows:result.insertedRows,updatedRows:result.updatedRows,reconciliation,analytics},preview,source:await sourceSummary(sourceId)},status==='failed'?422:201);
+    invalidateDashboardCache(org);return json({ok:true,mode:'import',duplicate:false,job:{id:job.id,status,totalRows:rows.length,successRows:result.successRows,errorRows:allErrors.length,insertedRows:result.insertedRows,updatedRows:result.updatedRows,reconciliation,analytics},preview,source:await sourceSummary(sourceId)},status==='failed'?422:201);
   }catch(error:any){
     const failedAt=new Date().toISOString();
     if(importJobId){try{await update('import_jobs',{id:`eq.${importJobId}`},{status:'failed',completed_at:failedAt})}catch{}}
