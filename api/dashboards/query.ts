@@ -26,12 +26,10 @@ async function latestSalesTimestamp(organizationId:string){
   return latest||null;
 }
 async function salesLinesForOrders(organizationId:string,orderIds:string[]){
-  const result:any[]=[];
-  for(let index=0;index<orderIds.length;index+=300){
-    const batch=orderIds.slice(index,index+300),query=new URLSearchParams({organization_id:`eq.${organizationId}`,order_id:`in.(${batch.join(',')})`,select:'order_id,sku_id,quantity',limit:'5000'}),rows=(await supabase(`/rest/v1/sales_order_lines?${query}`,{serviceRole:true})).data||[];
-    result.push(...rows);
-  }
-  return result;
+  const batches:Array<string[]>=[];
+  for(let index=0;index<orderIds.length;index+=300)batches.push(orderIds.slice(index,index+300));
+  const results=await Promise.all(batches.map(async batch=>{const query=new URLSearchParams({organization_id:`eq.${organizationId}`,order_id:`in.(${batch.join(',')})`,select:'order_id,sku_id,quantity',limit:'5000'});return (await supabase(`/rest/v1/sales_order_lines?${query}`,{serviceRole:true})).data||[]}));
+  return results.flat();
 }
 async function overviewRows(context:any,page:string,metric:string,dimension:string,periodDays:number,analysisEnd?:string|null){return (await runDashboardQuery(context,{page,metric,dimension,periodDays,analysisEnd,visualization:dimension==='day'?'area':'bar',limit:30,filters:{}})).data?.rows||[]}
 const sum=(rows:any[],key:string)=>rows.reduce((total,row)=>total+Number(row[key]||0),0);
