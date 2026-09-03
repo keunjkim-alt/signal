@@ -8,15 +8,17 @@ import {isSourceLifecycleAction,sourceLifecycleUpdate} from '../_lib/source-life
 import {inspectConnectorDraft,normalizeConnectorDraft} from '../_lib/connector-config.js';
 import {credentialRegistry,probeConnector} from '../_lib/connector-runtime.js';
 import {refreshPostImportAnalytics} from '../_lib/post-import.js';
+import {cachedDashboardAggregate,invalidateDashboardCache} from '../_lib/dashboard-cache.js';
 
 const SUPPORTED_MAPPINGS=['product_master','sales_order','inventory_snapshot','product_review'];
+const CONNECTION_CACHE_TTL=12_000;
 
 export default {async fetch(request:Request){
   try{
-    const context=await requestContext(request),org=context.membership.organization_id,url=new URL(request.url),resource=url.searchParams.get('resource');
+    const context=await requestContext(request,{includeProfile:false,includeBrands:false,permissionPage:'connections'}),org=context.membership.organization_id,url=new URL(request.url),resource=url.searchParams.get('resource');
     if(request.method==='GET'){
       requirePagePermission(context,'connections','view');
-      if(resource==='imports')return importHistory(org,url);
+      if(resource==='imports')return json(await cachedDashboardAggregate(context,`connection-imports:${Math.min(50,Math.max(1,Number(url.searchParams.get('limit'))||20))}`,CONNECTION_CACHE_TTL,()=>importHistory(org,url)));
       if(resource==='import-errors')return importErrors(org,url);
       if(resource==='reconciliation')return reconciliationStatus(org);
       if(resource==='data-quality')return dataQualityStatus(org);
@@ -28,10 +30,10 @@ export default {async fetch(request:Request){
         const templates=(await supabase(`/rest/v1/mapping_templates?${query}`,{serviceRole:true})).data||[];
         return json({ok:true,templates,fields:entityType?mappingFields(entityType):{product_master:mappingFields('product_master'),sales_order:mappingFields('sales_order'),inventory_snapshot:mappingFields('inventory_snapshot'),product_review:mappingFields('product_review')}});
       }
-      const query=new URLSearchParams({organization_id:`eq.${org}`,select:'id,brand_id,source_type,provider,name,status,data_mode,sync_mode,schedule,config,last_synced_at,last_successful_sync_at,last_sync_error,created_at,updated_at',order:'created_at.desc'}),sources=(await supabase(`/rest/v1/data_sources?${query}`,{serviceRole:true})).data;
-      return json({ok:true,sources});
+      return json(await cachedDashboardAggregate(context,'connection-sources',CONNECTION_CACHE_TTL,async()=>{const query=new URLSearchParams({organization_id:`eq.${org}`,select:'id,brand_id,source_type,provider,name,status,data_mode,sync_mode,schedule,config,last_synced_at,last_successful_sync_at,last_sync_error,created_at,updated_at',order:'created_at.desc'}),sources=(await supabase(`/rest/v1/data_sources?${query}`,{serviceRole:true})).data;return {ok:true,sources}}));
     }
     if(request.method==='POST'){
+      invalidateDashboardCache(org);
       requirePagePermission(context,'connections','update');const body=await bodyJson(request);
       if(body?.action==='save_mapping')return saveMapping(context,org,body);
       if(body?.action==='test_connection')return testConnection(body);
@@ -47,6 +49,7 @@ export default {async fetch(request:Request){
       await audit(context,'data_source.created','data_source',rows?.[0]?.id,{provider:body.provider});return json({ok:true,source:rows?.[0]},201);
     }
     if(request.method==='PATCH'){
+      invalidateDashboardCache(org);
       requirePagePermission(context,'connections','update');const body=await bodyJson(request),sourceId=String(body?.sourceId||''),action=String(body?.action||'');
       if(!sourceId||!isSourceLifecycleAction(action))return json({ok:false,error:'sourceId와 유효한 action이 필요합니다.'},400);
       if(['archive','restore'].includes(action))requireRole(context,['owner','admin']);
@@ -155,11 +158,18 @@ async function findTemplate(org:string,entityType:string,signature:string,source
 }
 
 async function importHistory(org:string,url:URL){
-  const now=new Date(),staleBefore=new Date(now.getTime()-5*60*1000).toISOString();
-  try{await update('import_jobs',{organization_id:`eq.${org}`,status:'eq.processing',started_at:`lt.${staleBefore}`},{status:'failed',completed_at:now.toISOString()})}catch{}
-  const limit=Math.min(50,Math.max(1,Number(url.searchParams.get('limit'))||20)),jobQuery=new URLSearchParams({organization_id:`eq.${org}`,select:'id,raw_upload_id,data_source_id,mapping_template_id,entity_type,status,total_rows,success_rows,error_rows,inserted_rows,updated_rows,unchanged_rows,summary,started_at,completed_at,created_at',order:'created_at.desc',limit:String(limit)}),jobs=(await supabase(`/rest/v1/import_jobs?${jobQuery}`,{serviceRole:true})).data||[],uploadIds=jobs.map((row:any)=>row.raw_upload_id).filter(Boolean),jobIds=jobs.map((row:any)=>row.id),uploads=uploadIds.length?(await supabase(`/rest/v1/raw_uploads?organization_id=eq.${encodeURIComponent(org)}&id=${encodeURIComponent(`in.(${uploadIds.join(',')})`)}&select=id,original_filename,byte_size,created_at`,{serviceRole:true})).data||[]:[],errors=jobIds.length?(await supabase(`/rest/v1/import_errors?organization_id=eq.${encodeURIComponent(org)}&import_job_id=${encodeURIComponent(`in.(${jobIds.join(',')})`)}&select=id,import_job_id,row_number,field_name,error_code,message,created_at&order=created_at.desc&limit=100`,{serviceRole:true})).data||[]:[],runQuery=new URLSearchParams({organization_id:`eq.${org}`,select:'id,pipeline,scope_date,status,input_rows,output_rows,source_watermark,error_message,started_at,completed_at',order:'started_at.desc',limit:'40'}),analyticsRuns=(await supabase(`/rest/v1/analytics_refresh_runs?${runQuery}`,{serviceRole:true})).data||[],uploadMap=new Map<string,any>(uploads.map((row:any)=>[String(row.id),row])),errorMap=new Map<string,any[]>();
+  const now=new Date(),staleBefore=new Date(now.getTime()-5*60*1000).toISOString(),limit=Math.min(50,Math.max(1,Number(url.searchParams.get('limit'))||20)),jobQuery=new URLSearchParams({organization_id:`eq.${org}`,select:'id,raw_upload_id,data_source_id,mapping_template_id,entity_type,status,total_rows,success_rows,error_rows,inserted_rows,updated_rows,unchanged_rows,summary,started_at,completed_at,created_at',order:'created_at.desc',limit:String(limit)}),runQuery=new URLSearchParams({organization_id:`eq.${org}`,select:'id,pipeline,scope_date,status,input_rows,output_rows,source_watermark,error_message,started_at,completed_at',order:'started_at.desc',limit:'40'});
+  const [jobsResult,runsResult]=await Promise.all([
+    supabase(`/rest/v1/import_jobs?${jobQuery}`,{serviceRole:true}),
+    supabase(`/rest/v1/analytics_refresh_runs?${runQuery}`,{serviceRole:true})
+  ]),jobs=jobsResult.data||[],analyticsRuns=runsResult.data||[],uploadIds=jobs.map((row:any)=>row.raw_upload_id).filter(Boolean),jobIds=jobs.map((row:any)=>row.id),staleJobs=jobs.filter((row:any)=>row.status==='processing'&&row.started_at&&row.started_at<staleBefore);
+  const [uploads,errors]=await Promise.all([
+    uploadIds.length?supabase(`/rest/v1/raw_uploads?organization_id=eq.${encodeURIComponent(org)}&id=${encodeURIComponent(`in.(${uploadIds.join(',')})`)}&select=id,original_filename,byte_size,created_at`,{serviceRole:true}).then(result=>result.data||[]):Promise.resolve([]),
+    jobIds.length?supabase(`/rest/v1/import_errors?organization_id=eq.${encodeURIComponent(org)}&import_job_id=${encodeURIComponent(`in.(${jobIds.join(',')})`)}&select=id,import_job_id,row_number,field_name,error_code,message,created_at&order=created_at.desc&limit=100`,{serviceRole:true}).then(result=>result.data||[]):Promise.resolve([]),
+    staleJobs.length?update('import_jobs',{organization_id:`eq.${org}`,status:'eq.processing',started_at:`lt.${staleBefore}`},{status:'failed',completed_at:now.toISOString()}).catch(()=>[]):Promise.resolve([])
+  ]),staleIds=new Set(staleJobs.map((row:any)=>row.id)),uploadMap=new Map<string,any>(uploads.map((row:any)=>[String(row.id),row])),errorMap=new Map<string,any[]>();
   for(const error of errors){const list=errorMap.get(error.import_job_id)||[];list.push(error);errorMap.set(error.import_job_id,list)}
-  return json({ok:true,jobs:jobs.map((row:any)=>({...row,filename:uploadMap.get(String(row.raw_upload_id))?.original_filename||'파일명 없음',byte_size:uploadMap.get(String(row.raw_upload_id))?.byte_size||0,errors:(errorMap.get(row.id)||[]).slice(0,5)})),analyticsRuns});
+  return {ok:true,jobs:jobs.map((row:any)=>({...row,...(staleIds.has(row.id)?{status:'failed',completed_at:now.toISOString()}:{}),filename:uploadMap.get(String(row.raw_upload_id))?.original_filename||'파일명 없음',byte_size:uploadMap.get(String(row.raw_upload_id))?.byte_size||0,errors:(errorMap.get(row.id)||[]).slice(0,5)})),analyticsRuns};
 }
 
 async function importErrors(org:string,url:URL){

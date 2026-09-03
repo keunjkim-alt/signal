@@ -8,7 +8,7 @@ import {assertAnalyticsRefreshAllowed} from '../_lib/reconciliation.js';
 import {summarizeReviewInsights} from '../_lib/reviews.js';
 import {cachedDashboardAggregate,invalidateDashboardCache} from '../_lib/dashboard-cache.js';
 
-const CACHE_TTL={profitability:45_000,inventory:20_000,customer:30_000,review:45_000,intelligence:30_000,decision:15_000,production:20_000,hub:20_000};
+const CACHE_TTL={profitability:60_000,inventory:45_000,customer:60_000,review:60_000,intelligence:60_000,decision:30_000,production:30_000,hub:45_000};
 
 export async function runDashboardQuery(context:any,input:any){
   const spec=normalizeQuerySpec(input);const isMarket=MARKET_METRICS.includes(spec.metric)||MARKET_DIMENSIONS.includes(spec.dimension);if(['available_qty','inventory_cover_days','sell_through_rate'].includes(spec.metric)&&!['product','location'].includes(spec.dimension))spec.dimension='product';const currentEnd=new Date(),currentStart=new Date(currentEnd.getTime()-spec.periodDays*86400000);
@@ -218,7 +218,7 @@ async function hubSummary(context:any){
 export default {async fetch(request:Request){
   if(!['GET','POST','PATCH'].includes(request.method))return json({ok:false,error:'Method not allowed'},405);
   try{
-    const context=await requestContext(request),url=new URL(request.url),resource=url.searchParams.get('resource');
+    const context=await requestContext(request,{includeProfile:false,includeBrands:false}),url=new URL(request.url),resource=url.searchParams.get('resource');
     if(request.method==='GET'){
       if(resource==='profitability-summary'){const data=await profitabilitySummary(context);return json({ok:true,source:'supabase_profitability',dataMode:'connected',...data})}
       if(resource==='decision-actions'){const data=await decisionActionContext(context);return json({ok:true,source:'operational_decision_engine',...data})}
