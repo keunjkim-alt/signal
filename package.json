@@ -10,6 +10,7 @@
     "generate:beta-data": "node scripts/generate-closed-beta-data.mjs",
     "check:beta-public": "node scripts/public-beta-check.mjs",
     "smoke:beta": "node scripts/closed-beta-smoke.mjs",
+    "smoke:permissions": "node scripts/permission-smoke.mjs",
     "diagnose:beta": "node scripts/closed-beta-diagnostics.mjs",
     "diagnose:inventory-phase1": "node --import tsx scripts/inventory-phase1-readiness.mjs",
     "backtest:inventory-phase1": "node scripts/inventory-phase1-backtest.mjs"
