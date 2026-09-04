@@ -16,8 +16,8 @@ export function summarizePipelineResults(results:Array<{key:string;label:string;
   return {status:failed===0?'completed':completed?'partial':'failed',completed,failed,total:results.length,refreshedAt,results};
 }
 
-export async function refreshPostImportAnalytics(organizationId:string,options:{periodEnd?:string|null}={}){
-  await assertAnalyticsRefreshAllowed(organizationId);
+export async function refreshPostImportAnalytics(organizationId:string,options:{periodEnd?:string|null;workspaceId?:string|null}={}){
+  await assertAnalyticsRefreshAllowed(organizationId,options.workspaceId);
   const asOfDate=analysisDate(options.periodEnd),settled=await Promise.allSettled(POST_IMPORT_PIPELINES.map(definition=>supabase(`/rest/v1/rpc/${definition.rpc}`,{serviceRole:true,method:'POST',body:{p_organization_id:organizationId,p_as_of_date:asOfDate,p_horizon_days:definition.horizonDays}})));
   const results=settled.map((item,index)=>{
     const definition=POST_IMPORT_PIPELINES[index];

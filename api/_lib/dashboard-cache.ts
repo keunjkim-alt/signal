@@ -21,6 +21,7 @@ export function dashboardScopeKey(context:any){
   const permissions=(context?.permissions||[]).map((row:any)=>({page:String(row.page_key||''),view:Boolean(row.can_view),update:Boolean(row.can_update),approve:Boolean(row.can_approve)})).sort((a:any,b:any)=>a.page.localeCompare(b.page));
   return stable({
     organizationId:String(membership.organization_id||''),
+    workspaceId:String(context?.workspace?.id||''),
     role:String(membership.role||''),
     teamCode:String(membership.team_code||''),
     dataScope:membership.data_scope||null,
@@ -29,7 +30,7 @@ export function dashboardScopeKey(context:any){
 }
 
 export function dashboardCacheKey(context:any,namespace:string){
-  return `${String(context?.membership?.organization_id||'unknown')}|${namespace}|${dashboardScopeKey(context)}`;
+  return `${String(context?.membership?.organization_id||'unknown')}|${String(context?.workspace?.id||'legacy')}|${namespace}|${dashboardScopeKey(context)}`;
 }
 
 function prune(now:number){
@@ -62,7 +63,7 @@ export function invalidateDashboardCache(organizationId?:string,namespaces?:stri
   let removed=0;
   for(const key of cache.keys()){
     if(prefix&&!key.startsWith(prefix))continue;
-    const namespace=key.split('|',3)[1];
+    const namespace=key.split('|',4)[2];
     if(namespaceSet&&!namespaceSet.has(namespace))continue;
     cache.delete(key);removed++;
   }

@@ -11,7 +11,7 @@ export function normalizeQuerySpec(input:any={}){
   const dimension=DIMENSIONS.includes(input.dimension)?input.dimension:'channel';
   const visualization=VISUALIZATIONS.includes(input.visualization)?input.visualization:(dimension==='day'?'line':'bar');
   const periodDays=Math.min(366,Math.max(1,Number(input.periodDays)||7));
-  return {metric,dimension,visualization,periodDays,filters:{country:clean(input.filters?.country),channel:clean(input.filters?.channel),platform:clean(input.filters?.platform)},limit:Math.min(100,Math.max(1,Number(input.limit)||20))};
+  return {metric,dimension,visualization,periodDays,filters:{country:clean(input.filters?.country),channel:clean(input.filters?.channel),platform:clean(input.filters?.platform),location:clean(input.filters?.location),product:clean(input.filters?.product)},limit:Math.min(100,Math.max(1,Number(input.limit)||20))};
 }
 
 function clean(value:any){if(typeof value!=='string'||!value.trim()||value==='전체 국가'||value==='전체 채널')return null;return ({'한국':'KR','중국':'CN','일본':'JP'} as Record<string,string>)[value.trim()]||value.trim()}

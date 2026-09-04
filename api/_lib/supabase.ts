@@ -41,6 +41,8 @@ export async function membershipBrands(membership:any){
   return brands.filter((brand:any)=>allowed.has(String(brand.id).toLowerCase())||allowed.has(String(brand.code).toLowerCase()));
 }
 
+export async function membershipWorkspaces(membership:any){const query=new URLSearchParams({organization_id:`eq.${membership.organization_id}`,status:'in.(onboarding,active,paused)',select:'id,brand_id,name,code,description,image_url,status,service_stage,timezone,data_region,metadata',order:'created_at.asc'}),workspaces=(await supabase(`/rest/v1/workspaces?${query}`,{serviceRole:true})).data||[];let accessible=workspaces;if(!['owner','admin'].includes(membership.role)){const accessQuery=new URLSearchParams({membership_id:`eq.${membership.id}`,status:'eq.active',select:'workspace_id,role'}),access=(await supabase(`/rest/v1/workspace_memberships?${accessQuery}`,{serviceRole:true})).data||[],byId=new Map(access.map((row:any)=>[String(row.workspace_id),row.role||null]));accessible=workspaces.filter((workspace:any)=>byId.has(String(workspace.id))).map((workspace:any)=>({...workspace,workspace_role:byId.get(String(workspace.id))}))}const brandScope=membership.data_scope?.brands;if(!Array.isArray(brandScope))return accessible;const allowed=new Set(brandScope.map((value:any)=>String(value).toLowerCase()));return accessible.filter((workspace:any)=>!workspace.brand_id||allowed.has(String(workspace.brand_id).toLowerCase()))}
+
 type ContextOptions={includeProfile?:boolean;includeBrands?:boolean;includePermissions?:boolean;permissionPage?:string};
 
 export async function contextForAccessToken(accessToken:string,requestedOrganization?:string|null,options:ContextOptions={}){
@@ -67,8 +69,19 @@ export async function requestContext(request:Request,options:ContextOptions={}){
   const cookies=readCookies(request);
   const accessToken=cookies.fashion_ax_access;
   if(!accessToken){const error:any=new Error('Authentication required');error.status=401;throw error}
-  return contextForAccessToken(accessToken,request.headers.get('x-fashion-ax-org'),options);
+  const context:any=await contextForAccessToken(accessToken,request.headers.get('x-fashion-ax-org'),options);
+  const requestedWorkspace=request.headers.get('x-viimsignal-workspace-id');
+  if(requestedWorkspace){
+    const workspaces=await membershipWorkspaces(context.membership),workspace=workspaces.find((row:any)=>String(row.id)===requestedWorkspace);
+    if(!workspace){const error:any=new Error('Workspace is outside the account scope');error.status=403;throw error}
+    if(['paused','offboarded'].includes(workspace.status)){const error:any=new Error('Workspace is not active');error.status=409;throw error}
+    context.workspace=workspace;
+  }
+  return context;
 }
+
+export function workspaceId(context:any){return context?.workspace?.id||null}
+export function workspaceFilter(context:any){const id=workspaceId(context);return id?`eq.${id}`:'is.null'}
 
 export function requireRole(context:any,roles:string[]){
   if(!roles.includes(context.membership.role)){const error:any=new Error('Insufficient permission');error.status=403;throw error}
@@ -101,5 +114,5 @@ export async function update(table:string,filters:Record<string,string>,values:a
 }
 
 export async function audit(context:any,action:string,resourceType:string,resourceId?:string,metadata:any={}){
-  return insert('audit_logs',{organization_id:context.membership.organization_id,actor_user_id:context.user.id,action,resource_type:resourceType,resource_id:resourceId||null,metadata});
+  return insert('audit_logs',{organization_id:context.membership.organization_id,workspace_id:workspaceId(context),actor_user_id:context.user.id,action,resource_type:resourceType,resource_id:resourceId||null,metadata});
 }

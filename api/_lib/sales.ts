@@ -1,3 +1,5 @@
+import {parseSpreadsheetDate} from './spreadsheet-date.js';
+
 const normalize=(value:any)=>String(value??'').trim().toLowerCase().replace(/[\s._\-/()]+/g,'');
 
 export const SALES_FIELDS={
@@ -72,6 +74,6 @@ function cleanCode(value:any){return String(value??'').trim().toUpperCase()||nul
 function cleanText(value:any){return String(value??'').trim()||null}
 function parseNumber(value:any){if(value===null||value===undefined||value==='')return null;const number=Number(String(value).replace(/[,₩원\s]/g,''));return Number.isFinite(number)?number:null}
 function nonNegativeNumber(value:any){const number=parseNumber(value);return number===null?0:Math.max(0,number)}
-function parseDate(value:any){if(value instanceof Date&&!Number.isNaN(value.getTime()))return value.toISOString();const text=String(value??'').trim();if(!text)return null;let normalized=text.replace(/^(\d{4})[./](\d{1,2})[./](\d{1,2})/,'$1-$2-$3');if(/^\d{4}-\d{1,2}-\d{1,2}$/.test(normalized))normalized=`${normalized}T00:00:00+09:00`;else if(/^\d{4}-\d{1,2}-\d{1,2}[ T]\d{1,2}:\d{2}(:\d{2})?$/.test(normalized))normalized=`${normalized.replace(' ','T')}+09:00`;const date=new Date(normalized);return Number.isNaN(date.getTime())?null:date.toISOString()}
+function parseDate(value:any){return parseSpreadsheetDate(value,{assumeKst:true})}
 function normalizeCountry(value:any){const code=cleanCode(value);if(!code)return 'KR';return ({한국:'KR',대한민국:'KR',KOREA:'KR',중국:'CN',CHINA:'CN',일본:'JP',JAPAN:'JP'} as any)[code]||code.slice(0,2)}
 function normalizeOrderStatus(value:any){const status=String(value??'').trim().toLowerCase();if(['cancelled','canceled','취소','주문취소'].includes(status))return 'cancelled';if(['refunded','환불'].includes(status))return 'refunded';return 'paid'}

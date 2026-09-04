@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VIIMsignal 운영 어드민</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./admin.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#overview" aria-label="VIIMsignal 운영 어드민 홈">
+        <span class="brand-mark">V</span><span><strong>VIIMsignal</strong><small>Provider Admin</small></span>
+      </a>
+      <nav id="navigation" aria-label="주요 메뉴"></nav>
+      <div class="sidebar-foot">
+        <span class="live-dot"></span>
+        <span>운영 시스템</span>
+        <strong id="systemState">연결 확인 중</strong>
+      </div>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <button id="mobileMenu" class="icon-button mobile-only" aria-label="메뉴 열기">☰</button>
+        <div class="breadcrumb"><span>VIIM</span><b>/</b><strong id="breadcrumb">전체 현황</strong></div>
+        <div class="top-actions">
+          <button id="refreshButton" class="icon-button" aria-label="새로고침">↻</button>
+          <a class="product-link" href="/">브랜드 서비스로 이동 ↗</a>
+          <span class="avatar">OP</span>
+        </div>
+      </header>
+      <section id="app" class="content" aria-live="polite"></section>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status"></div>
+  <script type="module" src="./admin.js"></script>
+</body>
+</html>

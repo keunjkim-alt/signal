@@ -1,3 +1,5 @@
+import {parseSpreadsheetDate} from './spreadsheet-date.js';
+
 const normalize=(value:any)=>String(value??'').trim().toLowerCase().replace(/[\s._\-/()]+/g,'');
 
 export const REVIEW_FIELDS={
@@ -83,5 +85,5 @@ function recommendedAction(code:string,sentiment:string){if(sentiment!=='negativ
 function cleanCode(value:any){return String(value??'').trim().toUpperCase()||null}
 function cleanText(value:any){return String(value??'').trim()||null}
 function parseBoolean(value:any){return ['1','true','yes','y','예','네','구매인증','있음'].includes(String(value??'').trim().toLowerCase())}
-function parseDate(value:any){if(value instanceof Date&&!Number.isNaN(value.getTime()))return value.toISOString();const text=String(value??'').trim();if(!text)return null;const normalized=/^\d{4}-\d{1,2}-\d{1,2}$/.test(text)?`${text}T00:00:00+09:00`:text;const date=new Date(normalized);return Number.isNaN(date.getTime())?null:date.toISOString()}
+function parseDate(value:any){return parseSpreadsheetDate(value,{assumeKst:true})}
 function normalizeResponse(value:any){const text=String(value??'').trim().toLowerCase();return ['responded','answered','완료','답변완료','답변'].includes(text)?'responded':['not_required','불필요'].includes(text)?'not_required':'pending'}

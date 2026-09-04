@@ -563,3 +563,18 @@ details.today-constraints {
   .today-execution-panel ol { grid-template-columns: 1fr; }
   .today-decision-footer { display: flex; }
 }
+
+/* Final desktop overrides follow the compact v2 rules above. */
+@media (min-width: 1001px) {
+  .today-situation > h2 { font-size: 18px; line-height: 1.5; }
+  .today-situation .today-summary-grid span { font-size: 12px; }
+  .today-situation .today-summary-grid small { font-size: 11px; line-height: 1.4; }
+  .today-situation .today-summary-grid strong { font-size: 26px; }
+  .today-evidence-item span { font-size: 11px; line-height: 1.5; }
+  .today-outcome p { font-size: 12px; line-height: 1.55; }
+  .today-decision-footer { padding: 14px 14px 14px 18px; }
+  .today-decision-footer > div span { font-size: 12px; }
+  .today-decision-footer > div strong { font-size: 16px; }
+  .today-decision-footer .btn { min-height: 40px; }
+  .today-decision-footer .today-approve { min-width: 112px; box-shadow: 0 7px 16px rgba(32, 76, 153, .18); }
+}

@@ -315,3 +315,14 @@
   .ax-panel-facts { grid-template-columns: repeat(2,1fr); }
 }
 .ax-panel-warning{display:grid;gap:3px;margin:4px 0 12px;padding:10px 12px;border:1px solid #e4d8c3;border-radius:10px;background:#fffaf1;color:#72583a}.ax-panel-warning strong{font-size:10px}.ax-panel-warning span{font-size:9px;line-height:1.5;color:#80694c}
+
+.ax-context-strip{position:sticky;top:0;z-index:2;margin:0 0 18px;padding:11px 0 12px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#fff 86%,rgba(255,255,255,.92))}
+.ax-context-strip>div:first-child{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.ax-context-strip>div:first-child span{color:var(--muted);font-size:8px;font-weight:800;letter-spacing:.04em}
+.ax-context-strip>div:first-child button{padding:0;border:0;background:none;color:#52647f;font:inherit;font-size:8px;font-weight:700;cursor:pointer}
+.ax-context-chips{display:flex;flex-wrap:wrap;gap:5px}
+.ax-context-chips button{display:inline-flex;align-items:center;gap:5px;max-width:100%;min-height:25px;padding:4px 7px;border:1px solid #d7dfec;border-radius:7px;background:#f7f9fc;color:#27364c;font:inherit;font-size:8px;font-weight:700;cursor:pointer}
+.ax-context-chips button.inherited{border-color:#bdcceb;background:#f1f5fc;color:#31578e}
+.ax-context-chips button span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ax-context-chips button i{color:#8290a4;font-style:normal;font-size:10px;font-weight:500}
+.ax-context-strip>small{display:block;margin-top:7px;color:#6d7d94;font-size:7px;line-height:1.4}

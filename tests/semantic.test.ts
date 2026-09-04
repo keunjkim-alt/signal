@@ -19,7 +19,7 @@ test('dashboard specifications reject arbitrary metrics and clamp limits',()=>{
 
 test('country labels are normalized to ISO codes',()=>{
   const plan=normalizeQuerySpec({filters:{country:'한국',channel:'무신사'}});
-  assert.deepEqual(plan.filters,{country:'KR',channel:'무신사',platform:null});
+  assert.deepEqual(plan.filters,{country:'KR',channel:'무신사',platform:null,location:null,product:null});
 });
 
 test('market ranking questions use precomputed external market metrics',()=>{

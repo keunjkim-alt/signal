@@ -3,6 +3,10 @@ import {normalizeClientMetrics,summarizeOperationsMonitoring} from './_lib/opera
 import {sourceAssignmentUpdate,sourceOperationsView,validateImportRetry} from './_lib/operations-recovery.js';
 import {audit,backendConfigured,downloadStorageObject,requestContext,requireRole,supabase,update} from './_lib/supabase.js';
 import uploadHandler from './uploads/data.js';
+import decisionsHandler from './_lib/handlers/decisions.js';
+import inventoryPlanningHandler from './_lib/handlers/inventory-planning.js';
+import outcomesRefreshHandler from './_lib/handlers/outcomes-refresh.js';
+import outcomesCronHandler from './_lib/handlers/outcomes-cron.js';
 
 const rows=async(table:string,params:Record<string,string>)=>(await supabase(`/rest/v1/${table}?${new URLSearchParams(params)}`,{serviceRole:true})).data||[];
 
@@ -47,6 +51,10 @@ async function assignSource(context:any,sourceId:string,membershipId:string){
 export default {async fetch(request:Request){
   try{
     const url=new URL(request.url),resource=url.searchParams.get('resource');
+    if(resource==='decisions')return decisionsHandler.fetch(request);
+    if(resource==='inventory-planning')return inventoryPlanningHandler.fetch(request);
+    if(resource==='outcomes-refresh')return outcomesRefreshHandler.fetch(request);
+    if(resource==='outcomes-cron')return outcomesCronHandler.fetch(request);
     if(resource==='operations'){
       const context=await requestContext(request,{includeProfile:false,includeBrands:false,includePermissions:false});
       if(request.method==='GET')return json({ok:true,...await operations(context,url)});

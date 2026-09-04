@@ -16,6 +16,17 @@
 4. Authentication에서 회사 사용자를 생성합니다.
 5. `organizations`, `profiles`, `organization_memberships`에 회사·사용자·역할을 등록합니다.
 
+### 재고 계획 마이그레이션
+
+`0013_inventory_planning_foundation.sql`은 실제 데이터 적재 전에 적용해도 되며 기존 판매·재고 행을 변경하지 않습니다. 다음 구조만 추가합니다.
+
+- 계획 입력: `inventory_policies`, `logistics_routes`, `inbound_orders`, `inbound_order_lines`
+- 계산 결과: `inventory_positions_daily`, `demand_forecasts`
+- 추천 추적: `recommendation_scenarios`, `recommendation_scenario_lines`, `recommendation_decisions`, `recommendation_outcomes`
+- 실행 연결: `transfer_orders.recommendation_line_id`
+
+기존 `forecast_snapshots`는 제품 단위 대시보드 예측을 계속 담당하고, `demand_forecasts`는 재배치 계산에 필요한 SKU·위치·일자 단위 분위수(P10/P50/P90)를 저장합니다. 초기에는 테이블이 비어 있으며 계산 파이프라인이나 업로드 API가 실행될 때만 데이터가 생성됩니다.
+
 첫 번째 대표 계정은 Supabase Authentication에서 생성한 사용자 UUID로 `organization_memberships.role='owner'`를 한 번 등록해야 합니다. `supabase/bootstrap_owner.example.sql`을 복사해 UUID·회사명을 바꾸면 됩니다. 이후 계정은 서비스의 **사용자·권한 관리 → 회사 계정 초대**에서 추가할 수 있습니다.
 
 사용자 역할은 `owner`, `admin`, `manager`, `member`, `viewer` 중 하나입니다. 모든 운영 테이블은 `organization_id`와 RLS 정책으로 회사 간 데이터가 분리됩니다. 일반 사용자는 `page_permissions`의 조회·업데이트·승인 권한을 따르며, `data_scope`의 `countries`, `channels`, `locations` 범위가 서버와 DB 집계 함수에서 모두 검사됩니다.
@@ -41,6 +52,8 @@ Vercel Project Settings → Environment Variables에 `.env.example`의 값을 �
 | `POST /api/ax/query` | 자연어 질문 → 안전한 분석/차트 명세 |
 | `GET /api/ax/history` | 회사·사용자별 AX 대화 및 메시지 이력 조회 |
 | `GET/POST /api/dashboards/query?resource=inventory-workflows` | 재고 이동·재주문 승인과 입고·배송 상태 이력 |
+| `POST /api/inventory/planning/refresh` | 내부 판매·재고·입고 데이터로 위치별 수요예측과 재배치 시나리오 생성 |
+| `GET/POST /api/decisions/workflow` | 추천 결정, 수정 승인, 실행 이벤트와 성과 측정 일정 관리 |
 
 ## 4. WMS 파일 업로드
 
@@ -95,6 +108,17 @@ Vercel 호환 빌드는 다음으로 확인합니다.
 ```bash
 vercel build --yes
 ```
+
+## 8. 결정 실행 성과 측정
+
+- `POST /api/outcomes/refresh`: 현재 조직에서 측정 기한이 지난 D+7·14·28 성과를 즉시 다시 계산합니다. owner/admin만 실행할 수 있습니다.
+- `GET /api/outcomes/cron`: 모든 조직의 측정 대상 성과를 매일 자동 계산합니다. Vercel `CRON_SECRET` 인증을 사용합니다.
+
+성과는 확인된 실행 건만 학습 대상으로 삼습니다. 실행 전 28일의 내부 판매 실적을 기준선으로 두고 측정 기간의 수량·매출·기여이익을 비교하며, 판매 데이터가 측정 종료일까지 들어오지 않았으면 대기 상태를 유지합니다. 기준선 데이터가 부족하면 `insufficient_data`로 기록합니다. 이 값은 내부 전후 비교에 따른 방향성 지표이며, 외부 요인을 통제한 인과 효과로 해석하지 않습니다.
+
+D+28 결과가 같은 SKU·목적지에서 독립 실행 3건 이상 쌓이면 `forecast_bias` 정책 후보를 생성합니다. 표본 수에 따라 1.0 쪽으로 축소하고 보정폭을 0.8~1.2로 제한합니다. 관리자는 의사결정 화면에서 후보를 승인한 뒤 별도로 적용해야 하며, `applied` 상태의 후보만 다음 내부 수요예측과 재고 이동 추천에 반영됩니다. 적용된 배수·신뢰도·근거 수와 후보 ID는 예측 진단 정보 및 추천 시나리오 정책 스냅샷에 남습니다.
+
+정책 카드에서는 최신 기준 예측과 적용 시 예상 수량을 비교할 수 있습니다. 적용 정책은 수동 롤백하면 `expired`로 전환되어 다음 갱신부터 제외됩니다. 새 D+28 근거가 추가됐는데 양의 순가치 결과 비율이 34% 미만이면 자동 가드레일도 동일하게 정책을 만료시킵니다. 실행·성과 화면의 운영 지표에서는 추천 채택률, 수정 승인률, 실행 완료율, 양의 성과율과 적용 정책 수를 함께 확인합니다.
 
 ## 보안 원칙
 

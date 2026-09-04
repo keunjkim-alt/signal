@@ -2,8 +2,15 @@
 .DS_Store
 node_modules/
 dist/
+outputs/
+*.inspect.ndjson
 *.log
 .env
 .env.*
 !.env.example
 supabase/.temp/
+assets/templates/closed-beta/scenario-packs/VIIMsignal_Closed_Beta_DataPacks_20260901.xlsx
+assets/templates/closed-beta/scenario-packs/VIIMsignal_Pack1_Baseline_Inventory.csv
+assets/templates/closed-beta/scenario-packs/VIIMsignal_Pack1_Baseline_Sales_90D.csv
+assets/templates/closed-beta/scenario-packs/VIIMsignal_Pack2_Event_Inventory_14D.csv
+assets/templates/closed-beta/scenario-packs/VIIMsignal_Pack2_Event_Sales_14D.csv

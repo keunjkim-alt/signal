@@ -1,4 +1,5 @@
 import * as XLSX from 'xlsx';
+import {parseSpreadsheetDate} from './spreadsheet-date.js';
 
 export const WMS_FIELDS={
   sku_code:['sku_code','sku','품번','상품코드','단품코드','품목코드','바코드','barcode'],
@@ -50,7 +51,6 @@ export function validateAndNormalize(rows:Record<string,any>[],mapping:any){
 
 function cleanCode(value:any){return String(value??'').trim().toUpperCase()||null}
 function parseNumber(value:any){if(value===null||value===undefined||value==='')return null;const number=Number(String(value).replace(/,/g,''));return Number.isFinite(number)?number:null}
-function parseDate(value:any){if(value instanceof Date&&!Number.isNaN(value.getTime()))return value.toISOString();const text=String(value??'').trim();if(!text)return null;const normalized=/^\d{4}-\d{2}-\d{2}$/.test(text)?`${text}T00:00:00+09:00`:text;const date=new Date(normalized);return Number.isNaN(date.getTime())?null:date.toISOString()}
+function parseDate(value:any){return parseSpreadsheetDate(value,{assumeKst:true})}
 
 export async function sha256(bytes:ArrayBuffer){const hash=await crypto.subtle.digest('SHA-256',bytes);return [...new Uint8Array(hash)].map(value=>value.toString(16).padStart(2,'0')).join('')}
-

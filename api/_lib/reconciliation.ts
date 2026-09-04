@@ -45,19 +45,20 @@ export function summarizeDataQuality(items:any[]){
   return {status,blocked:status==='blocked',mismatches,unavailable};
 }
 
-export async function analyticsRefreshGate(organizationId:string){
-  const query=new URLSearchParams({organization_id:`eq.${organizationId}`,status:'in.(completed,partial)',entity_type:'in.(sales_order,inventory_snapshot)',select:'id,entity_type,status,summary,completed_at,created_at',order:'created_at.desc',limit:'40'}),jobs=(await supabase(`/rest/v1/import_jobs?${query}`,{serviceRole:true})).data||[],items=['sales_order','inventory_snapshot'].map(type=>jobs.find((job:any)=>job.entity_type===type)).filter(Boolean).map((job:any)=>({jobId:job.id,entityType:job.entity_type,reconciliation:job.summary?.reconciliation||null,completedAt:job.completed_at||job.created_at}));
+export async function analyticsRefreshGate(organizationId:string,workspaceId?:string|null){
+  const query=new URLSearchParams({organization_id:`eq.${organizationId}`,status:'in.(completed,partial)',entity_type:'in.(sales_order,inventory_snapshot)',select:'id,entity_type,status,summary,completed_at,created_at',order:'created_at.desc',limit:'40'});if(workspaceId)query.set('workspace_id',`eq.${workspaceId}`);const jobs=(await supabase(`/rest/v1/import_jobs?${query}`,{serviceRole:true})).data||[],items=['sales_order','inventory_snapshot'].map(type=>jobs.find((job:any)=>job.entity_type===type)).filter(Boolean).map((job:any)=>({jobId:job.id,entityType:job.entity_type,reconciliation:job.summary?.reconciliation||null,completedAt:job.completed_at||job.created_at}));
   return {...summarizeDataQuality(items),items};
 }
 
-export async function assertAnalyticsRefreshAllowed(organizationId:string){
-  const quality=await analyticsRefreshGate(organizationId);if(!quality.blocked)return quality;
+export async function assertAnalyticsRefreshAllowed(organizationId:string,workspaceId?:string|null){
+  const quality=await analyticsRefreshGate(organizationId,workspaceId);if(!quality.blocked)return quality;
   const mismatch=quality.mismatches[0],checks=(mismatch?.reconciliation?.checks||[]).filter((check:any)=>!check.match).map((check:any)=>check.label).join(', '),error:any=new Error(`데이터 정합성 불일치로 분석 갱신이 차단되었습니다${checks?`: ${checks}`:''}. 데이터 연결에서 원천과 DB를 다시 확인해주세요.`);error.status=409;error.code='DATA_QUALITY_BLOCKED';throw error;
 }
 
-export async function persistedControlTotals(organizationId:string,job:{id:string;raw_upload_id?:string|null;entity_type:string}){
-  if(job.entity_type==='sales_order')return salesControlTotals(await fetchPaged('sales_order_lines',{organization_id:`eq.${organizationId}`,import_job_id:`eq.${job.id}`},'order_id,sku_id,quantity,returned_quantity,net_sales'));
-  if(job.entity_type==='inventory_snapshot')return inventoryControlTotals(await fetchPaged('inventory_snapshots',{organization_id:`eq.${organizationId}`,raw_upload_id:`eq.${job.raw_upload_id}`},'sku_id,location_id,on_hand_qty,reserved_qty,available_qty'));
+export async function persistedControlTotals(organizationId:string,job:{id:string;raw_upload_id?:string|null;entity_type:string;workspace_id?:string|null}){
+  const scope={organization_id:`eq.${organizationId}`,...(job.workspace_id?{workspace_id:`eq.${job.workspace_id}`}:{})};
+  if(job.entity_type==='sales_order')return salesControlTotals(await fetchPaged('sales_order_lines',{...scope,import_job_id:`eq.${job.id}`},'order_id,sku_id,quantity,returned_quantity,net_sales'));
+  if(job.entity_type==='inventory_snapshot')return inventoryControlTotals(await fetchPaged('inventory_snapshots',{...scope,raw_upload_id:`eq.${job.raw_upload_id}`},'sku_id,location_id,on_hand_qty,reserved_qty,available_qty'));
   throw new Error(`지원하지 않는 정합성 유형입니다: ${job.entity_type}`);
 }
 

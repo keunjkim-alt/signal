@@ -1,6 +1,10 @@
 import {errorResponse,json} from './_lib/http.js';
 import {applyProviderFilters,classifySourceHealth,computePortfolioSummary,filterProviderScope,parseProviderFilters,providerContext,requireProviderPermission} from './_lib/provider-admin.js';
 import {supabase} from './_lib/supabase.js';
+import attentionHandler from './_lib/handlers/provider-attention.js';
+import eventsHandler from './_lib/handlers/provider-events.js';
+import incidentsHandler from './_lib/handlers/provider-incidents.js';
+import tasksHandler from './_lib/handlers/provider-tasks.js';
 
 async function rows(table:string,select:string,order?:string){const p:any={select,limit:'5000'};if(order)p.order=order;return (await supabase(`/rest/v1/${table}?${new URLSearchParams(p)}`,{serviceRole:true})).data||[]}
 
@@ -10,4 +14,4 @@ async function portfolio(request:Request){const context=await providerContext(re
 
 async function dataSources(request:Request){const context=await providerContext(request);requireProviderPermission(context,'source.view');const filters=parseProviderFilters(new URL(request.url));const sourceRows=(await supabase(`/rest/v1/data_sources?${new URLSearchParams({select:'id,organization_id,workspace_id,brand_id,source_type,provider,name,status,sync_mode,schedule,data_mode,last_synced_at,last_successful_sync_at,last_sync_error,updated_at',order:'updated_at.desc',limit:'5000'})}`,{serviceRole:true})).data||[],sources=applyProviderFilters(filterProviderScope(context,sourceRows),filters).map((source:any)=>({...source,health:classifySourceHealth(source)}));return json({ok:true,sources,summary:{total:sources.length,healthy:sources.filter((x:any)=>x.health==='healthy').length,error:sources.filter((x:any)=>x.health==='error').length,stale:sources.filter((x:any)=>x.health==='stale').length,paused:sources.filter((x:any)=>x.health==='paused').length}})}
 
-export default {async fetch(request:Request){try{if(request.method!=='GET')return json({ok:false,error:'Method not allowed'},405);const action=new URL(request.url).searchParams.get('action');if(action==='organizations')return organizations(request);if(action==='portfolio')return portfolio(request);if(action==='data-sources')return dataSources(request);return json({ok:false,error:'Unknown provider action'},404)}catch(error:any){return errorResponse(error,error.status||500)}}};
+export default {async fetch(request:Request){try{const action=new URL(request.url).searchParams.get('action');if(action==='attention')return attentionHandler.fetch(request);if(action==='events')return eventsHandler.fetch(request);if(action==='incidents')return incidentsHandler.fetch(request);if(action==='tasks')return tasksHandler.fetch(request);if(request.method!=='GET')return json({ok:false,error:'Method not allowed'},405);if(action==='organizations')return organizations(request);if(action==='portfolio')return portfolio(request);if(action==='data-sources')return dataSources(request);return json({ok:false,error:'Unknown provider action'},404)}catch(error:any){return errorResponse(error,error.status||500)}}};

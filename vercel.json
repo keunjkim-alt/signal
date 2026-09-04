@@ -4,16 +4,26 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "crons": [
-    { "path": "/api/integrations/cron", "schedule": "0 21 * * *" }
+    { "path": "/api/integrations/cron", "schedule": "0 21 * * *" },
+    { "path": "/api/outcomes/cron", "schedule": "0 22 * * *" }
   ],
   "rewrites": [
     { "source": "/api/auth/login", "destination": "/api/auth?action=login" },
     { "source": "/api/auth/logout", "destination": "/api/auth?action=logout" },
     { "source": "/api/auth/password", "destination": "/api/auth?action=password" },
     { "source": "/api/auth/session", "destination": "/api/auth?action=session" },
+    { "source": "/api/auth/workspaces", "destination": "/api/auth?action=workspaces" },
     { "source": "/api/provider/organizations", "destination": "/api/provider?action=organizations" },
     { "source": "/api/provider/portfolio", "destination": "/api/provider?action=portfolio" },
     { "source": "/api/provider/data-sources", "destination": "/api/provider?action=data-sources" },
+    { "source": "/api/provider/attention", "destination": "/api/provider?action=attention" },
+    { "source": "/api/provider/events", "destination": "/api/provider?action=events" },
+    { "source": "/api/provider/incidents", "destination": "/api/provider?action=incidents" },
+    { "source": "/api/provider/tasks", "destination": "/api/provider?action=tasks" },
+    { "source": "/api/decisions/workflow", "destination": "/api/health?resource=decisions" },
+    { "source": "/api/inventory/planning/refresh", "destination": "/api/health?resource=inventory-planning" },
+    { "source": "/api/outcomes/refresh", "destination": "/api/health?resource=outcomes-refresh" },
+    { "source": "/api/outcomes/cron", "destination": "/api/health?resource=outcomes-cron" },
     { "source": "/api/uploads/wms", "destination": "/api/uploads/data" },
     { "source": "/api/dashboards/overview", "destination": "/api/dashboards/query" },
     { "source": "/(.*)", "destination": "/index.html" }
