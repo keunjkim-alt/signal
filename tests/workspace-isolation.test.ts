@@ -36,6 +36,13 @@ test('workspace natural keys allow the same SKU and location in separate workspa
   assert.match(sql,/unique nulls not distinct \(organization_id,workspace_id/);
 });
 
+test('active reorder idempotency is enforced per workspace',()=>{
+  const sql=fs.readFileSync(new URL('../supabase/migrations/0023_workspace_reorder_uniqueness.sql',import.meta.url),'utf8');
+  assert.match(sql,/organization_id, workspace_id, recommendation_key/);
+  assert.match(sql,/nulls not distinct/);
+  assert.match(sql,/uq_ax_active_reorder_execution/);
+});
+
 test('two workspaces keep identical SKU facts and learned outcomes isolated',()=>{
   const facts=[
     {workspace_id:'ws-a',sku:'ARC-07',sales:12,forecast:10,outcome:2},
