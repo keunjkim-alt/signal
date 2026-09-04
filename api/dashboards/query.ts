@@ -13,7 +13,11 @@ const CACHE_TTL={profitability:60_000,inventory:45_000,customer:60_000,review:60
 export async function runDashboardQuery(context:any,input:any){
   const spec=normalizeQuerySpec(input);const isMarket=MARKET_METRICS.includes(spec.metric)||MARKET_DIMENSIONS.includes(spec.dimension);if(['available_qty','inventory_cover_days','sell_through_rate'].includes(spec.metric)&&!['product','location'].includes(spec.dimension))spec.dimension='product';const currentEnd=new Date(),currentStart=new Date(currentEnd.getTime()-spec.periodDays*86400000);
   if(isMarket){if(!MARKET_METRICS.includes(spec.metric))spec.metric='exposure_score';if(!['brand','platform','day','category','market_product'].includes(spec.dimension))spec.dimension='brand';const payload={p_organization_id:context.membership.organization_id,p_page_key:String(input.page||'market'),p_metric:spec.metric,p_dimension:spec.dimension,p_start:currentStart.toISOString().slice(0,10),p_end:currentEnd.toISOString().slice(0,10),p_platform:spec.filters.platform||null,p_limit:spec.limit};const data=(await supabase('/rest/v1/rpc/query_market_dashboard',{method:'POST',token:context.accessToken,body:payload})).data;return {spec,data}}
-  if(workspaceId(context))return {spec,data:await workspaceDashboardData(context,spec,currentEnd)};
+  if(workspaceId(context)){
+    const cacheNamespace=`workspace-query:${spec.metric}:${spec.dimension}:${spec.periodDays}:${spec.limit}:${JSON.stringify(spec.filters||{})}`;
+    const data=await cachedDashboardAggregate(context,cacheNamespace,30_000,()=>workspaceDashboardData(context,{...spec,page:String(input.page||'hub')},currentEnd));
+    return {spec,data};
+  }
   const anchor=input?.analysisEnd||await latestSalesTimestamp(context.membership.organization_id),{start,end}=calendarWindow(spec.periodDays,anchor,currentEnd);
   const payload={p_organization_id:context.membership.organization_id,p_page_key:String(input.page||'hub'),p_metric:spec.metric,p_dimension:spec.dimension,p_start:start.toISOString(),p_end:end.toISOString(),p_countries:scopedValues(context,'countries',spec.filters.country),p_channels:scopedValues(context,'channels',spec.filters.channel),p_locations:scopedValues(context,'locations',spec.filters.location)};
   const data=(await supabase('/rest/v1/rpc/query_sales_dashboard',{method:'POST',token:context.accessToken,body:payload})).data;
@@ -21,7 +25,16 @@ export async function runDashboardQuery(context:any,input:any){
 }
 
 async function workspaceDashboardData(context:any,spec:any,now=new Date()){
-  const org=context.membership.organization_id,ws=workspaceId(context),scope=`organization_id=eq.${enc(org)}&workspace_id=eq.${enc(ws)}`,anchor=await latestSalesTimestamp(org,ws),{start,end}=calendarWindow(spec.periodDays,anchor,now),[ordersResult,linesResult,productsResult,locationsResult,snapshotsResult,skusResult]=await Promise.all([
+  const org=context.membership.organization_id,ws=workspaceId(context),scope=`organization_id=eq.${enc(org)}&workspace_id=eq.${enc(ws)}`,anchor=await latestSalesTimestamp(org,ws),{start,end}=calendarWindow(spec.periodDays,anchor,now);
+  try{
+    const payload={p_organization_id:org,p_workspace_id:ws,p_page_key:String(spec.page||'hub'),p_metric:spec.metric,p_dimension:spec.dimension,p_start:start.toISOString(),p_end:end.toISOString(),p_countries:scopedValues(context,'countries',spec.filters.country),p_channels:scopedValues(context,'channels',spec.filters.channel),p_locations:scopedValues(context,'locations',spec.filters.location),p_product:spec.filters.product||null,p_limit:spec.limit};
+    const data=(await supabase('/rest/v1/rpc/query_workspace_dashboard',{method:'POST',token:context.accessToken,body:payload})).data;
+    return {...data,workspaceId:ws,source:'workspace_dashboard_rpc'};
+  }catch(error:any){
+    const message=String(error?.message||'');
+    if(!/query_workspace_dashboard|PGRST202|404/i.test(message))throw error;
+  }
+  const [ordersResult,linesResult,productsResult,locationsResult,snapshotsResult,skusResult]=await Promise.all([
     supabase(`/rest/v1/sales_orders?${scope}&ordered_at=gte.${encodeURIComponent(start.toISOString())}&ordered_at=lt.${encodeURIComponent(end.toISOString())}&select=id,ordered_at,channel_code,location_id,country_code,paid_amount&limit=50000`,{serviceRole:true}),
     supabase(`/rest/v1/sales_order_lines?${scope}&select=order_id,product_id,sku_id,quantity,returned_quantity,net_sales,unit_cost,channel_fee,marketing_cost,shipping_cost,return_cost&limit=50000`,{serviceRole:true}),
     supabase(`/rest/v1/products?${scope}&select=id,product_code,product_name&limit=10000`,{serviceRole:true}),
