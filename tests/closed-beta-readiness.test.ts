@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {evaluateClosedBetaReadiness,type ReadinessInput} from '../api/_lib/closed-beta-readiness.js';
+import {analyticsReadinessEvidence,evaluateClosedBetaReadiness,type ReadinessInput} from '../api/_lib/closed-beta-readiness.js';
 
 const ready:ReadinessInput={activeMembers:3,ownerAdmins:1,scopedMembers:2,permissionRows:18,salesOrders:800,salesLines:1440,inventorySnapshots:56,completedSalesImports:1,completedInventoryImports:1,salesMappings:1,inventoryMappings:1,salesReconciliation:'matched',inventoryReconciliation:'matched',analyticsRuns:2,analyticsFailures:0,axConversations:2,auditEvents:15,approvedActions:2,productionOrders:1,reorderIntegrityIssues:0,sourceErrors:0,openaiConfigured:true};
 
@@ -24,4 +24,20 @@ test('missing reusable mapping is visible without hiding core readiness failures
   assert.equal(result.score,92);
   assert.equal(result.warnings[0].key,'mapping');
   assert.match(result.warnings[0].nextAction||'',/회사 매핑/);
+});
+
+test('completed post-import analytics count when a dedicated refresh run is not present',()=>{
+  const evidence=analyticsReadinessEvidence([], [
+    {entity_type:'sales_order',summary:{analytics:{status:'completed',completed:2,failed:0}}},
+    {entity_type:'inventory_snapshot',summary:{analytics:{status:'completed',completed:2,failed:0}}}
+  ]);
+  assert.deepEqual(evidence,{runs:2,failures:0,source:'import_jobs'});
+});
+
+test('dedicated refresh runs remain authoritative over import summaries',()=>{
+  const evidence=analyticsReadinessEvidence(
+    [{pipeline:'forecast',status:'completed'},{pipeline:'discount',status:'failed'}],
+    [{entity_type:'sales_order',summary:{analytics:{status:'completed',completed:2,failed:0}}}]
+  );
+  assert.deepEqual(evidence,{runs:2,failures:1,source:'refresh_runs'});
 });

@@ -33,6 +33,16 @@ export type ReadinessCheck={
   nextAction?:string;
 };
 
+export function analyticsReadinessEvidence(runs:any[]=[],jobs:any[]=[]){
+  const latestRuns=new Map<string,any>();
+  for(const run of runs)if(!latestRuns.has(String(run.pipeline)))latestRuns.set(String(run.pipeline),run);
+  if(latestRuns.size)return {runs:latestRuns.size,failures:[...latestRuns.values()].filter((row:any)=>row.status==='failed').length,source:'refresh_runs' as const};
+  const latestImports=new Map<string,any>();
+  for(const job of jobs)if(!latestImports.has(String(job.entity_type)))latestImports.set(String(job.entity_type),job);
+  const analytics=[...latestImports.values()].map((job:any)=>job?.summary?.analytics).filter((item:any)=>item&&item.status!=='skipped'&&item.status!=='blocked');
+  return {runs:analytics.length,failures:analytics.filter((item:any)=>item.status==='failed'||Number(item.failed||0)>0).length,source:'import_jobs' as const};
+}
+
 export function evaluateClosedBetaReadiness(input:ReadinessInput){
   const checks:ReadinessCheck[]=[
     check('access','계정·회사 격리',10,input.activeMembers>0&&input.ownerAdmins>0,true,`${input.activeMembers}명 활성 · 관리자 ${input.ownerAdmins}명`,'대표 또는 관리자 계정을 활성화하세요.'),

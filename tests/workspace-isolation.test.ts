@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {dashboardCacheKey} from '../api/_lib/dashboard-cache.js';
 import {workspaceFilter,workspaceId} from '../api/_lib/supabase.js';
+import {operationalInsertValues,operationalUpdateFilters} from '../api/dashboards/query.js';
 
 test('workspace helpers produce an explicit tenant filter',()=>{
   const context:any={membership:{organization_id:'org-1'},workspace:{id:'ws-1'}};
@@ -14,6 +15,12 @@ test('workspace helpers produce an explicit tenant filter',()=>{
 test('dashboard cache cannot leak values between workspaces',()=>{
   const base:any={membership:{organization_id:'org-1',role:'owner'}};
   assert.notEqual(dashboardCacheKey({...base,workspace:{id:'ws-a'}},'overview'),dashboardCacheKey({...base,workspace:{id:'ws-b'}},'overview'));
+});
+
+test('dashboard approvals write and update only inside the active workspace',()=>{
+  const context:any={membership:{organization_id:'org-1'},workspace:{id:'ws-1'}};
+  assert.deepEqual(operationalInsertValues(context,{organization_id:'org-1',status:'approved'}),{organization_id:'org-1',status:'approved',workspace_id:'ws-1'});
+  assert.deepEqual(operationalUpdateFilters(context,{organization_id:'eq.org-1',id:'eq.action-1'}),{organization_id:'eq.org-1',id:'eq.action-1',workspace_id:'eq.ws-1'});
 });
 
 test('workspace isolation migration covers operational and decision tables',()=>{
