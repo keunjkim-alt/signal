@@ -1,4 +1,4 @@
-import * as XLSX from 'xlsx';
+import {readFirstWorksheetRows} from './excel.js';
 import {parseSpreadsheetDate} from './spreadsheet-date.js';
 
 export const WMS_FIELDS={
@@ -20,8 +20,8 @@ const normalize=(value:any)=>String(value??'').trim().toLowerCase().replace(/[\s
 export async function parseWorkbook(file:File){
   const ext=file.name.toLowerCase().split('.').pop();const bytes=new Uint8Array(await file.arrayBuffer());
   if(ext==='csv'){const text=new TextDecoder(detectEncoding(bytes)).decode(bytes);return parseCsv(text)}
-  if(ext==='xlsx'||ext==='xls'){const workbook=XLSX.read(bytes,{type:'array',cellDates:true});const sheet=workbook.Sheets[workbook.SheetNames[0]];return XLSX.utils.sheet_to_json(sheet,{defval:null,raw:false}) as Record<string,any>[]}
-  throw new Error('CSV, XLSX, XLS 파일만 지원합니다.');
+  if(ext==='xlsx')return readFirstWorksheetRows(bytes.buffer,null);
+  throw new Error('CSV 또는 XLSX 파일만 지원합니다.');
 }
 
 function detectEncoding(bytes:Uint8Array){return bytes[0]===0xef&&bytes[1]===0xbb&&bytes[2]===0xbf?'utf-8':'utf-8'}

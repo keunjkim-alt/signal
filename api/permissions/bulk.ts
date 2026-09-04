@@ -1,7 +1,8 @@
-import * as XLSX from 'xlsx';
+import {readFirstWorksheetRows} from '../_lib/excel.js';
 import {errorResponse,json} from '../_lib/http.js';
 import {audit,insert,requestContext,requireRole,supabase} from '../_lib/supabase.js';
 import {defaultPermissionPages} from '../_lib/default-permissions.js';
+import {parseCsv} from '../_lib/wms.js';
 
 const roles=new Set(['owner','admin','manager','member','viewer']);
 const roleAliases:any={'대표':'owner','전체 관리자':'admin','관리자':'admin','팀 관리자':'manager','팀장':'manager','팀 구성원':'member','구성원':'member','조회 전용':'viewer','조회':'viewer'};
@@ -10,13 +11,18 @@ export function normalizeBulkPage(value:string){return pageAliases[String(value|
 const value=(row:any,names:string[])=>{const key=Object.keys(row).find(k=>names.includes(String(k).trim().toLowerCase()));return key?row[key]:null};
 const list=(input:any)=>String(input||'').split(/[,;|]/).map(x=>x.trim()).filter(Boolean);
 
-function parse(file:File){return file.arrayBuffer().then(buffer=>{const book=XLSX.read(new Uint8Array(buffer),{type:'array'}),sheet=book.Sheets[book.SheetNames[0]];return XLSX.utils.sheet_to_json(sheet,{defval:''}) as any[]})}
+export async function parseBulkRows(file:File){
+  const extension=String(file.name||'').toLowerCase().split('.').pop();
+  if(extension==='csv')return parseCsv(await file.text());
+  if(extension==='xlsx')return readFirstWorksheetRows(await file.arrayBuffer(),'');
+  throw new Error('CSV 또는 XLSX 파일만 지원합니다.');
+}
 
 export default {async fetch(request:Request){
   if(request.method!=='POST')return json({ok:false,error:'Method not allowed'},405);
   try{
     const context=await requestContext(request);requireRole(context,['owner','admin']);const form=await request.formData(),file=form.get('file');if(!(file instanceof File))return json({ok:false,error:'file is required'},400);if(file.size>5*1024*1024)return json({ok:false,error:'사용자 파일은 최대 5MB까지 지원합니다.'},413);
-    const rows=await parse(file),org=context.membership.organization_id,results:any[]=[],workspaces=(await supabase(`/rest/v1/workspaces?organization_id=eq.${encodeURIComponent(org)}&status=in.(onboarding,active)&select=id`,{serviceRole:true})).data||[],workspaceIds=workspaces.map((row:any)=>String(row.id));
+    const rows=await parseBulkRows(file),org=context.membership.organization_id,results:any[]=[],workspaces=(await supabase(`/rest/v1/workspaces?organization_id=eq.${encodeURIComponent(org)}&status=in.(onboarding,active)&select=id`,{serviceRole:true})).data||[],workspaceIds=workspaces.map((row:any)=>String(row.id));
     for(let index=0;index<rows.length;index++){
       const row=rows[index],email=String(value(row,['email','이메일','메일'])||'').trim().toLowerCase(),displayName=String(value(row,['name','display_name','이름','성명'])||email).trim(),team=String(value(row,['team','team_code','팀','부서'])||'').trim();
       let role=String(value(row,['role','역할','권한'])||'member').trim();role=roleAliases[role]||role.toLowerCase();

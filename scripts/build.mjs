@@ -1,6 +1,10 @@
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { execFileSync } from 'node:child_process';
 import { validateColorPalette } from './validate-color-palette.mjs';
 
+const appSource=await readFile('app.js','utf8');
+if(/^(<{7}|={7}|>{7})/m.test(appSource))throw new Error('app.js contains unresolved merge-conflict markers');
+execFileSync(process.execPath,['--check','app.js'],{stdio:'inherit'});
 await validateColorPalette();
 await rm('dist', { recursive: true, force: true });
 await mkdir('dist', { recursive: true });

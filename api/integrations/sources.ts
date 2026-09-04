@@ -20,7 +20,7 @@ export default {async fetch(request:Request){
       requirePagePermission(context,'connections','view');
       if(resource==='imports')return json(await cachedDashboardAggregate(context,`connection-imports:${Math.min(50,Math.max(1,Number(url.searchParams.get('limit'))||20))}`,CONNECTION_CACHE_TTL,()=>importHistory(org,ws,url)));
       if(resource==='import-errors')return importErrors(org,ws,url);
-      if(resource==='reconciliation')return reconciliationStatus(org,ws);
+      if(resource==='reconciliation')return reconciliationStatus(org,ws,url.searchParams.get('refresh')==='1');
       if(resource==='data-quality')return dataQualityStatus(org,ws);
       if(resource==='mappings'){
         const entityType=String(url.searchParams.get('entityType')||'');
@@ -179,11 +179,15 @@ async function importErrors(org:string,ws:string|null,url:URL){
   return json({ok:true,jobId,errors});
 }
 
-async function reconciliationStatus(org:string,ws:string|null){
+async function reconciliationStatus(org:string,ws:string|null,refresh=false){
   const query=new URLSearchParams({organization_id:`eq.${org}`,status:'in.(completed,partial)',entity_type:'in.(sales_order,inventory_snapshot)',select:'id,workspace_id,raw_upload_id,entity_type,status,total_rows,success_rows,error_rows,summary,completed_at,created_at',order:'created_at.desc',limit:'40'});if(ws)query.set('workspace_id',`eq.${ws}`);const jobs=(await supabase(`/rest/v1/import_jobs?${query}`,{serviceRole:true})).data||[],latest=['sales_order','inventory_snapshot'].map(type=>jobs.find((job:any)=>job.entity_type===type)).filter(Boolean),uploadIds=latest.map((job:any)=>job.raw_upload_id).filter(Boolean),uploadQuery=uploadIds.length?`organization_id=eq.${encodeURIComponent(org)}&${ws?`workspace_id=eq.${encodeURIComponent(ws)}&`:''}id=${encodeURIComponent(`in.(${uploadIds.join(',')})`)}&select=id,original_filename,storage_path,content_type`:null,uploads=uploadQuery?(await supabase(`/rest/v1/raw_uploads?${uploadQuery}`,{serviceRole:true})).data||[]:[],uploadMap=new Map(uploads.map((row:any)=>[String(row.id),row])),items=[];
   for(const job of latest){
     const upload:any=uploadMap.get(String(job.raw_upload_id));
     try{
+      if(!refresh&&job.summary?.reconciliation&&job.summary?.sourceControl&&job.summary?.persistedControl){
+        items.push({...job.summary.reconciliation,jobStatus:job.status,totalRows:Number(job.total_rows||0),successRows:Number(job.success_rows||0),errorRows:Number(job.error_rows||0),sourceMode:'stored_control'});
+        continue;
+      }
       const source=job.summary?.sourceControl||await sourceTotalsFromUpload(job,upload),persisted=await persistedControlTotals(org,job),result=buildReconciliation(job.entity_type,source,persisted,{filename:upload?.original_filename||null,jobId:job.id});
       await update('import_jobs',{id:`eq.${job.id}`,organization_id:`eq.${org}`,...(ws?{workspace_id:`eq.${ws}`}:{})},{summary:{...(job.summary||{}),sourceControl:source,persistedControl:persisted,reconciliation:result}});
       items.push({...result,jobStatus:job.status,totalRows:Number(job.total_rows||0),successRows:Number(job.success_rows||0),errorRows:Number(job.error_rows||0),sourceMode:job.summary?.sourceControl?'stored_control':'raw_file_replay'});
