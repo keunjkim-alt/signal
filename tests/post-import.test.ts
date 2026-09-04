@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import {analysisDate,summarizePipelineResults} from '../api/_lib/post-import.ts';
 
 test('analysis date follows the latest imported source date',()=>{
@@ -29,4 +30,12 @@ test('post import pipeline distinguishes completed, partial and failed runs',()=
     {key:'discount',label:'할인',status:'failed'}
   ]);
   assert.equal(failed.status,'failed');
+});
+
+test('post import implementation assigns legacy analytics to the active workspace',()=>{
+  const source=fs.readFileSync(new URL('../api/_lib/post-import.ts',import.meta.url),'utf8');
+  assert.match(source,/scopeLegacyAnalyticsResult/);
+  assert.match(source,/forecast_snapshots/);
+  assert.match(source,/discount_recommendation_snapshots/);
+  assert.match(source,/workspace_id:workspaceId/);
 });
