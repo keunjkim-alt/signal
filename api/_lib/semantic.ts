@@ -28,6 +28,9 @@ export function heuristicPlan(question:string,page='hub'){
 
 export function requiresOpenAI(question:string){
   const text=question.toLowerCase();
+  const explicitMetric=['매출','판매량','판매 수량','주문','재고','이익','수익','반품','판매율','노출','순위','리뷰','평점'].some(token=>text.includes(token));
+  const explicitDimension=['채널','매장','지역','제품','상품','sku','일별','날짜별','브랜드','플랫폼','카테고리'].some(token=>text.includes(token));
+  if(explicitMetric&&explicitDimension)return false;
   return ['왜','원인','전략','시나리오','어떻게','설명해','비교해서 판단'].some(token=>text.includes(token));
 }
 

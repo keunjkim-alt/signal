@@ -56,5 +56,6 @@ test('routine recommendations stay on the fast deterministic route',()=>{
   assert.equal(requiresOpenAI('오늘 가장 먼저 실행할 재고 이동을 추천해줘'),false);
   assert.equal(requiresOpenAI('제품별 다음 주 판매량을 예측해줘'),false);
   assert.equal(requiresOpenAI('오늘 판매 현황을 요약해줘'),false);
+  assert.equal(requiresOpenAI('왜 최근 매출이 달라졌는지 채널별로 설명해줘'),false);
   assert.equal(requiresOpenAI('매출이 감소한 원인을 설명해줘'),true);
 });
