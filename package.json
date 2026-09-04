@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "node scripts/dev.mjs",
     "build": "node scripts/build.mjs",
+    "check:performance": "node scripts/performance-budget.mjs",
     "test": "tsx --test tests/*.test.ts",
     "generate:beta-data": "node scripts/generate-closed-beta-data.mjs",
     "check:beta-public": "node scripts/public-beta-check.mjs",
@@ -21,6 +22,7 @@
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
+    "esbuild": "0.28.2",
     "tsx": "^4.23.12"
   }
 }

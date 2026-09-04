@@ -12,7 +12,9 @@ test('operations summary highlights source, import, API and AX risks',()=>{
     {type:'api',name:'GET /api/dashboards/query?resource=inventory',durationMs:800,page:'inventory',status:200,at:'2026-09-03T00:00:00Z'},
     {type:'api',name:'POST /api/ax/query',durationMs:4200,page:'inventory',status:200,at:'2026-09-03T00:01:00Z'},
     {type:'api',name:'GET /api/integrations/sources',durationMs:1800,page:'connections',status:500,at:'2026-09-03T00:02:00Z'},
-    {type:'navigation',name:'inventory',durationMs:280,page:'inventory',status:null,at:'2026-09-03T00:03:00Z'}
+    {type:'navigation',name:'inventory',durationMs:280,page:'inventory',status:null,at:'2026-09-03T00:03:00Z'},
+    {type:'webvital',name:'lcp',durationMs:920,page:'inventory',status:null,at:'2026-09-03T00:03:01Z'},
+    {type:'longtask',name:'main-thread-block',durationMs:81,page:'inventory',status:null,at:'2026-09-03T00:03:02Z'}
   ]}}],sources:[{name:'WMS',status:'error',data_mode:'stale'}],importJobs:[{id:'job-1',status:'failed'}],analyticsRuns:[{id:'run-1',status:'failed'}],auditEvents:[{action:'ax.router_fallback'}],axMessages:[{id:'message-1'}],queryCache:[{hit_count:4}]});
-  assert.equal(summary.summary.apiRequests,3);assert.equal(summary.summary.apiErrors,1);assert.equal(summary.summary.slowApiRequests,2);assert.equal(summary.summary.axP95Ms,4200);assert.equal(summary.summary.navigationAverageMs,280);assert.equal(summary.summary.cacheHits,4);assert.ok(summary.attention.some(item=>item.title.includes('데이터 소스')));assert.ok(summary.attention.some(item=>item.title.includes('파일 적재')));assert.equal(summary.endpoints[0].p95Ms,4200);
+  assert.equal(summary.summary.apiRequests,3);assert.equal(summary.summary.apiErrors,1);assert.equal(summary.summary.slowApiRequests,2);assert.equal(summary.summary.axP95Ms,4200);assert.equal(summary.summary.navigationAverageMs,280);assert.equal(summary.summary.lcpP75Ms,920);assert.equal(summary.summary.longTaskCount,1);assert.equal(summary.summary.cacheHits,4);assert.ok(summary.attention.some(item=>item.title.includes('데이터 소스')));assert.ok(summary.attention.some(item=>item.title.includes('파일 적재')));assert.equal(summary.endpoints[0].p95Ms,4200);
 });

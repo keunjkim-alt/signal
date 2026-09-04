@@ -1,0 +1,30 @@
+.dashboard-body {
+  transition: opacity 120ms ease;
+}
+
+.dashboard-body.page-is-switching {
+  opacity: .62;
+  pointer-events: none;
+}
+
+.dashboard-body > .card,
+.dashboard-body > .grid,
+.dashboard-body > section,
+.dashboard-body > div:not(.data-provenance):not(.inventory-tabs) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 520px;
+}
+
+.photo img,
+.thumb img,
+.product-cell img,
+.designer-product-card img,
+.market-product img {
+  background: #f4f6f9;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-body {
+    transition: none;
+  }
+}
