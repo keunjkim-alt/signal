@@ -32,6 +32,12 @@ test('inventory priority is not mistaken for an external market ranking',()=>{
   const plan=heuristicPlan('현재 재고 이동 승인 대기 중 우선순위 3건과 근거를 알려줘','inventory');
   assert.equal(plan.metric,'available_qty');
   assert.equal(plan.dimension,'product');
+  assert.equal(plan.limit,3);
+});
+
+test('explicit Korean result counts are preserved in deterministic plans',()=>{
+  assert.equal(heuristicPlan('강남점 재고 부족 상품 1건만 보여줘','inventory').limit,1);
+  assert.equal(heuristicPlan('매출 상위 7개 제품을 보여줘','hub').limit,7);
 });
 
 test('forecast and product matching questions route to stored intelligence snapshots',()=>{

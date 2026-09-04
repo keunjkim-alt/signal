@@ -23,7 +23,8 @@ export function heuristicPlan(question:string,page='hub'){
   const dimension=isMarket?(text.includes('일별')||text.includes('추이')?'day':text.includes('플랫폼')?'platform':text.includes('카테고리')||text.includes('스타일')?'category':text.includes('제품')||text.includes('상품')?'market_product':'brand'):(text.includes('매장')||text.includes('지역')?'location':text.includes('제품')||text.includes('sku')||text.includes('재고')?'product':text.includes('일별')||text.includes('추이')||text.includes('시간')?'day':'channel');
   const metric=isMarket?(text.includes('리뷰')?'total_review_count':text.includes('평점')?'avg_rating':text.includes('할인')?'avg_discount_rate':text.includes('상품 수')||text.includes('제품 수')?'product_count':text.includes('top')||text.includes('상위')?'top_100_count':text.includes('순위')||text.includes('랭킹')?'best_rank':'exposure_score'):(text.includes('재고')?'available_qty':text.includes('수량')?'quantity':text.includes('반품')?'return_rate':text.includes('이익')||text.includes('수익')?'contribution_margin':'net_sales');
   const visualization=text.includes('표')?'table':text.includes('추이')?'line':text.includes('재고')&&text.includes('판매')?'quadrant':dimension==='day'?'area':'bar';
-  return normalizeQuerySpec({metric,dimension,visualization,periodDays:text.includes('월')?31:text.includes('주')?7:14});
+  const requestedLimit=Number(text.match(/(?:상위\s*)?(\d+)\s*(?:건|개|개만|건만)/)?.[1]||0);
+  return normalizeQuerySpec({metric,dimension,visualization,periodDays:text.includes('월')?31:text.includes('주')?7:14,limit:requestedLimit||20});
 }
 
 export function requiresOpenAI(question:string){

@@ -7,6 +7,7 @@ import {audit,insert,requestContext,requirePagePermission,requireRole,scopedValu
 import {assertAnalyticsRefreshAllowed} from '../_lib/reconciliation.js';
 import {summarizeReviewInsights} from '../_lib/reviews.js';
 import {cachedDashboardAggregate,invalidateDashboardCache} from '../_lib/dashboard-cache.js';
+import {cachedPersistentDashboardAggregate} from '../_lib/persistent-dashboard-cache.js';
 
 const CACHE_TTL={profitability:60_000,inventory:45_000,customer:60_000,review:60_000,intelligence:60_000,decision:30_000,production:30_000,hub:45_000};
 
@@ -31,7 +32,7 @@ export async function runDashboardQuery(context:any,input:any){
 async function workspaceDashboardData(context:any,spec:any,now=new Date(),analysisEnd?:string|null){
   const org=context.membership.organization_id,ws=workspaceId(context),scope=`organization_id=eq.${enc(org)}&workspace_id=eq.${enc(ws)}`,anchor=analysisEnd||await latestSalesTimestamp(org,ws),{start,end}=calendarWindow(spec.periodDays,anchor,now);
   try{
-    const payload={p_organization_id:org,p_workspace_id:ws,p_page_key:String(spec.page||'hub'),p_metric:spec.metric,p_dimension:spec.dimension,p_start:start.toISOString(),p_end:end.toISOString(),p_countries:scopedValues(context,'countries',spec.filters.country),p_channels:scopedValues(context,'channels',spec.filters.channel),p_locations:scopedValues(context,'locations',spec.filters.location),p_product:spec.filters.product||null,p_limit:spec.limit};
+    const payload={p_organization_id:org,p_workspace_id:ws,p_page_key:String(spec.page||'hub'),p_metric:spec.metric,p_dimension:spec.dimension,p_start:start.toISOString(),p_end:end.toISOString(),p_countries:scopedValues(context,'countries',spec.filters.country),p_channels:scopedValues(context,'channels',spec.filters.channel),p_locations:await workspaceLocationFilters(context,spec.filters.location),p_product:spec.filters.product||null,p_limit:spec.limit};
     const data=(await supabase('/rest/v1/rpc/query_workspace_dashboard',{method:'POST',token:context.accessToken,body:payload})).data;
     return {...data,workspaceId:ws,source:'workspace_dashboard_rpc'};
   }catch(error:any){
@@ -51,6 +52,16 @@ async function workspaceDashboardData(context:any,spec:any,now=new Date(),analys
   if(['available_qty','inventory_cover_days'].includes(spec.metric)){groups.clear();const latestCells=new Map<string,any>();for(const row of snapshotsResult.data||[]){const cell=`${row.sku_id}:${row.location_id}`;if(!latestCells.has(cell))latestCells.set(cell,row)}for(const row of latestCells.values()){const sku:any=skus.get(String(row.sku_id))||{},product:any=products.get(String(sku.product_id))||{},location:any=locations.get(String(row.location_id))||{};if(!matchesLocation({location_id:row.location_id})||!matchesProduct(product,sku)||countries&&!countries.includes(String(location.country_code||'')))continue;const key=spec.dimension==='location'?location.location_name||location.location_code||'미지정':product.product_name||product.product_code||sku.sku_code||'미지정',current=groups.get(key)||{dimension:key,available_qty:0};current.available_qty+=Number(row.available_qty||0);groups.set(key,current)}}
   const rows=[...groups.values()].map((row:any)=>{const ordersCount=row.orders?.size||0,value=spec.metric==='orders'?ordersCount:spec.metric==='quantity'?row.quantity:spec.metric==='contribution_margin'?row.contribution_margin:spec.metric==='return_rate'?(row.quantity?row.returned_quantity/row.quantity*100:0):spec.metric==='available_qty'||spec.metric==='inventory_cover_days'?row.available_qty:row.net_sales;delete row.orders;return {...row,value}}).sort((a:any,b:any)=>spec.dimension==='day'?String(a.dimension).localeCompare(String(b.dimension)):Number(b.value)-Number(a.value)).slice(0,spec.limit);
   return {rows,workspaceId:ws,source:'workspace_operational_facts'};
+}
+
+function locationToken(value:any){return String(value||'').toLowerCase().replace(/\s+/g,'').replace(/(플래그십스토어|플래그십|스토어|매장|점)$/g,'')}
+async function workspaceLocationFilters(context:any,requested?:string|null){
+  if(!requested)return scopedValues(context,'locations');
+  const org=context.membership.organization_id,ws=workspaceId(context),rows=await cachedDashboardAggregate(context,'location-filter-map',300_000,async()=>((await supabase(`/rest/v1/locations?organization_id=eq.${enc(org)}&workspace_id=eq.${enc(ws)}&select=location_code,location_name&limit=10000`,{serviceRole:true})).data||[])),needle=locationToken(requested),matches=rows.filter((row:any)=>{const code=locationToken(row.location_code),name=locationToken(row.location_name);return code===needle||name===needle||code.includes(needle)||name.includes(needle)||needle.includes(code)||needle.includes(name)}),values=[...new Set(matches.map((row:any)=>String(row.location_code||'')).filter(Boolean))];
+  if(['owner','admin'].includes(context.membership.role))return values.length?values:[requested];
+  const allowed=scopedValues(context,'locations'),allowedTokens=new Set((allowed||[]).map(locationToken)),scoped=matches.filter((row:any)=>allowedTokens.has(locationToken(row.location_code))||allowedTokens.has(locationToken(row.location_name))).map((row:any)=>String(row.location_code||'')).filter(Boolean);
+  if(!scoped.length){const error:any=new Error('Requested locations filter is outside the account data scope');error.status=403;throw error}
+  return [...new Set(scoped)];
 }
 
 export function calendarWindow(periodDays:number,anchorValue?:string|null,now=new Date()){
@@ -237,7 +248,7 @@ async function persistDecisionAction(context:any,body:any){
 
 async function inventoryOperationsSummary(context:any){
   requirePagePermission(context,'inventory','view');
-  return cachedDashboardAggregate(context,'inventory-operations',CACHE_TTL.inventory,async()=>{
+  return cachedPersistentDashboardAggregate(context,'inventory-operations',CACHE_TTL.inventory,3*60_000,async()=>{
     const org=context.membership.organization_id,q=encodeURIComponent(org),ws=workspaceId(context),w=ws?`&workspace_id=eq.${enc(ws)}`:'',periodDays=14;
     const masterTask=inventoryMasterContext(context),sourcesTask=supabase(`/rest/v1/data_sources?organization_id=eq.${q}${w}&provider=eq.file_upload_inventory_snapshot&select=id,name,status,data_mode,last_synced_at,last_successful_sync_at,last_sync_error&order=last_synced_at.desc.nullslast&limit=1`,{serviceRole:true}),analysisEnd=await latestSalesTimestamp(org,ws),{start,end}=calendarWindow(periodDays,analysisEnd),ordersTask=supabase(`/rest/v1/sales_orders?organization_id=eq.${q}${w}&ordered_at=gte.${encodeURIComponent(start.toISOString())}&ordered_at=lt.${encodeURIComponent(end.toISOString())}&select=id,location_id,country_code,channel_code&limit=10000`,{serviceRole:true});
     const [master,orders,inventorySources]=await Promise.all([masterTask,ordersTask,sourcesTask]);
@@ -251,7 +262,7 @@ async function inventoryOperationsSummary(context:any){
 
 async function hubSummary(context:any){
   requirePagePermission(context,'hub','view');
-  return cachedDashboardAggregate(context,'sales-hub',CACHE_TTL.hub,async()=>{
+  return cachedPersistentDashboardAggregate(context,'sales-hub',CACHE_TTL.hub,3*60_000,async()=>{
     const org=context.membership.organization_id,sourceQuery=new URLSearchParams({organization_id:`eq.${org}`,select:'id,name,provider,source_type,status,data_mode,last_synced_at,last_successful_sync_at,last_sync_error',order:'last_synced_at.desc.nullslast'}),sourcesTask=supabase(`/rest/v1/data_sources?${sourceQuery}`,{serviceRole:true}),analysisEnd=await latestSalesTimestamp(org);
     const [channels,locations,products,daily,inventory,sourcesResult]=await Promise.all([
       overviewRows(context,'hub','net_sales','channel',14,analysisEnd),overviewRows(context,'hub','net_sales','location',14,analysisEnd),overviewRows(context,'hub','net_sales','product',14,analysisEnd),overviewRows(context,'hub','net_sales','day',14,analysisEnd),overviewRows(context,'inventory','available_qty','product',14,analysisEnd),sourcesTask
