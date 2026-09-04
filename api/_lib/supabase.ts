@@ -1,5 +1,6 @@
 import {readCookies} from './cookies.js';
-import {cachedRequestContext} from './request-context-cache.js';
+import {cachedRequestContext,cachedRequestIdentity} from './request-context-cache.js';
+import {cachedWorkspaceAccess} from './workspace-access-cache.js';
 
 const url=()=>process.env.SUPABASE_URL?.replace(/\/$/,'');
 const anonKey=()=>process.env.SUPABASE_ANON_KEY;
@@ -41,17 +42,19 @@ export async function membershipBrands(membership:any){
   return brands.filter((brand:any)=>allowed.has(String(brand.id).toLowerCase())||allowed.has(String(brand.code).toLowerCase()));
 }
 
-export async function membershipWorkspaces(membership:any){const query=new URLSearchParams({organization_id:`eq.${membership.organization_id}`,status:'in.(onboarding,active,paused)',select:'id,brand_id,name,code,description,image_url,status,service_stage,timezone,data_region,metadata',order:'created_at.asc'}),workspaces=(await supabase(`/rest/v1/workspaces?${query}`,{serviceRole:true})).data||[];let accessible=workspaces;if(!['owner','admin'].includes(membership.role)){const accessQuery=new URLSearchParams({membership_id:`eq.${membership.id}`,status:'eq.active',select:'workspace_id,role'}),access=(await supabase(`/rest/v1/workspace_memberships?${accessQuery}`,{serviceRole:true})).data||[],byId=new Map(access.map((row:any)=>[String(row.workspace_id),row.role||null]));accessible=workspaces.filter((workspace:any)=>byId.has(String(workspace.id))).map((workspace:any)=>({...workspace,workspace_role:byId.get(String(workspace.id))}))}const brandScope=membership.data_scope?.brands;if(!Array.isArray(brandScope))return accessible;const allowed=new Set(brandScope.map((value:any)=>String(value).toLowerCase()));return accessible.filter((workspace:any)=>!workspace.brand_id||allowed.has(String(workspace.brand_id).toLowerCase()))}
+export async function membershipWorkspaces(membership:any){return cachedWorkspaceAccess(membership,async()=>{const query=new URLSearchParams({organization_id:`eq.${membership.organization_id}`,status:'in.(onboarding,active,paused)',select:'id,brand_id,name,code,description,image_url,status,service_stage,timezone,data_region,metadata',order:'created_at.asc'}),workspaces=(await supabase(`/rest/v1/workspaces?${query}`,{serviceRole:true})).data||[];let accessible=workspaces;if(!['owner','admin'].includes(membership.role)){const accessQuery=new URLSearchParams({membership_id:`eq.${membership.id}`,status:'eq.active',select:'workspace_id,role'}),access=(await supabase(`/rest/v1/workspace_memberships?${accessQuery}`,{serviceRole:true})).data||[],byId=new Map(access.map((row:any)=>[String(row.workspace_id),row.role||null]));accessible=workspaces.filter((workspace:any)=>byId.has(String(workspace.id))).map((workspace:any)=>({...workspace,workspace_role:byId.get(String(workspace.id))}))}const brandScope=membership.data_scope?.brands;if(!Array.isArray(brandScope))return accessible;const allowed=new Set(brandScope.map((value:any)=>String(value).toLowerCase()));return accessible.filter((workspace:any)=>!workspace.brand_id||allowed.has(String(workspace.brand_id).toLowerCase()))})}
 
 type ContextOptions={includeProfile?:boolean;includeBrands?:boolean;includePermissions?:boolean;permissionPage?:string};
 
 export async function contextForAccessToken(accessToken:string,requestedOrganization?:string|null,options:ContextOptions={}){
   return cachedRequestContext(accessToken,requestedOrganization,options,async()=>{
-    const user=await authUser(accessToken);
-    const query=new URLSearchParams({user_id:`eq.${user.id}`,status:'eq.active',select:'id,organization_id,role,team_code,data_scope,organizations(id,name,slug)'});
-    const memberships=(await supabase(`/rest/v1/organization_memberships?${query}`,{serviceRole:true,headers:{accept:'application/json'}})).data||[];
-    if(!memberships.length){const error:any=new Error('No active organization membership');error.status=403;throw error}
-    const membership=memberships.find((item:any)=>item.organization_id===requestedOrganization)||memberships[0];
+    const {user,membership}=await cachedRequestIdentity(accessToken,requestedOrganization,async()=>{
+      const user=await authUser(accessToken);
+      const query=new URLSearchParams({user_id:`eq.${user.id}`,status:'eq.active',select:'id,organization_id,role,team_code,data_scope,organizations(id,name,slug)'});
+      const memberships=(await supabase(`/rest/v1/organization_memberships?${query}`,{serviceRole:true,headers:{accept:'application/json'}})).data||[];
+      if(!memberships.length){const error:any=new Error('No active organization membership');error.status=403;throw error}
+      return {user,membership:memberships.find((item:any)=>item.organization_id===requestedOrganization)||memberships[0]};
+    });
     const profileQuery=new URLSearchParams({user_id:`eq.${user.id}`,select:'display_name,avatar_url,locale'}),permissionQuery=new URLSearchParams({membership_id:`eq.${membership.id}`,select:'page_key,can_view,can_update,can_approve,data_scope'});
     if(options.permissionPage)permissionQuery.set('page_key',`eq.${options.permissionPage}`);
     const needsPermissions=options.includePermissions!==false&&(!options.permissionPage||!['owner','admin'].includes(membership.role));

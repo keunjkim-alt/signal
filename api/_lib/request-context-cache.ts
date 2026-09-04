@@ -6,6 +6,9 @@ type CacheEntry={value?:any;promise?:Promise<any>;expiresAt:number;touchedAt:num
 const CACHE_SYMBOL=Symbol.for('viimsignal.auth.request-context-cache');
 const globalCache=globalThis as typeof globalThis&{[CACHE_SYMBOL]?:Map<string,CacheEntry>};
 const cache=globalCache[CACHE_SYMBOL]||(globalCache[CACHE_SYMBOL]=new Map<string,CacheEntry>());
+const IDENTITY_CACHE_SYMBOL=Symbol.for('viimsignal.auth.identity-cache');
+const identityGlobal=globalThis as typeof globalThis&{[IDENTITY_CACHE_SYMBOL]?:Map<string,CacheEntry>};
+const identityCache=identityGlobal[IDENTITY_CACHE_SYMBOL]||(identityGlobal[IDENTITY_CACHE_SYMBOL]=new Map<string,CacheEntry>());
 const DEFAULT_TTL_MS=15_000,MAX_ENTRIES=120;
 
 function hashToken(accessToken:string){return createHash('sha256').update(accessToken).digest('hex')}
@@ -20,6 +23,29 @@ function prune(now:number){
   if(cache.size<=MAX_ENTRIES)return;
   const removable=[...cache.entries()].filter(([,entry])=>!entry.promise).sort((a,b)=>a[1].touchedAt-b[1].touchedAt);
   for(const [key] of removable.slice(0,Math.max(0,cache.size-MAX_ENTRIES)))cache.delete(key);
+}
+function identityKey(accessToken:string,requestedOrganization?:string|null){return `${hashToken(accessToken).slice(0,24)}|org:${requestedOrganization||'default'}`}
+function pruneIdentity(now:number){
+  for(const [key,entry] of identityCache)if(!entry.promise&&entry.expiresAt<=now)identityCache.delete(key);
+  if(identityCache.size<=MAX_ENTRIES)return;
+  const removable=[...identityCache.entries()].filter(([,entry])=>!entry.promise).sort((a,b)=>a[1].touchedAt-b[1].touchedAt);
+  for(const [key] of removable.slice(0,Math.max(0,identityCache.size-MAX_ENTRIES)))identityCache.delete(key);
+}
+export async function cachedRequestIdentity<T>(accessToken:string,requestedOrganization:string|null|undefined,loader:()=>Promise<T>,ttlMs=DEFAULT_TTL_MS,now=Date.now()):Promise<T>{
+  const key=identityKey(accessToken,requestedOrganization),existing=identityCache.get(key);
+  if(existing?.promise)return existing.promise as Promise<T>;
+  if(existing&&existing.expiresAt>now){existing.touchedAt=now;return existing.value as T}
+  const promise=loader();
+  identityCache.set(key,{promise,expiresAt:now+Math.max(0,ttlMs),touchedAt:now,tokenHash:hashToken(accessToken)});
+  try{
+    const value=await promise,completedAt=Date.now();
+    identityCache.set(key,{value,expiresAt:completedAt+Math.max(0,ttlMs),touchedAt:completedAt,tokenHash:hashToken(accessToken)});
+    pruneIdentity(completedAt);
+    return value;
+  }catch(error){
+    if(identityCache.get(key)?.promise===promise)identityCache.delete(key);
+    throw error;
+  }
 }
 export async function cachedRequestContext<T>(accessToken:string,requestedOrganization:string|null|undefined,options:ContextCacheOptions,loader:()=>Promise<T>,ttlMs=DEFAULT_TTL_MS,now=Date.now()):Promise<T>{
   const key=requestContextCacheKey(accessToken,requestedOrganization,options),existing=cache.get(key);
@@ -46,6 +72,14 @@ export function invalidateRequestContextCache(filters:{accessToken?:string;organ
     if(filters.userId&&String(value?.user?.id||'')!==filters.userId)continue;
     cache.delete(key);removed++;
   }
+  for(const [key,entry] of identityCache){
+    const value=entry.value;
+    if(tokenHash&&entry.tokenHash!==tokenHash)continue;
+    if(filters.organizationId&&String(value?.membership?.organization_id||'')!==filters.organizationId)continue;
+    if(filters.userId&&String(value?.user?.id||'')!==filters.userId)continue;
+    identityCache.delete(key);removed++;
+  }
   return removed;
 }
 export function requestContextCacheSize(){return cache.size}
+export function requestIdentityCacheSize(){return identityCache.size}

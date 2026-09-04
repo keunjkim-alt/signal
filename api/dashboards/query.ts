@@ -19,7 +19,7 @@ export async function runDashboardQuery(context:any,input:any){
   if(isMarket){if(!MARKET_METRICS.includes(spec.metric))spec.metric='exposure_score';if(!['brand','platform','day','category','market_product'].includes(spec.dimension))spec.dimension='brand';const payload={p_organization_id:context.membership.organization_id,p_page_key:String(input.page||'market'),p_metric:spec.metric,p_dimension:spec.dimension,p_start:currentStart.toISOString().slice(0,10),p_end:currentEnd.toISOString().slice(0,10),p_platform:spec.filters.platform||null,p_limit:spec.limit};const data=(await supabase('/rest/v1/rpc/query_market_dashboard',{method:'POST',token:context.accessToken,body:payload})).data;return {spec,data}}
   if(workspaceId(context)){
     const cacheNamespace=`workspace-query:${spec.metric}:${spec.dimension}:${spec.periodDays}:${spec.limit}:${JSON.stringify(spec.filters||{})}`;
-    const data=await cachedDashboardAggregate(context,cacheNamespace,30_000,()=>workspaceDashboardData(context,{...spec,page:String(input.page||'hub')},currentEnd));
+    const data=await cachedDashboardAggregate(context,cacheNamespace,30_000,()=>workspaceDashboardData(context,{...spec,page:String(input.page||'hub')},currentEnd,input?.analysisEnd));
     return {spec,data};
   }
   const anchor=input?.analysisEnd||await latestSalesTimestamp(context.membership.organization_id),{start,end}=calendarWindow(spec.periodDays,anchor,currentEnd);
@@ -28,8 +28,8 @@ export async function runDashboardQuery(context:any,input:any){
   return {spec,data};
 }
 
-async function workspaceDashboardData(context:any,spec:any,now=new Date()){
-  const org=context.membership.organization_id,ws=workspaceId(context),scope=`organization_id=eq.${enc(org)}&workspace_id=eq.${enc(ws)}`,anchor=await latestSalesTimestamp(org,ws),{start,end}=calendarWindow(spec.periodDays,anchor,now);
+async function workspaceDashboardData(context:any,spec:any,now=new Date(),analysisEnd?:string|null){
+  const org=context.membership.organization_id,ws=workspaceId(context),scope=`organization_id=eq.${enc(org)}&workspace_id=eq.${enc(ws)}`,anchor=analysisEnd||await latestSalesTimestamp(org,ws),{start,end}=calendarWindow(spec.periodDays,anchor,now);
   try{
     const payload={p_organization_id:org,p_workspace_id:ws,p_page_key:String(spec.page||'hub'),p_metric:spec.metric,p_dimension:spec.dimension,p_start:start.toISOString(),p_end:end.toISOString(),p_countries:scopedValues(context,'countries',spec.filters.country),p_channels:scopedValues(context,'channels',spec.filters.channel),p_locations:scopedValues(context,'locations',spec.filters.location),p_product:spec.filters.product||null,p_limit:spec.limit};
     const data=(await supabase('/rest/v1/rpc/query_workspace_dashboard',{method:'POST',token:context.accessToken,body:payload})).data;
@@ -94,13 +94,25 @@ async function productIntelligence(context:any,page='market',limit=30){return ca
 async function discountIntelligence(context:any,page='profitability',limit=40){return cachedDashboardAggregate(context,`discount-intelligence:${page}:${limit}`,CACHE_TTL.intelligence,async()=>(await supabase('/rest/v1/rpc/query_discount_recommendations',{method:'POST',token:context.accessToken,body:{p_organization_id:context.membership.organization_id,p_page_key:page,p_limit:Math.min(100,Math.max(1,limit))}})).data)}
 const enc=(value:string)=>encodeURIComponent(value);
 const indexBy=(rows:any[],key='id')=>new Map(rows.map(row=>[String(row[key]),row]));
+async function inventoryMasterContext(context:any){
+  return cachedDashboardAggregate(context,'inventory-master-context',CACHE_TTL.inventory,async()=>{
+    const org=context.membership.organization_id,q=enc(org),ws=workspaceId(context),w=ws?`&workspace_id=eq.${enc(ws)}`:'';
+    const [snapshots,skus,products,locations]=await Promise.all([
+      latestInventorySnapshots(org,ws,10000),
+      supabase(`/rest/v1/skus?organization_id=eq.${q}${w}&select=id,sku_code,product_id,size,color&limit=5000`,{serviceRole:true}),
+      supabase(`/rest/v1/products?organization_id=eq.${q}${w}&select=id,product_code,product_name,image_url&limit=5000`,{serviceRole:true}),
+      supabase(`/rest/v1/locations?organization_id=eq.${q}${w}&select=id,location_code,location_name,location_type,country_code&limit=5000`,{serviceRole:true})
+    ]);
+    return {snapshots:snapshots.data||[],snapshotMeta:{readMode:(snapshots as any).readMode||'organization',importJob:(snapshots as any).importJob||null},skus:skus.data||[],products:products.data||[],locations:locations.data||[]};
+  });
+}
 async function inventoryWorkflowContext(context:any){
   return cachedDashboardAggregate(context,'inventory-workflow-context',CACHE_TTL.inventory,async()=>{
     const org=context.membership.organization_id,q=enc(org),ws=workspaceId(context),w=ws?`&workspace_id=eq.${enc(ws)}`:'';
-    const [transfers,movements,snapshots,skus,products,locations,forecasts,recommendations]=await Promise.all([
-      supabase(`/rest/v1/transfer_orders?organization_id=eq.${q}${w}&select=*&order=created_at.desc&limit=100`,{serviceRole:true}),supabase(`/rest/v1/inventory_movements?organization_id=eq.${q}${w}&select=*&order=occurred_at.desc&limit=100`,{serviceRole:true}),latestInventorySnapshots(org,ws,1000),supabase(`/rest/v1/skus?organization_id=eq.${q}${w}&select=id,sku_code,product_id,size,color&limit=1000`,{serviceRole:true}),supabase(`/rest/v1/products?organization_id=eq.${q}${w}&select=id,product_code,product_name,image_url&limit=1000`,{serviceRole:true}),supabase(`/rest/v1/locations?organization_id=eq.${q}${w}&select=id,location_code,location_name,location_type,country_code&limit=1000`,{serviceRole:true}),supabase(`/rest/v1/forecast_snapshots?organization_id=eq.${q}${w}&target_metric=eq.quantity&subject_type=eq.product&select=subject_key,predictions,confidence,as_of_date,horizon_days,generated_at&order=generated_at.desc&limit=500`,{serviceRole:true}),supabase(`/rest/v1/ax_recommendations?organization_id=eq.${q}${w}&page_key=eq.inventory&select=id,recommendation_key,title,status,payload,approved_at,created_at,updated_at&order=updated_at.desc&limit=100`,{serviceRole:true})
+    const [transfers,movements,master,forecasts,recommendations]=await Promise.all([
+      supabase(`/rest/v1/transfer_orders?organization_id=eq.${q}${w}&select=*&order=created_at.desc&limit=100`,{serviceRole:true}),supabase(`/rest/v1/inventory_movements?organization_id=eq.${q}${w}&select=*&order=occurred_at.desc&limit=100`,{serviceRole:true}),inventoryMasterContext(context),supabase(`/rest/v1/forecast_snapshots?organization_id=eq.${q}${w}&target_metric=eq.quantity&subject_type=eq.product&select=subject_key,predictions,confidence,as_of_date,horizon_days,generated_at&order=generated_at.desc&limit=500`,{serviceRole:true}),supabase(`/rest/v1/ax_recommendations?organization_id=eq.${q}${w}&page_key=eq.inventory&select=id,recommendation_key,title,status,payload,approved_at,created_at,updated_at&order=updated_at.desc&limit=100`,{serviceRole:true})
     ]);
-    return {org,transfers:transfers.data||[],movements:movements.data||[],snapshots:snapshots.data||[],skus:skus.data||[],products:products.data||[],locations:locations.data||[],forecasts:latestForecastRows(forecasts.data||[]),recommendations:recommendations.data||[]};
+    return {org,transfers:transfers.data||[],movements:movements.data||[],snapshots:master.snapshots,skus:master.skus,products:master.products,locations:master.locations,forecasts:latestForecastRows(forecasts.data||[]),recommendations:recommendations.data||[]};
   });
 }
 async function latestInventorySnapshots(org:string,workspace:string|null=null,limit=10000){
@@ -227,12 +239,12 @@ async function inventoryOperationsSummary(context:any){
   requirePagePermission(context,'inventory','view');
   return cachedDashboardAggregate(context,'inventory-operations',CACHE_TTL.inventory,async()=>{
     const org=context.membership.organization_id,q=encodeURIComponent(org),ws=workspaceId(context),w=ws?`&workspace_id=eq.${enc(ws)}`:'',periodDays=14;
-    const snapshotsTask=latestInventorySnapshots(org,ws,10000),skusTask=supabase(`/rest/v1/skus?organization_id=eq.${q}${w}&select=id,sku_code,product_id,size,color&limit=5000`,{serviceRole:true}),productsTask=supabase(`/rest/v1/products?organization_id=eq.${q}${w}&select=id,product_code,product_name,image_url&limit=5000`,{serviceRole:true}),locationsTask=supabase(`/rest/v1/locations?organization_id=eq.${q}${w}&select=id,location_code,location_name,location_type,country_code&limit=5000`,{serviceRole:true}),sourcesTask=supabase(`/rest/v1/data_sources?organization_id=eq.${q}${w}&provider=eq.file_upload_inventory_snapshot&select=id,name,status,data_mode,last_synced_at,last_successful_sync_at,last_sync_error&order=last_synced_at.desc.nullslast&limit=1`,{serviceRole:true}),analysisEnd=await latestSalesTimestamp(org,ws),{start,end}=calendarWindow(periodDays,analysisEnd),ordersTask=supabase(`/rest/v1/sales_orders?organization_id=eq.${q}${w}&ordered_at=gte.${encodeURIComponent(start.toISOString())}&ordered_at=lt.${encodeURIComponent(end.toISOString())}&select=id,location_id,country_code,channel_code&limit=10000`,{serviceRole:true});
-    const [snapshots,skus,masterProducts,masterLocations,orders,inventorySources]=await Promise.all([snapshotsTask,skusTask,productsTask,locationsTask,ordersTask,sourcesTask]);
+    const masterTask=inventoryMasterContext(context),sourcesTask=supabase(`/rest/v1/data_sources?organization_id=eq.${q}${w}&provider=eq.file_upload_inventory_snapshot&select=id,name,status,data_mode,last_synced_at,last_successful_sync_at,last_sync_error&order=last_synced_at.desc.nullslast&limit=1`,{serviceRole:true}),analysisEnd=await latestSalesTimestamp(org,ws),{start,end}=calendarWindow(periodDays,analysisEnd),ordersTask=supabase(`/rest/v1/sales_orders?organization_id=eq.${q}${w}&ordered_at=gte.${encodeURIComponent(start.toISOString())}&ordered_at=lt.${encodeURIComponent(end.toISOString())}&select=id,location_id,country_code,channel_code&limit=10000`,{serviceRole:true});
+    const [master,orders,inventorySources]=await Promise.all([masterTask,ordersTask,sourcesTask]);
     const orderIds=(orders.data||[]).map((row:any)=>String(row.id)),lines=orderIds.length?await salesLinesForOrders(org,orderIds,ws):[];
-    const summary=summarizeInventorySnapshot({snapshots:snapshots.data||[],skus:skus.data||[],products:masterProducts.data||[],locations:masterLocations.data||[],orders:orders.data||[],lines,periodDays,allowedCountries:scopedValues(context,'countries'),allowedChannels:scopedValues(context,'channels'),allowedLocations:scopedValues(context,'locations')});
+    const summary=summarizeInventorySnapshot({snapshots:master.snapshots,skus:master.skus,products:master.products,locations:master.locations,orders:orders.data||[],lines,periodDays,allowedCountries:scopedValues(context,'countries'),allowedChannels:scopedValues(context,'channels'),allowedLocations:scopedValues(context,'locations')});
     const source=inventorySources.data?.[0]||null,stale=source?.data_mode==='stale'||source?.status==='error';
-    const diagnostics={readAuthorization:'server',readMode:(snapshots as any).readMode||'organization',latestInventoryJobId:(snapshots as any).importJob?.id||null,snapshotRows:(snapshots.data||[]).length,skuRows:(skus.data||[]).length,productRows:(masterProducts.data||[]).length,locationRows:(masterLocations.data||[]).length,orderRows:(orders.data||[]).length,lineRows:lines.length,scopedProductRows:summary.products.length,scopedLocationRows:summary.locations.length,role:context.membership.role,dataScope:context.membership.data_scope||null};
+    const diagnostics={readAuthorization:'server',readMode:master.snapshotMeta.readMode,latestInventoryJobId:master.snapshotMeta.importJob?.id||null,snapshotRows:master.snapshots.length,skuRows:master.skus.length,productRows:master.products.length,locationRows:master.locations.length,orderRows:(orders.data||[]).length,lineRows:lines.length,scopedProductRows:summary.products.length,scopedLocationRows:summary.locations.length,role:context.membership.role,dataScope:context.membership.data_scope||null};
     return {ok:true,source:'supabase_inventory',dataMode:stale?'stale':'connected',generatedAt:new Date().toISOString(),lastSnapshotAt:summary.latestSnapshotAt,lastSuccessfulSyncAt:source?.last_successful_sync_at||null,sourceStatus:source,hasData:summary.products.length>0,products:summary.products,locations:summary.locations,diagnostics};
   });
 }

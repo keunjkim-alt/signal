@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {cachedRequestContext,invalidateRequestContextCache,requestContextCacheKey,requestContextCacheSize} from '../api/_lib/request-context-cache.ts';
+import {cachedRequestContext,cachedRequestIdentity,invalidateRequestContextCache,requestContextCacheKey,requestContextCacheSize,requestIdentityCacheSize} from '../api/_lib/request-context-cache.ts';
 
 const context=(token:string,organizationId:string,userId='user-1')=>({accessToken:token,user:{id:userId},membership:{organization_id:organizationId}});
 
@@ -48,4 +48,15 @@ test('failed authentication work is never cached',async()=>{
   await assert.rejects(cachedRequestContext('token-a','org-1',{},loader),/temporary auth outage/);
   assert.equal((await cachedRequestContext('token-a','org-1',{},loader)).membership.organization_id,'org-1');
   assert.equal(calls,2);
+});
+
+test('identity lookup is reused across page-specific context options',async()=>{
+  invalidateRequestContextCache();let calls=0;
+  const loadIdentity=async()=>{calls++;return {user:{id:'user-1'},membership:{id:'member-1',organization_id:'org-1'}}};
+  const first=await cachedRequestIdentity('token-a','org-1',loadIdentity);
+  const second=await cachedRequestIdentity('token-a','org-1',loadIdentity);
+  assert.strictEqual(first,second);
+  assert.equal(calls,1);
+  assert.equal(requestIdentityCacheSize(),1);
+  assert.equal(invalidateRequestContextCache({accessToken:'token-a'}),1);
 });
