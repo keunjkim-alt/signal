@@ -6,6 +6,7 @@ import {createAnalysisPlan} from '../_lib/openai.js';
 import {intelligenceMode,requiresOpenAI} from '../_lib/semantic.js';
 import {audit,insert,requestContext,requirePagePermission,supabase,update,workspaceId} from '../_lib/supabase.js';
 import {customerReturnInsights,productionWorkflow,reviewInsights,runDashboardQuery} from '../dashboards/query.js';
+import {answerChunks,encodeAxStreamEvent,type AxStreamEvent} from '../_lib/ax-stream.js';
 
 const allowedActions=['approved','adjustment_requested','review_requested','held'];
 const stable=(value:any):string=>value&&typeof value==='object'?(Array.isArray(value)?`[${value.map(stable).join(',')}]`:`{${Object.keys(value).sort().map(key=>`${JSON.stringify(key)}:${stable(value[key])}`).join(',')}}`):JSON.stringify(value);
@@ -112,7 +113,7 @@ async function updateConversationContext(context:any,body:any,page:string,org:st
   return json({ok:true,conversationId,resolvedContext:next});
 }
 
-export default {async fetch(request:Request){
+const queryHandler={async fetch(request:Request){
   if(request.method!=='POST')return json({ok:false,error:'Method not allowed'},405);
   const requestStarted=performance.now();
   try{const body=await bodyJson(request),page=String(body?.page||'hub'),context=await requestContext(request,{includeProfile:false,includeBrands:false,permissionPage:page}),org=context.membership.organization_id,ws=workspaceId(context),contextReady=performance.now();
@@ -129,3 +130,15 @@ export default {async fetch(request:Request){
     waitUntil(persistConversation().catch(error=>console.error('[AX persistence]',error?.message||error)));const completed=performance.now(),timing={totalMs:Math.round(completed-requestStarted),contextMs:Math.round(contextReady-requestStarted),planMs:Math.round(planReady-planStarted),queryMs:Math.round(queryReady-planReady),persistQueued:true,route:resolvedPlan.source||'heuristic',cacheHit:Boolean(cache)};
     return json({ok:true,conversationId,question,answer,plan:resolvedPlan,query:queryResult.spec,data:queryResult.data,warning:runtimeWarning,visualization,resolvedContext:finalContext,contextChanges:resolution.changes,inherited:resolution.inherited,continuation:resolution.continuation,timing},200,{'server-timing':`context;dur=${timing.contextMs}, plan;dur=${timing.planMs}, query;dur=${timing.queryMs}`})}catch(error:any){return errorResponse(error,error.status||500)}
 }};
+
+const encoder=new TextEncoder();
+function streamingResponse(request:Request){
+  const stream=new ReadableStream({start(controller){
+    const send=(event:AxStreamEvent)=>controller.enqueue(encoder.encode(encodeAxStreamEvent(event)));
+    send({type:'status',phase:'질문과 권한 범위를 확인하고 있습니다'});
+    (async()=>{try{const response=await queryHandler.fetch(request),payload=await response.json();if(!response.ok){send({type:'error',error:payload?.error||`AX ${response.status}`,status:response.status});return}send({type:'status',phase:'결과를 비교하고 실행안을 정리하고 있습니다'});for(const delta of answerChunks(payload.answer)){send({type:'answer_delta',delta});await Promise.resolve()}send({type:'complete',payload,status:response.status})}catch(error:any){send({type:'error',error:String(error?.message||'AX 분석 요청에 실패했습니다.'),status:Number(error?.status||500)})}finally{controller.close()}})();
+  }});
+  return new Response(stream,{status:200,headers:{'content-type':'application/x-ndjson; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'}});
+}
+
+export default {async fetch(request:Request){return new URL(request.url).searchParams.get('stream')==='1'?streamingResponse(request):queryHandler.fetch(request)}};
