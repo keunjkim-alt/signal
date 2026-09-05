@@ -5,7 +5,7 @@ import {inferSalesMapping,validateAndNormalizeSales} from '../api/_lib/sales.ts'
 import {buildDecisionActions} from '../api/_lib/decision-actions.ts';
 import {buildTransferCandidates,summarizeInventorySnapshot} from '../api/_lib/inventory-operations.ts';
 import {inferMapping,parseCsv,validateAndNormalize} from '../api/_lib/wms.ts';
-import {buildReorderPayload,planningReorderQuantity,productionOrdersFromRecommendations} from '../api/dashboards/query.ts';
+import {buildReorderPayload,inventoryTransferExecutionPlan,planningReorderQuantity,productionOrdersFromRecommendations} from '../api/dashboards/query.ts';
 
 const fixture=(name:string)=>readFileSync(new URL(`../assets/templates/closed-beta/${name}`,import.meta.url),'utf8');
 
@@ -46,4 +46,9 @@ test('sample upload becomes an inventory signal, approval payload and production
   assert.equal(productionOrder.quantity,reorderQty);
   assert.equal(productionOrder.production_status,'approved');
   assert.match(productionOrder.production_order_no,/^PO-260903-/);
+});
+
+test('direct inventory approval receives stable decision and execution lineage keys',()=>{
+  const plan=inventoryTransferExecutionPlan({proposalKey:'sku:seongsu:gangnam'},{id:'abcdef12-3456-7890'},200,'2026-09-05T08:30:00.000Z');
+  assert.deepEqual(plan,{scenarioKey:'inventory-direct:sku:seongsu:gangnam',recommendationKey:'inventory-transfer:sku:seongsu:gangnam',engineVersion:'inventory-direct-v1',asOfDate:'2026-09-05',executionNo:'VIIM-TR-260905-ABCDEF',quantity:200});
 });
