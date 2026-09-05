@@ -6,6 +6,8 @@ test('dashboard navigation yields before expensive page rendering',async()=>{
   const source=await readFile(new URL('../app.js',import.meta.url),'utf8');
   assert.match(source,/function navigateDashboardPage[\s\S]*?requestAnimationFrame\(\(\)=>\{if\(token!==navigationRenderToken/);
   assert.doesNotMatch(source,/function bindPage\(\)\{enhanceDashboardSemantics\(\);bindLegacy\(\)/);
+  const queue=source.slice(source.indexOf('function queueCurrentPageData'),source.indexOf('function navigateDashboardPage'));
+  assert.match(queue,/\['decisions','execution'\]\.includes\(state\.page\)[\s\S]*?loadDecisionWorkflow\(\)/);
 });
 
 test('AX panel refresh binds only panel controls',async()=>{

@@ -18,7 +18,7 @@ async function check(name,path,validate){
 }
 
 await check('API health','/api/health',({body})=>body?.ok===true&&body?.service==='viimsignal-api'&&body?.backendConfigured===true);
-await check('Frontend shell','/',({text})=>text.includes('VIIMsignal')&&text.includes('color-palette.css')&&text.includes('app.js'));
+await check('Frontend shell','/',({text})=>text.includes('VIIMsignal')&&text.includes('app.min.css')&&text.includes('app.min.js'));
 await check('Sales onboarding file','/assets/templates/closed-beta/VIIMsignal_Closed_Beta_Sales_30D.csv',({text})=>text.startsWith('sold_at,channel_code,sku_code,quantity,net_sales'));
 await check('Inventory onboarding file','/assets/templates/closed-beta/VIIMsignal_Closed_Beta_Inventory.csv',({text})=>text.startsWith('sku_code,location_code,location_name,snapshot_at'));
 await check('Field mapping file','/assets/templates/closed-beta/VIIMsignal_Beta_Field_Mapping.csv',({text})=>text.startsWith('entity_type,standard_field,required'));
