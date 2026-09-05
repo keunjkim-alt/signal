@@ -16,7 +16,7 @@ const [{code:minifiedApp},{code:minifiedCss}]=await Promise.all([
   transform((await Promise.all(styleFiles.map(file=>readFile(file,'utf8')))).join('\n'),{loader:'css',minify:true,target:'es2020',legalComments:'none'})
 ]);
 await Promise.all([writeFile('dist/app.min.js',minifiedApp),writeFile('dist/app.min.css',minifiedCss)]);
-const indexPath='dist/index.html',indexHtml=await readFile(indexPath,'utf8'),bundledIndex=indexHtml.replace(/\s*<link rel="stylesheet" href="\.\/[^\"]+" \/>/g,'').replace('</head>','  <link rel="stylesheet" href="./app.min.css?v=20260905c" />\n</head>').replace(/<script defer src="\.\/app\.js[^\"]*"><\/script>/,'<script defer src="./app.min.js?v=20260905c"></script>');
+const indexPath='dist/index.html',indexHtml=await readFile(indexPath,'utf8'),bundledIndex=indexHtml.replace(/\s*<link rel="stylesheet" href="\.\/[^\"]+" \/>/g,'').replace('</head>','  <link rel="stylesheet" href="./app.min.css?v=20260905d" />\n</head>').replace(/<script defer src="\.\/app\.js[^\"]*"><\/script>/,'<script defer src="./app.min.js?v=20260905d"></script>');
 await writeFile(indexPath,bundledIndex.replace('</body>','<script src="./telemetry.js?v=20260905c" defer></script></body>'));
 await mkdir('dist/assets', { recursive: true });
 await cp('assets', 'dist/assets', { recursive: true });
