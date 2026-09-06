@@ -10,4 +10,6 @@ test("AX conversation typography keeps a readable baseline", () => {
   assert.match(readability, /\.ax-message p\s*\{[^}]*font-size:\s*15px[^}]*line-height:\s*1\.75/s);
   assert.match(readability, /\.ax-message\.user p\s*\{[^}]*font-size:\s*14px[^}]*line-height:\s*1\.65/s);
   assert.match(readability, /\.ax-composer textarea\s*\{[^}]*font-size:\s*14px[^}]*line-height:\s*1\.65/s);
+  assert.match(readability, /\.ax-panel-recommendations strong\s*\{[^}]*font-size:\s*12px/s);
+  assert.match(readability, /\.ax-panel-mini-viz \.ax-result-bar span,[^}]*font-size:\s*10px/s);
 });

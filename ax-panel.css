@@ -360,17 +360,28 @@
 .ax-panel-analysis-head small { font-size: 10px; }
 .ax-panel-analysis > h3 { font-size: 17px; line-height: 1.55; }
 .ax-panel-facts span { font-size: 9px; }
-.ax-panel-facts strong { font-size: 13px; }
+.ax-panel-facts strong { font-size: 14px; }
 .ax-panel-mini-title strong { font-size: 12px; }
-.ax-panel-mini-title small { font-size: 9px; }
+.ax-panel-mini-title small { font-size: 10px; }
+.ax-panel-mini-viz .ax-result-bar span,
+.ax-panel-mini-viz .ax-result-bar b,
+.ax-panel-mini-viz .ax-rank-row span,
+.ax-panel-mini-viz .ax-rank-row b,
+.ax-panel-mini-viz .ax-time-row > strong,
+.ax-panel-mini-viz .ax-time-row span { font-size: 10px; }
+.ax-panel-mini-viz .ax-rank-row strong { font-size: 11px; }
+.ax-panel-mini-viz .ax-time-axis { font-size: 9px; }
+.ax-panel-mini-viz .ax-matrix::before,
+.ax-panel-mini-viz .ax-matrix::after,
+.ax-panel-mini-viz .ax-point { font-size: 9px; }
 .ax-panel-evidence span { font-size: 10px; }
 .ax-panel-evidence p { font-size: 12px; line-height: 1.65; }
 .ax-panel-evidence small { font-size: 10px; line-height: 1.6; }
-.ax-panel-recommendations strong { font-size: 11px; line-height: 1.45; }
-.ax-panel-recommendations small { font-size: 9px; line-height: 1.5; }
-.ax-panel-recommendations b { font-size: 10px; }
+.ax-panel-recommendations strong { font-size: 12px; line-height: 1.45; }
+.ax-panel-recommendations small { font-size: 10px; line-height: 1.5; }
+.ax-panel-recommendations b { font-size: 11px; }
 .ax-panel-recommendations article div button,
-.ax-panel-response-actions button { font-size: 10px; }
+.ax-panel-response-actions button { font-size: 11px; }
 .ax-action-status,
 .ax-response-speed { font-size: 10px; }
 .ax-composer { margin: 12px 16px 16px; padding: 12px 12px 10px 14px; }
