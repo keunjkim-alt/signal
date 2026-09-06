@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {buildConversationSummary,emptyAxContext,finalizeAxContext,inheritedIntelligenceMode,isConversationSummaryIntent,modelConversationContext,removeAxContextField,resolveAxContextPlan} from '../api/_lib/ax-context.ts';
+import {buildConversationSummary,emptyAxContext,finalizeAxContext,inheritedIntelligenceMode,isConversationSummaryIntent,modelConversationContext,removeAxContextField,resolveAxContextPlan,uniqueRowsByProduct} from '../api/_lib/ax-context.ts';
 
 const plan=(overrides:any={})=>({metric:'quantity',dimension:'product',visualization:'bar',periodDays:30,filters:{country:null,channel:null,platform:null,location:null,product:null},limit:20,title:'제품 판매수량',explanation:'제품별 판매수량을 조회합니다.',source:'heuristic',...overrides});
 
@@ -95,4 +95,9 @@ test('conversation summary intent creates a three-line contextual summary',()=>{
   assert.equal(summary.lines.length,3);
   assert.match(summary.answer,/FLOW-22-BLK-F/);
   assert.match(summary.answer,/재주문 수량과 미실행 위험/);
+});
+
+test('forecast rows keep only the latest ordered result for each product',()=>{
+  const rows=uniqueRowsByProduct([{product_code:'FLOW-22-BLK-F',forecast_quantity:839},{product_code:'FLOW-22-BLK-F',forecast_quantity:812},{product_code:'ARC-07',forecast_quantity:540}]);
+  assert.deepEqual(rows.map(row=>[row.product_code,row.forecast_quantity]),[['FLOW-22-BLK-F',839],['ARC-07',540]]);
 });

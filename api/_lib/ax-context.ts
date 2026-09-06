@@ -80,6 +80,8 @@ export function isContextContinuation(question:string,previous:any){const clean=
 
 export function isConversationSummaryIntent(question:string){const clean=text(question);return /(?:지금까지|앞서|이전|방금|대화|분석).{0,16}(?:요약|정리)|(?:요약|정리).{0,16}(?:해줘|해\s*줘|해주세요|해\s*주세요|보여줘|알려줘)/.test(clean)}
 
+export function uniqueRowsByProduct(rows:any[]=[]){const seen=new Set<string>();return rows.filter(row=>{const key=text(row?.product_code||row?.product_id||row?.subject_key,120).toUpperCase();if(!key||seen.has(key))return false;seen.add(key);return true})}
+
 export function buildConversationSummary(previousInput:any,messages:any[]=[]){
   const context=sanitizeAxContext(previousInput),recentUsers=(Array.isArray(messages)?messages:[]).filter(row=>row?.role==='user').slice(-4).map(row=>text(row?.content,180)),product=context.filters.product||context.subjects.find(row=>row.type==='product')?.key||null,topKeys=context.lastResultSummary?.topKeys||[],scope=context.summary||'현재 페이지와 계정 권한 범위',resultCount=Number(context.lastResultSummary?.rowCount||0),historyText=recentUsers.join(' ');
   const focus=product?`${product}를 핵심 대상으로 분석했습니다.`:topKeys.length?`${topKeys.slice(0,3).join(' · ')} 순으로 주요 결과를 확인했습니다.`:`최근 결과 ${resultCount.toLocaleString()}건을 확인했습니다.`;

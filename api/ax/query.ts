@@ -1,7 +1,7 @@
 import {createHash,randomUUID} from 'node:crypto';
 import {waitUntil} from '@vercel/functions';
 import {bodyJson,errorResponse,json} from '../_lib/http.js';
-import {buildConversationSummary,emptyAxContext,finalizeAxContext,inheritedIntelligenceMode,isConversationSummaryIntent,modelConversationContext,removeAxContextField,resolveAxContextPlan,sanitizeAxContext} from '../_lib/ax-context.js';
+import {buildConversationSummary,emptyAxContext,finalizeAxContext,inheritedIntelligenceMode,isConversationSummaryIntent,modelConversationContext,removeAxContextField,resolveAxContextPlan,sanitizeAxContext,uniqueRowsByProduct} from '../_lib/ax-context.js';
 import {createAnalysisPlan} from '../_lib/openai.js';
 import {intelligenceMode,requiresOpenAI} from '../_lib/semantic.js';
 import {audit,insert,requestContext,requirePagePermission,supabase,update,workspaceId} from '../_lib/supabase.js';
@@ -59,7 +59,7 @@ async function productIntelligence(context:any,page:string,mode:'matching'|'fore
     return {spec:{source:'precomputed_intelligence',mode,visualization:'curve'},data:{rows,source:'precomputed_intelligence',note:data?.note,objective:data?.objective,guardrail:data?.guardrail}};
   }
   const data=(await supabase('/rest/v1/rpc/query_product_intelligence',{method:'POST',token:context.accessToken,body:{p_organization_id:context.membership.organization_id,p_page_key:page,p_limit:30}})).data;
-  const sourceRows=mode==='matching'?data?.matches||[]:data?.forecasts||[],rows=rowsForRequestedProduct(sourceRows,question);
+  const sourceRows=mode==='matching'?data?.matches||[]:uniqueRowsByProduct(data?.forecasts||[]),rows=rowsForRequestedProduct(sourceRows,question);
   return {spec:{source:'precomputed_intelligence',mode,visualization:mode==='matching'?'table':'bar'},data:{rows,source:'precomputed_intelligence',note:mode==='matching'?data?.matching_note:data?.forecast_note}};
 }
 
