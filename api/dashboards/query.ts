@@ -8,6 +8,7 @@ import {assertAnalyticsRefreshAllowed} from '../_lib/reconciliation.js';
 import {summarizeReviewInsights} from '../_lib/reviews.js';
 import {cachedDashboardAggregate,invalidateDashboardCache} from '../_lib/dashboard-cache.js';
 import {cachedPersistentDashboardAggregate} from '../_lib/persistent-dashboard-cache.js';
+import {buildOperationalTask,deriveOperationalNotifications} from '../_lib/beta-operations.js';
 
 const CACHE_TTL={profitability:60_000,inventory:45_000,customer:60_000,review:60_000,intelligence:60_000,decision:30_000,production:30_000,hub:45_000};
 
@@ -224,10 +225,10 @@ function canAccessPage(context:any,page:string,action:'view'|'update'|'approve'=
 
 async function decisionActionContext(context:any){
   requirePagePermission(context,'action','view');return cachedDashboardAggregate(context,'decision-actions',CACHE_TTL.decision,async()=>{
-  const org=context.membership.organization_id,q=enc(org),ws=workspaceId(context),w=ws?`&workspace_id=eq.${enc(ws)}`:'',[inventory,customerReturns,discountResult,persistedResult]=await Promise.all([
-    inventoryWorkflowContext(context),customerReturnInsights(context).catch(()=>({customer:null,returns:null})),discountIntelligence(context,'action',40).catch(()=>({recommendations:[]})),supabase(`/rest/v1/ax_recommendations?organization_id=eq.${q}${w}&page_key=eq.action&select=id,conversation_id,recommendation_key,title,status,payload,approved_at,created_at,updated_at&order=updated_at.desc&limit=100`,{serviceRole:true})
+  const org=context.membership.organization_id,q=enc(org),ws=workspaceId(context),w=ws?`&workspace_id=eq.${enc(ws)}`:'',[inventory,customerReturns,reviewResult,discountResult,persistedResult,tasksResult]=await Promise.all([
+    inventoryWorkflowContext(context),customerReturnInsights(context).catch(()=>({customer:null,returns:null})),reviewInsights(context).catch(()=>null),discountIntelligence(context,'action',40).catch(()=>({recommendations:[]})),supabase(`/rest/v1/ax_recommendations?organization_id=eq.${q}${w}&page_key=eq.action&select=id,conversation_id,recommendation_key,title,status,payload,approved_at,created_at,updated_at&order=updated_at.desc&limit=100`,{serviceRole:true}),supabase(`/rest/v1/operational_tasks?organization_id=eq.${q}${w}&select=*&order=created_at.desc&limit=100`,{serviceRole:true})
   ]),presented=presentInventoryWorkflow(inventory);
-  const productionOrders=productionOrdersFromRecommendations(inventory.recommendations,inventory.products),live=buildDecisionActions({transfers:presented.transfers,reorders:presented.reorders,discounts:discountResult?.recommendations||[],productionOrders,customerInsight:customerReturns.customer,returnInsight:customerReturns.returns}),persisted=persistedResult.data||[],latest=new Map<string,any>();
+  const productionOrders=productionOrdersFromRecommendations(inventory.recommendations,inventory.products),live=buildDecisionActions({transfers:presented.transfers,reorders:presented.reorders,discounts:discountResult?.recommendations||[],productionOrders,customerInsight:customerReturns.customer,returnInsight:customerReturns.returns,reviewInsight:reviewResult}),persisted=persistedResult.data||[],latest=new Map<string,any>();
   for(const row of persisted)if(!latest.has(row.recommendation_key))latest.set(row.recommendation_key,row);
   const actions=live.map((action:any)=>{const record=latest.get(action.key);return {...action,decision_status:record?.status||'proposed',recommendation_id:record?.id||null,approved_at:record?.approved_at||null,updated_at:record?.updated_at||null}});
   for(const record of persisted){
@@ -235,13 +236,20 @@ async function decisionActionContext(context:any){
     actions.push({...record.payload.action,decision_status:record.status,recommendation_id:record.id,approved_at:record.approved_at,updated_at:record.updated_at});
   }
   const visible=actions.filter((action:any)=>canAccessPage(context,action.target_page||'action','view')).sort((a:any,b:any)=>{const done=(row:any)=>['approved','executed'].includes(row.decision_status)?1:0,score:any={P0:0,P1:1,P2:2};return done(a)-done(b)||(score[a.priority]??9)-(score[b.priority]??9)||Number(b.impact_amount||0)-Number(a.impact_amount||0)}).slice(0,20);
-  return {actions:visible,summary:summarizeDecisionActions(visible),generatedAt:new Date().toISOString(),sources:{inventory:true,forecast:inventory.forecasts.length>0,discount:(discountResult?.recommendations||[]).length>0,production:productionOrders.length>0,customer:Boolean(customerReturns.customer?.hasData),returns:Boolean(customerReturns.returns?.hasData)}}});
+  const tasks=(tasksResult.data||[]).filter((task:any)=>canAccessPage(context,task.metadata?.target_page||'execution','update')),notifications=deriveOperationalNotifications({actions:visible,tasks});
+  return {actions:visible,tasks,notifications,summary:summarizeDecisionActions(visible),generatedAt:new Date().toISOString(),sources:{inventory:true,forecast:inventory.forecasts.length>0,discount:(discountResult?.recommendations||[]).length>0,production:productionOrders.length>0,customer:Boolean(customerReturns.customer?.hasData),returns:Boolean(customerReturns.returns?.hasData),reviews:Boolean(reviewResult?.hasData)}}});
 }
 
 async function responseData(response:Response){const data=await response.json();if(!response.ok){const error:any=new Error(data?.error||'업무 실행에 실패했습니다.');error.status=response.status;throw error}return data}
 async function approveDiscountAction(context:any,execution:any){
   requirePagePermission(context,'profitability','approve');const org=context.membership.organization_id,id=String(execution.recommendationId||''),query=appendWorkspaceFilter(context,new URLSearchParams({id:`eq.${id}`,organization_id:`eq.${org}`,select:'id,decision_status',limit:'1'})),existing=((await supabase(`/rest/v1/discount_recommendation_snapshots?${query}`,{serviceRole:true})).data||[])[0];if(!existing){const error:any=new Error('Discount recommendation not found');error.status=404;throw error}
   const now=new Date().toISOString(),rows=await update('discount_recommendation_snapshots',operationalUpdateFilters(context,{id:`eq.${id}`,organization_id:`eq.${org}`}),{decision_status:'approved',reviewed_by:context.user.id,reviewed_at:now});await audit(context,'discount_recommendation.reviewed','discount_recommendation',id,{from:existing.decision_status,to:'approved',source:'today_action'});return {recommendation:rows?.[0]};
+}
+async function createFollowupTask(context:any,action:any){
+  const org=context.membership.organization_id,ws=workspaceId(context),actionKey=String(action.key||''),query=new URLSearchParams({organization_id:`eq.${org}`,status:'not.in.(completed,cancelled)',select:'*',order:'created_at.desc',limit:'1'});if(ws)query.set('workspace_id',`eq.${ws}`);query.set('metadata->>action_key',`eq.${actionKey}`);
+  const existing=((await supabase(`/rest/v1/operational_tasks?${query}`,{serviceRole:true})).data||[])[0];if(existing)return {queued:true,idempotent:true,task:existing};
+  const task=(await insert('operational_tasks',operationalInsertValues(context,{organization_id:org,...buildOperationalTask(action)})))?.[0];
+  await audit(context,'operational_task.created','operational_task',task.id,{actionKey,taskType:task.task_type,targetPage:task.metadata?.target_page});return {queued:true,task};
 }
 async function persistDecisionAction(context:any,body:any){
   const decision=String(body?.decision||''),allowed=['approved','held','adjustment_requested'];if(!allowed.includes(decision))return json({ok:false,error:'Valid decision is required'},400);
@@ -255,7 +263,7 @@ async function persistDecisionAction(context:any,body:any){
     else if(execution.action==='approve_reorder')executionResult=await responseData(await approveInventoryReorder(context,execution));
     else if(execution.action==='approve_discount')executionResult=await approveDiscountAction(context,execution);
     else if(execution.action==='update_production_order')executionResult=await responseData(await updateProductionOrder(context,execution));
-    else if(execution.action==='create_followup_task')executionResult={queued:true,taskType:execution.taskType,targetPage:execution.targetPage,owner:execution.owner,focus:execution.focus,metrics:execution.metrics,queuedAt:new Date().toISOString()};
+    else if(execution.action==='create_followup_task')executionResult=await createFollowupTask(context,action);
     else return json({ok:false,error:'This action has no executable workflow'},400);
   }
   const now=new Date().toISOString();let conversationId=existing?.conversation_id,recommendation:any;

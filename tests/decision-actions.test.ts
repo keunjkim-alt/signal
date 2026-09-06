@@ -39,3 +39,8 @@ test('customer and return intelligence become executable follow-up actions',()=>
   assert.equal(customer?.execution.action,'create_followup_task');
   assert.match(customer?.title,/서울 성동구/);
 });
+
+test('material review risk becomes a measurable cross-team improvement task',()=>{
+  const [action]=buildDecisionActions({reviewInsight:{hasData:true,summary:{negativePct:31,responseNeeded:22,returnRisk:14},actions:[{team:'디자인',title:'사이즈·핏 부정 신호 확인',detail:'부정 38건'}],products:[{product_code:'ARC-07'}]}});
+  assert.equal(action.kind,'review_response');assert.equal(action.priority,'P1');assert.equal(action.execution.taskType,'review_response');assert.equal(action.execution.targetPage,'customers');assert.match(action.recommendation,/ARC-07/);
+});

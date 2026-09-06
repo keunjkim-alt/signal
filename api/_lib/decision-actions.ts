@@ -16,7 +16,7 @@ const money=(value:any)=>`₩${Math.max(0,Math.round(number(value)/1000000)).toL
 const clean=(value:any)=>String(value||'').replace(/[^a-zA-Z0-9가-힣:_-]/g,'-').slice(0,160);
 
 export function buildDecisionActions(input:any={}){
-  const transfers=input.transfers||[],reorders=input.reorders||[],discounts=input.discounts||[],productionOrders=input.productionOrders||[],customerInsight=input.customerInsight||null,returnInsight=input.returnInsight||null,actions:any[]=[];
+  const transfers=input.transfers||[],reorders=input.reorders||[],discounts=input.discounts||[],productionOrders=input.productionOrders||[],customerInsight=input.customerInsight||null,returnInsight=input.returnInsight||null,reviewInsight=input.reviewInsight||null,actions:any[]=[];
 
   for(const row of transfers.filter((item:any)=>item.status==='recommended').slice(0,3)){
     const qty=integer(row.recommended_qty),from=String(row.from_location?.location_name||'출발지'),to=String(row.to_location?.location_name||'도착지'),code=String(row.sku?.product_code||row.sku?.sku_code||'SKU'),fromQty=integer(row.reason?.from_available),toQty=integer(row.reason?.to_available),priority=qty>=100?'P0':'P1';
@@ -60,6 +60,15 @@ export function buildDecisionActions(input:any={}){
       key:`today:return:${clean(focus)}`,kind:'return_mitigation',priority,type:'반품 개선',target_page:'returns',team_code:'영업·상품팀',title:`${focus} 반품·취소 개선 과제 착수`,scope:'상품 · 이커머스 · CS',basis:`반품률 ${number(summary.returnRate).toFixed(1)}% · 취소율 ${number(summary.cancelRate).toFixed(1)}% · 최대 손실 채널 ${topChannel?.label||'미확인'}`,impact:`예상 손실 ${money(avoidable)} 절감 기회`,impact_amount:avoidable,risk:'반품·취소 원인을 늦게 보완하면 동일 손실이 반복',confidence:'85%',source:'주문 · 반품수량 · 취소상태',owner:'상품기획 · 이커머스',due:'오늘 17:00',recommendation:`${focus} 개선 과제를 생성하고 담당자와 완료일을 확정`,approve_label:'개선 과제 생성',adjust_label:'범위 조정',
       evidence:[[`${number(summary.returnRate).toFixed(1)}%`,'최근 90일 전체 반품률'],[`${number(summary.cancelRate).toFixed(1)}%`,'최근 90일 전체 취소율'],[money(loss),'반품·취소·처리비용 영향']],effect_title:`예상 손실 ${money(avoidable)} 절감 기회`,effect_lines:[`${topChannel?.label||'상위 채널'}와 ${focus}를 우선 개선 대상으로 지정`,'과제 승인 이력을 오늘의 실행 큐에 저장'],risk_title:'동일한 반품·취소 손실이 반복됩니다',risk_lines:['상위 위험 제품의 상세정보·옵션 개선 지연','환불·취소 비용과 재고 복귀 지연 지속'],constraints:['반품 사유 코드가 없으면 담당자 확인 필요','채널·상품 담당자의 개선 범위와 완료일 확정'],
       execution:{action:'create_followup_task',taskType:'return_mitigation',targetPage:'returns',owner:'상품기획 · 이커머스',focus,metrics:{returnRate:number(summary.returnRate),cancelRate:number(summary.cancelRate),lossAmount:loss,avoidableAmount:avoidable}}
+    });
+  }
+
+  if(reviewInsight?.hasData&&number(reviewInsight.summary?.negativePct)>=12){
+    const top=reviewInsight.actions?.[0],product=reviewInsight.products?.[0],summary=reviewInsight.summary||{},focus=String(product?.product_code||top?.title||'리뷰 상위 상품'),team=String(top?.team||'상품기획 · CS'),priority=number(summary.negativePct)>=25||number(summary.responseNeeded)>=20?'P1':'P2';
+    actions.push({
+      key:`today:review:${clean(focus)}`,kind:'review_response',priority,type:'리뷰 개선',target_page:'customers',team_code:team,title:`${focus} 고객 리뷰 개선 과제`,scope:'상품 · 디자인 · 생산 · CS',basis:`부정 리뷰 ${number(summary.negativePct).toFixed(1)}% · 답변 필요 ${integer(summary.responseNeeded)}건 · 핵심 주제 ${top?.title||'확인 필요'}`,impact:'반품 위험과 고객 불만 조기 개선',impact_amount:0,risk:'반복되는 제품 불만이 반품과 평점 하락으로 이어질 수 있음',confidence:'86%',source:'리뷰·VOC 정량 분석',owner:team,due:'오늘 17:00',recommendation:`${focus}의 ${top?.title||'상위 부정 리뷰'} 개선 과제를 생성`,approve_label:'개선 과제 생성',adjust_label:'범위 조정',
+      evidence:[[`${number(summary.negativePct).toFixed(1)}%`,'최근 90일 부정 리뷰 비중'],[`${integer(summary.responseNeeded)}건`,'고객 답변 필요'],[`${integer(summary.returnRisk)}건`,'반품 위험 리뷰']],effect_title:'반복 불만을 제품·운영 개선으로 전환',effect_lines:[top?.detail||'상위 부정 주제와 상품 집중도를 확인','개선 후 평점·부정률·반품률을 함께 재측정'],risk_title:'같은 고객 불만이 계속 누적됩니다',risk_lines:['상품 상세와 실제 경험의 차이 지속','낮은 평점과 반품 위험 증가'],constraints:['리뷰 원문 근거와 상품별 표본 수 확인','담당팀별 개선 항목과 완료일 확정'],
+      execution:{action:'create_followup_task',taskType:'review_response',targetPage:'customers',owner:team,focus,metrics:{negativePct:number(summary.negativePct),responseNeeded:integer(summary.responseNeeded),returnRisk:integer(summary.returnRisk)}}
     });
   }
 
