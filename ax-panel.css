@@ -175,6 +175,7 @@
 }
 .ax-message.assistant { justify-content: flex-start; }
 .ax-message.assistant p { max-width: 100%; }
+.ax-summary-followup { margin: 14px 0 0; padding: 11px 12px; border: 1px solid #dbe2ee; border-radius: 10px; background: #f7f9fc; color: #52647f; font-size: 11px; line-height: 1.55; }
 
 .ax-starter-prompts { display: grid; gap: 0; margin-top: 14px; border-top: 1px solid var(--line); }
 .ax-starter-prompts button {

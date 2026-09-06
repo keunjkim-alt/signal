@@ -19,7 +19,8 @@ export type AxConversationContext={
 };
 
 export const EMPTY_AX_FILTERS:Record<AxContextFilterKey,string|null>={country:null,channel:null,platform:null,location:null,product:null};
-const CONTINUATION_TOKENS=['그중','그 중','그거','그것','같은','이전','방금','거기','여기서','이어서','그리고','그러면','그대로','이대로','만 보여','만 알려','바꿔'];
+const CONTINUATION_TOKENS=['그중','그 중','그거','그것','같은','이전','방금','거기','여기서','이어서','그리고','그러면','그대로','이대로','만 보여','만 알려','바꿔','기준으로','다시 보여','다시 알려','요약','정리'];
+const CONTINUATION_PATTERNS=[/(?:그|해당)\s*(?:상품|제품|sku|매장|지역|채널|안건)/i,/(?:이|그)\s*조건/,/(?:앞서|지금까지|방금)\s*(?:분석|대화|결과)/,/(?:다시|재차)\s*(?:보여|알려|분석|비교)/];
 const CHANNELS=['자사몰','무신사','29cm','네이버','네이버스토어','w컨셉','wconcept','매장 pos'];
 const LOCATIONS=['서울','경기','부산','대구','인천','광주','대전','울산','제주','강남','성수','한남','홍대','명동','판교','상하이','베이징','도쿄'];
 
@@ -75,7 +76,17 @@ function explicitFilters(question:string){
 
 function resetFields(question:string){const result=new Set<string>();if(/조건\s*초기화|처음부터|모두\s*초기화/.test(question))result.add('all');if(/기간\s*초기화/.test(question))result.add('periodDays');if(/제품\s*초기화|상품\s*초기화/.test(question))result.add('product');if(/지역\s*초기화|매장\s*초기화/.test(question))result.add('location');if(/채널\s*초기화/.test(question))result.add('channel');return result}
 
-export function isContextContinuation(question:string,previous:any){const clean=text(question);if(!previous||!sanitizeAxContext(previous).metric)return false;return CONTINUATION_TOKENS.some(token=>clean.includes(token))||clean.length<=14}
+export function isContextContinuation(question:string,previous:any){const clean=text(question);if(!previous||!sanitizeAxContext(previous).metric)return false;return CONTINUATION_TOKENS.some(token=>clean.includes(token))||CONTINUATION_PATTERNS.some(pattern=>pattern.test(clean))||clean.length<=14}
+
+export function isConversationSummaryIntent(question:string){const clean=text(question);return /(?:지금까지|앞서|이전|방금|대화|분석).{0,16}(?:요약|정리)|(?:요약|정리).{0,16}(?:해줘|해\s*줘|해주세요|해\s*주세요|보여줘|알려줘)/.test(clean)}
+
+export function buildConversationSummary(previousInput:any,messages:any[]=[]){
+  const context=sanitizeAxContext(previousInput),recentUsers=(Array.isArray(messages)?messages:[]).filter(row=>row?.role==='user').slice(-4).map(row=>text(row?.content,180)),product=context.filters.product||context.subjects.find(row=>row.type==='product')?.key||null,topKeys=context.lastResultSummary?.topKeys||[],scope=context.summary||'현재 페이지와 계정 권한 범위',resultCount=Number(context.lastResultSummary?.rowCount||0),historyText=recentUsers.join(' ');
+  const focus=product?`${product}를 핵심 대상으로 분석했습니다.`:topKeys.length?`${topKeys.slice(0,3).join(' · ')} 순으로 주요 결과를 확인했습니다.`:`최근 결과 ${resultCount.toLocaleString()}건을 확인했습니다.`;
+  const next=/재주문|품절|수요|재고/.test(historyText)?`${product||'선택 상품'}의 재주문 수량과 미실행 위험을 우선 검토하세요.`:/할인|마진|수익/.test(historyText)?`${product||'선택 상품'}의 정상가 유지안과 할인안을 수익성 기준으로 비교하세요.`:/반품|리뷰|후기/.test(historyText)?`${product||'위험 상품'}의 원인 근거와 담당 팀 실행안을 확인하세요.`:'가장 영향이 큰 결과의 근거와 다음 실행안을 확인하세요.';
+  const lines=[{label:'분석 범위',text:scope},{label:'핵심 대상',text:focus},{label:'다음 판단',text:next}];
+  return {answer:lines.map((line,index)=>`${index+1}. ${line.label}: ${line.text}`).join('\n'),lines};
+}
 
 export function inheritedIntelligenceMode(currentMode:'matching'|'forecast'|'discount'|'review'|'customer'|'returns'|'production'|null,question:string,previousInput:any):'matching'|'forecast'|'discount'|'review'|'customer'|'returns'|'production'|null{
   if(currentMode)return currentMode;
@@ -88,7 +99,7 @@ export function modelConversationContext(previous:any,messages:any[]=[]){const c
 export function resolveAxContextPlan(input:{previous?:any;question:string;page:string;filters?:any;plan:any}){
   const previous=sanitizeAxContext(input.previous,input.page),question=text(input.question,1000),resets=resetFields(question),resetAll=resets.has('all'),continuation=!resetAll&&isContextContinuation(question,previous),metric=explicitMetric(question),dimension=explicitDimension(question),periodDays=explicitPeriod(question),visualization=explicitVisualization(question),questionFilters=explicitFilters(question),pageFilters=normalizeAxFilters(input.filters),planned=normalizeQuerySpec(input.plan),specialMetric=['production','discount','forecast','matching','review_signal','customer','returns'].includes(String(input.plan?.metric))?String(input.plan.metric):null,specialDimension=String(input.plan?.dimension)==='production_order'?'production_order':null,canInherit=continuation||input.plan?.source==='openai';
   if(specialMetric)planned.metric=specialMetric;if(specialDimension)planned.dimension=specialDimension;
-  const resolved:any={...input.plan,...planned,metric:metric||((canInherit&&!resets.has('metric'))?previous.metric:null)||planned.metric,dimension:dimension||((canInherit&&!resets.has('dimension'))?previous.dimension:null)||planned.dimension,visualization:visualization||((canInherit&&!resets.has('visualization'))?previous.visualization:null)||planned.visualization,periodDays:periodDays||((canInherit&&!resets.has('periodDays'))?previous.periodDays:null)||planned.periodDays};
+  const resolved:any={...input.plan,...planned,metric:specialMetric||metric||((canInherit&&!resets.has('metric'))?previous.metric:null)||planned.metric,dimension:dimension||((canInherit&&!resets.has('dimension'))?previous.dimension:null)||planned.dimension,visualization:visualization||((canInherit&&!resets.has('visualization'))?previous.visualization:null)||planned.visualization,periodDays:periodDays||((canInherit&&!resets.has('periodDays'))?previous.periodDays:null)||planned.periodDays};
   const priorFilters=canInherit&&!resetAll?previous.filters:{...EMPTY_AX_FILTERS},planFilters=normalizeAxFilters(input.plan?.filters),filters:{[K in AxContextFilterKey]:string|null}={...priorFilters};
   for(const key of Object.keys(EMPTY_AX_FILTERS) as AxContextFilterKey[]){if(resets.has(key))filters[key]=null;if(planFilters[key]!=null)filters[key]=planFilters[key];if(pageFilters[key]!=null)filters[key]=pageFilters[key];if(Object.prototype.hasOwnProperty.call(questionFilters,key))filters[key]=questionFilters[key]??null}
   resolved.filters=filters;

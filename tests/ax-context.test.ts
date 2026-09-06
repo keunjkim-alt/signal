@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {emptyAxContext,finalizeAxContext,inheritedIntelligenceMode,modelConversationContext,removeAxContextField,resolveAxContextPlan} from '../api/_lib/ax-context.ts';
+import {buildConversationSummary,emptyAxContext,finalizeAxContext,inheritedIntelligenceMode,isConversationSummaryIntent,modelConversationContext,removeAxContextField,resolveAxContextPlan} from '../api/_lib/ax-context.ts';
 
 const plan=(overrides:any={})=>({metric:'quantity',dimension:'product',visualization:'bar',periodDays:30,filters:{country:null,channel:null,platform:null,location:null,product:null},limit:20,title:'제품 판매수량',explanation:'제품별 판매수량을 조회합니다.',source:'heuristic',...overrides});
 
@@ -66,4 +66,33 @@ test('a short follow-up stays on the previous precomputed intelligence route',()
   assert.equal(inheritedIntelligenceMode(null,'그중 ARC-07만',previous),'forecast');
   assert.equal(inheritedIntelligenceMode('discount','할인 추천',previous),'discount');
   assert.equal(inheritedIntelligenceMode(null,'새로운 고객 분석을 상세히 설명해줘',previous),null);
+});
+
+test('a natural location refinement preserves product, metric, dimension, and period',()=>{
+  const previous=resolveAxContextPlan({question:'FLOW-22-BLK-F 최근 14일 제품별 가용재고를 보여줘',page:'action',filters:{},plan:plan({metric:'available_qty',periodDays:14})}).context;
+  const result=resolveAxContextPlan({previous,question:'강남점 기준으로만 다시 보여줘',page:'action',filters:{},plan:plan({metric:'net_sales',dimension:'channel',periodDays:14})});
+  assert.equal(result.continuation,true);
+  assert.equal(result.plan.metric,'available_qty');
+  assert.equal(result.plan.dimension,'product');
+  assert.equal(result.plan.periodDays,14);
+  assert.equal(result.plan.filters.product,'FLOW-22-BLK-F');
+  assert.equal(result.plan.filters.location,'강남');
+});
+
+test('a product pronoun continues the selected SKU',()=>{
+  const previous=resolveAxContextPlan({question:'FLOW-22-BLK-F 최근 14일 제품별 가용재고를 보여줘',page:'action',filters:{},plan:plan({metric:'available_qty',periodDays:14})}).context;
+  const result=resolveAxContextPlan({previous,question:'그 상품의 재주문 필요 수량과 미실행 위험은?',page:'action',filters:{},plan:plan({metric:'forecast',periodDays:14})});
+  assert.equal(result.continuation,true);
+  assert.equal(result.plan.metric,'forecast');
+  assert.equal(result.plan.filters.product,'FLOW-22-BLK-F');
+  assert.ok(result.inherited.includes('product'));
+});
+
+test('conversation summary intent creates a three-line contextual summary',()=>{
+  const previous=finalizeAxContext(resolveAxContextPlan({question:'FLOW-22-BLK-F 최근 14일 제품별 재고를 보여줘',page:'action',filters:{},plan:plan({metric:'available_qty',periodDays:14})}).context,{rows:[{product_code:'FLOW-22-BLK-F'}]},'2026-09-06T00:00:00Z');
+  assert.equal(isConversationSummaryIntent('지금까지 분석을 세 줄로 요약해줘'),true);
+  const summary=buildConversationSummary(previous,[{role:'user',content:'그 상품의 재주문 필요 수량과 미실행 위험은?'}]);
+  assert.equal(summary.lines.length,3);
+  assert.match(summary.answer,/FLOW-22-BLK-F/);
+  assert.match(summary.answer,/재주문 수량과 미실행 위험/);
 });
