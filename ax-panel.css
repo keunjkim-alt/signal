@@ -326,3 +326,76 @@
 .ax-context-chips button span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ax-context-chips button i{color:#8290a4;font-style:normal;font-size:10px;font-weight:500}
 .ax-context-strip>small{display:block;margin-top:7px;color:#6d7d94;font-size:7px;line-height:1.4}
+
+/* Readability baseline — keep AX conversations comfortable at normal zoom. */
+:root { --ax-panel-width: 460px; }
+.ax-panel-header strong { font-size: 14px; }
+.ax-panel-header small { font-size: 10px; line-height: 1.45; }
+.ax-panel-tabs button { font-size: 12px; }
+.ax-conversation-scroll,
+.ax-panel-history { padding: 24px 22px 32px; }
+.ax-welcome h3 { font-size: 19px; line-height: 1.4; }
+.ax-welcome p { font-size: 12px; line-height: 1.7; }
+.ax-message { margin-bottom: 24px; }
+.ax-message p {
+  max-width: min(94%, 46ch);
+  color: var(--ink, #151922);
+  font-size: 15px;
+  line-height: 1.75;
+  letter-spacing: -.01em;
+}
+.ax-message.user p {
+  max-width: min(88%, 38ch);
+  padding: 11px 15px;
+  font-size: 14px;
+  line-height: 1.65;
+}
+.ax-starter-prompts button { padding: 15px 2px; font-size: 12px; line-height: 1.55; }
+.ax-thinking { font-size: 11px; line-height: 1.5; }
+.ax-panel-error strong,
+.ax-panel-warning strong { font-size: 12px; }
+.ax-panel-error span,
+.ax-panel-warning span { font-size: 11px; line-height: 1.6; }
+.ax-panel-analysis-head span { font-size: 11px; }
+.ax-panel-analysis-head small { font-size: 10px; }
+.ax-panel-analysis > h3 { font-size: 17px; line-height: 1.55; }
+.ax-panel-facts span { font-size: 9px; }
+.ax-panel-facts strong { font-size: 13px; }
+.ax-panel-mini-title strong { font-size: 12px; }
+.ax-panel-mini-title small { font-size: 9px; }
+.ax-panel-evidence span { font-size: 10px; }
+.ax-panel-evidence p { font-size: 12px; line-height: 1.65; }
+.ax-panel-evidence small { font-size: 10px; line-height: 1.6; }
+.ax-panel-recommendations strong { font-size: 11px; line-height: 1.45; }
+.ax-panel-recommendations small { font-size: 9px; line-height: 1.5; }
+.ax-panel-recommendations b { font-size: 10px; }
+.ax-panel-recommendations article div button,
+.ax-panel-response-actions button { font-size: 10px; }
+.ax-action-status,
+.ax-response-speed { font-size: 10px; }
+.ax-composer { margin: 12px 16px 16px; padding: 12px 12px 10px 14px; }
+.ax-composer textarea {
+  min-height: 48px;
+  max-height: 160px;
+  font-size: 14px;
+  line-height: 1.65;
+}
+.ax-composer > div span { font-size: 9px; }
+.ax-history-heading strong { font-size: 14px; }
+.ax-history-heading small { font-size: 10px; }
+.ax-history-heading button { font-size: 10px; }
+.ax-history-row > span { font-size: 9px; }
+.ax-history-row strong { font-size: 12px; }
+.ax-history-row small { font-size: 9px; }
+.ax-history-empty { font-size: 11px; }
+.ax-context-strip > div:first-child span,
+.ax-context-strip > div:first-child button { font-size: 10px; }
+.ax-context-chips button { min-height: 28px; font-size: 10px; }
+.ax-context-strip > small { font-size: 9px; line-height: 1.5; }
+
+@media (max-width: 700px) {
+  .ax-conversation-scroll,
+  .ax-panel-history { padding: 20px 18px 28px; }
+  .ax-message p { font-size: 15px; }
+  .ax-message.user p { font-size: 14px; }
+}
