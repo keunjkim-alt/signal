@@ -29,3 +29,8 @@ test('production schedules automatic outcome measurement every day',()=>{
   assert.ok(config.crons.some((row:any)=>row.path==='/api/outcomes/cron'&&row.schedule==='0 22 * * *'));
   assert.match(app,/매일 07:00 자동 측정/);
 });
+
+test('inventory approval invalidates the execution workflow cache',()=>{
+  assert.match(app,/inventoryWorkflowActionWithDecisionInvalidation/);
+  assert.match(app,/if\(action==='approve_transfer'\)state\.decisionWorkflowData=null/);
+});

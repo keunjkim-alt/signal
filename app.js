@@ -412,6 +412,12 @@ configFromAxResponse=function(payload){
  const semanticMetric=payload.visualization?.metric;
  return configFromAxResponseWithSemanticMetric(semanticMetric&&payload.plan?.metric!==semanticMetric?{...payload,plan:{...payload.plan,metric:semanticMetric}}:payload);
 }
+const inventoryWorkflowActionWithDecisionInvalidation=inventoryWorkflowAction;
+inventoryWorkflowAction=async function(action,payload={}){
+ const result=await inventoryWorkflowActionWithDecisionInvalidation(action,payload);
+ if(action==='approve_transfer')state.decisionWorkflowData=null;
+ return result;
+}
 function recordPerformance(type,name,started,meta={}){const durationMs=Math.round(performance.now()-started),entry={type,name,durationMs,page:state.page,status:meta.status??null,at:new Date().toISOString()};try{const existing=JSON.parse(sessionStorage.getItem('viimsignalPerformance')||'[]'),next=[...existing,entry].slice(-150);sessionStorage.setItem('viimsignalPerformance',JSON.stringify(next));window.__VIIMSIGNAL_PERFORMANCE__=next}catch{}if(durationMs>=800)console.warn(`[VIIMsignal performance] ${JSON.stringify(entry)}`);return durationMs}
 const pendingApiRequests=new Map();
 async function apiRequestDirect(path,options={},retried=false){const started=performance.now(),workspace=currentBrandWorkspace(),scopeHeaders=workspace?.source==='workspace'?{'x-viimsignal-workspace-id':workspace.id,...(workspace.brandId?{'x-viimsignal-brand-id':workspace.brandId}:{})}:workspace?.source==='backend'?{'x-viimsignal-brand-id':workspace.id}:{},method=options.method||'GET',metricName=`${method} ${String(path).split('&')[0]}`;let status=null;try{const response=await fetch(path,{credentials:'include',...options,headers:{...(options.body instanceof FormData?{}:{'content-type':'application/json'}),...scopeHeaders,...(options.headers||{})}});status=response.status;const type=response.headers.get('content-type')||'';if(!type.includes('application/json'))throw new Error('API_UNAVAILABLE');const payload=await response.json();if(response.status===401&&!retried&&path!=='/api/auth/session'&&path!=='/api/auth/login'){const session=await apiRequestDirect('/api/auth/session',{},true);if(session.authenticated)return apiRequestDirect(path,options,true)}if(!response.ok){const error=new Error(payload.error||`API ${response.status}`);error.status=response.status;error.code=payload.code;throw error}return payload}finally{recordPerformance('api',metricName,started,{status})}}
