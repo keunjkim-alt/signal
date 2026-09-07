@@ -306,7 +306,7 @@ export default {async fetch(request:Request){
     const context=await requestContext(request,{includeProfile:false,includeBrands:false}),url=new URL(request.url),resource=url.searchParams.get('resource');
     if(request.method==='GET'){
       if(resource==='profitability-summary'){const data=await profitabilitySummary(context);return json({ok:true,source:'supabase_profitability',dataMode:'connected',...data})}
-      if(resource==='decision-actions'){const data=await decisionActionContext(context);return json({ok:true,source:'operational_decision_engine',...data})}
+      if(resource==='decision-actions'){if(url.searchParams.get('refresh')==='1')invalidateDashboardCache(context.membership.organization_id,['decision-actions']);const data=await decisionActionContext(context);return json({ok:true,source:'operational_decision_engine',...data})}
       if(resource==='product-intelligence'){const page=String(url.searchParams.get('page')||'market');requirePagePermission(context,page,'view');const data=await productIntelligence(context,page,Number(url.searchParams.get('limit'))||30);return json({ok:true,source:'precomputed_intelligence',...data})}
       if(resource==='discount-intelligence'){const page='profitability';requirePagePermission(context,page,'view');const data=await discountIntelligence(context,page,Number(url.searchParams.get('limit'))||40);return json({ok:true,source:'precomputed_discount_optimizer',...data})}
       if(resource==='customer-insights'){requirePagePermission(context,'customers','view');const data=await customerReturnContext(context);return json({ok:true,source:'supabase_customer_region',generatedAt:new Date().toISOString(),periodDays:data.periodDays,...summarizeCustomerInsights(data.orders)})}

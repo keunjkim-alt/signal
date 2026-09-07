@@ -29,3 +29,16 @@ test('reorder copy states the business outcome in plain language',()=>{
   assert.match(decisions,/생산기간 동안 필요한 판매 재고를 확보합니다/);
   assert.match(decisions,/다음 입고 전 판매 공백이 생길 수 있습니다/);
 });
+
+test('team task transitions use an independent busy state',()=>{
+  const transition=app.slice(app.indexOf('async function transitionOperationalTask'),app.indexOf('async function refreshExecutionOutcomes'));
+  assert.match(app,/operationalTaskBusy:''/);
+  assert.match(transition,/state\.operationalTaskBusy/);
+  assert.doesNotMatch(transition,/state\.decisionWorkflowBusy/);
+  assert.match(transition,/action:'task_transition'/);
+});
+
+test('forced today action reload asks the dashboard endpoint to bypass stale cache',()=>{
+  const loader=app.slice(app.indexOf('async function loadTodayActions'),app.indexOf('async function loadDecisionWorkflow'));
+  assert.match(loader,/force\?'&refresh=1'/);
+});

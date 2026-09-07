@@ -4,7 +4,7 @@ import { transform } from 'esbuild';
 import { validateColorPalette } from './validate-color-palette.mjs';
 
 const appSource=await readFile('app.js','utf8');
-const assetVersion='20260907a';
+const assetVersion='20260907b';
 const styleFiles=['styles.css','connections.css','product-images.css','insights.css','daily-trends.css','sales-views.css','phase-one.css','phase-two.css','customer-data.css','review-voc.css','customer-insights-v2.css','phase-three.css','workflow-updates.css','workflow-actions.css','semantic-charts.css','ax-command.css','ax-panel.css','auth.css','data-runtime.css','todays-action.css','discount-optimizer.css','china-tone.css','brand-refresh.css','operational-data.css','closed-beta.css','workspaces.css','data-governance.css','blue-theme.css','color-palette.css','decision-execution.css','performance.css'];
 if(/^(<{7}|={7}|>{7})/m.test(appSource))throw new Error('app.js contains unresolved merge-conflict markers');
 execFileSync(process.execPath,['--check','app.js'],{stdio:'inherit'});
