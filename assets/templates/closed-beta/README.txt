@@ -11,6 +11,7 @@ VIIMsignal 클로즈드 베타 연결형 데이터팩
 - VIIMsignal_Beta_Daily_Checklist.csv: 매일 데이터·AX·안건 상태 점검
 - VIIMsignal_Beta_Feedback_Log.csv: 사용자 피드백과 효과 기록
 - VIIMsignal_Beta_Quick_Start.txt: 첫 로그인부터 승인·감사 이력까지 빠른 시작
+- VIIMsignal_Campaign_Data_Request.csv: 캠페인 계획·성과 데이터 수집 양식 (현재 수집·검증용, 업로드는 다음 릴리스)
 
 운영 시나리오 데이터팩 (scenario-packs 폴더)
 1) VIIMsignal_Pack1_Baseline_Sales_90D_v2.csv: 2026-05-20–08-17 판매 기준선 · 6,480행

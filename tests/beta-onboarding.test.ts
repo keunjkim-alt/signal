@@ -22,7 +22,14 @@ test('beta operations templates are packaged with stable headers',()=>{
     'VIIMsignal_Beta_User_Roster.csv':'이메일,이름,팀,역할,허용 페이지',
     'VIIMsignal_Beta_Field_Mapping.csv':'entity_type,standard_field,required',
     'VIIMsignal_Beta_Daily_Checklist.csv':'date,workspace,operator',
-    'VIIMsignal_Beta_Feedback_Log.csv':'submitted_at,workspace,user_role'
+    'VIIMsignal_Beta_Feedback_Log.csv':'submitted_at,workspace,user_role',
+    'VIIMsignal_Campaign_Data_Request.csv':'campaign_id,campaign_name,start_at,end_at,channel_code,campaign_type,budget,spend,impressions,clicks,conversions,attributed_sales,control_group_size,control_group_conversions,owner,status,source_updated_at'
   };
   for(const [name,header] of Object.entries(files))assert.ok(readFileSync(new URL(name,root),'utf8').startsWith(header),name);
+});
+
+test('connected marketing hides demo metrics and shows the campaign contract',()=>{
+  const source=readFileSync(new URL('../app.js',import.meta.url),'utf8');
+  assert.match(source,/state\.page==='marketing'\)page=state\.backendMode==='connected'\?marketingDataReadiness\(\):workflow\('marketing'\)\+campaignIncrementalityBlock\(\)/);
+  assert.match(source,/캠페인 파일은 현재 수집·검증용입니다/);
 });

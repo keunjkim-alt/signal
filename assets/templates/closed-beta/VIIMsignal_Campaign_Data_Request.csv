@@ -1,0 +1,4 @@
+campaign_id,campaign_name,start_at,end_at,channel_code,campaign_type,budget,spend,impressions,clicks,conversions,attributed_sales,control_group_size,control_group_conversions,owner,status,source_updated_at
+CMP-2026-0901,FW 신상품 출시,2026-09-01T00:00:00+09:00,2026-09-14T23:59:59+09:00,OWN,product_launch,30000000,18400000,482000,16870,642,91800000,12000,318,마케팅팀,in_progress,2026-09-07T09:00:00+09:00
+CMP-2026-0902,무신사 브랜드 위크,2026-09-03T00:00:00+09:00,2026-09-10T23:59:59+09:00,MUSINSA,promotion,22000000,15600000,735000,24120,884,104600000,18000,391,커머스팀,in_progress,2026-09-07T09:00:00+09:00
+CMP-2026-0903,VIP 재구매 캠페인,2026-09-08T10:00:00+09:00,2026-09-12T23:59:59+09:00,CRM,retention,8500000,0,0,0,0,0,5000,0,CRM팀,planned,2026-09-07T09:00:00+09:00
