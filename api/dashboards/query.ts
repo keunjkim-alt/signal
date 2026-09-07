@@ -6,11 +6,12 @@ import {MARKET_DIMENSIONS,MARKET_METRICS,normalizeQuerySpec} from '../_lib/seman
 import {audit,insert,requestContext,requirePagePermission,requireRole,scopedValues,supabase,update,workspaceId} from '../_lib/supabase.js';
 import {assertAnalyticsRefreshAllowed} from '../_lib/reconciliation.js';
 import {summarizeReviewInsights} from '../_lib/reviews.js';
+import {summarizeMarketingInsights} from '../_lib/marketing.js';
 import {cachedDashboardAggregate,invalidateDashboardCache} from '../_lib/dashboard-cache.js';
 import {cachedPersistentDashboardAggregate} from '../_lib/persistent-dashboard-cache.js';
 import {buildOperationalTask,deriveOperationalNotifications} from '../_lib/beta-operations.js';
 
-const CACHE_TTL={profitability:60_000,inventory:45_000,customer:60_000,review:60_000,intelligence:60_000,decision:30_000,production:30_000,hub:45_000};
+const CACHE_TTL={profitability:60_000,inventory:45_000,customer:60_000,review:60_000,marketing:45_000,intelligence:60_000,decision:30_000,production:30_000,hub:45_000};
 
 export function operationalInsertValues(context:any,values:Record<string,any>){const ws=workspaceId(context);return {...values,...(ws?{workspace_id:ws}:{})}}
 export function operationalUpdateFilters(context:any,values:Record<string,string>){const ws=workspaceId(context);return {...values,...(ws?{workspace_id:`eq.${ws}`}:{})}}
@@ -152,6 +153,12 @@ export async function reviewInsights(context:any){
     supabase(`/rest/v1/products?organization_id=eq.${q}&select=id,product_code,product_name,image_url&limit=5000`,{serviceRole:true})
   ]),reviews=(reviewsResult.data||[]).filter((row:any)=>(!channels||channels.includes(String(row.channel_code||row.platform||'')))&&(!countries||countries.includes(String(row.country_code||'')))),reviewIds=new Set(reviews.map((row:any)=>String(row.id))),signals=(signalsResult.data||[]).filter((row:any)=>reviewIds.has(String(row.review_id)));
   return {generatedAt:new Date().toISOString(),periodDays:90,...summarizeReviewInsights(reviews,signals,productsResult.data||[])}});
+}
+export async function marketingInsights(context:any){
+  requirePagePermission(context,'marketing','view');return cachedDashboardAggregate(context,'marketing-insights',CACHE_TTL.marketing,async()=>{const org=context.membership.organization_id,q=enc(org),ws=workspaceId(context),w=ws?`&workspace_id=eq.${enc(ws)}`:'',[campaignResult,snapshotResult]=await Promise.all([
+    supabase(`/rest/v1/marketing_campaigns?organization_id=eq.${q}${w}&select=id,source_campaign_id,campaign_name,start_at,end_at,channel_code,campaign_type,budget,owner,status,updated_at&order=start_at.desc&limit=5000`,{serviceRole:true}),
+    supabase(`/rest/v1/marketing_campaign_snapshots?organization_id=eq.${q}${w}&select=campaign_id,observed_at,spend,impressions,clicks,conversions,attributed_sales,control_group_size,control_group_conversions&order=observed_at.asc&limit=50000`,{serviceRole:true})
+  ]);return summarizeMarketingInsights(campaignResult.data||[],snapshotResult.data||[])});
 }
 export async function customerReturnInsights(context:any){
   const data=await customerReturnContext(context);
@@ -311,6 +318,7 @@ export default {async fetch(request:Request){
       if(resource==='discount-intelligence'){const page='profitability';requirePagePermission(context,page,'view');const data=await discountIntelligence(context,page,Number(url.searchParams.get('limit'))||40);return json({ok:true,source:'precomputed_discount_optimizer',...data})}
       if(resource==='customer-insights'){requirePagePermission(context,'customers','view');const data=await customerReturnContext(context);return json({ok:true,source:'supabase_customer_region',generatedAt:new Date().toISOString(),periodDays:data.periodDays,...summarizeCustomerInsights(data.orders)})}
       if(resource==='review-insights'){const data=await reviewInsights(context);return json({ok:true,source:'precomputed_review_signals',...data})}
+      if(resource==='marketing-insights'){const data=await marketingInsights(context);return json({ok:true,source:'precomputed_marketing_metrics',dataMode:'connected',...data})}
       if(resource==='return-insights'){requirePagePermission(context,'returns','view');const data=await customerReturnContext(context);return json({ok:true,source:'supabase_returns',generatedAt:new Date().toISOString(),periodDays:data.periodDays,...summarizeReturnInsights(data.orders,data.lines,data.products)})}
       if(resource==='inventory-workflows'){requirePagePermission(context,'inventory','view');const data=await inventoryWorkflowContext(context);return json({ok:true,source:'supabase_inventory_operations',generatedAt:new Date().toISOString(),...presentInventoryWorkflow(data)})}
       if(resource==='production-workflows'){const data=await productionWorkflow(context);return json({ok:true,source:'approved_reorder_queue',generatedAt:new Date().toISOString(),...data})}

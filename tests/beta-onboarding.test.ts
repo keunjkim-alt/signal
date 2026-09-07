@@ -28,8 +28,9 @@ test('beta operations templates are packaged with stable headers',()=>{
   for(const [name,header] of Object.entries(files))assert.ok(readFileSync(new URL(name,root),'utf8').startsWith(header),name);
 });
 
-test('connected marketing hides demo metrics and shows the campaign contract',()=>{
+test('connected marketing uses stored campaign metrics and keeps a no-data contract',()=>{
   const source=readFileSync(new URL('../app.js',import.meta.url),'utf8');
-  assert.match(source,/state\.page==='marketing'\)page=state\.backendMode==='connected'\?marketingDataReadiness\(\):workflow\('marketing'\)\+campaignIncrementalityBlock\(\)/);
-  assert.match(source,/캠페인 파일은 현재 수집·검증용입니다/);
+  assert.match(source,/state\.page==='marketing'\)page=state\.backendMode==='connected'\?marketingConnectedDashboard\(\):workflow\('marketing'\)\+campaignIncrementalityBlock\(\)/);
+  assert.match(source,/데이터 연결에서 ‘마케팅·캠페인’ 유형을 선택해 바로 적재할 수 있습니다/);
+  assert.match(source,/업로드된 캠페인 성과|운영 캠페인 데이터/);
 });

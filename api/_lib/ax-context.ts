@@ -90,10 +90,10 @@ export function buildConversationSummary(previousInput:any,messages:any[]=[]){
   return {answer:lines.map((line,index)=>`${index+1}. ${line.label}: ${line.text}`).join('\n'),lines};
 }
 
-export function inheritedIntelligenceMode(currentMode:'matching'|'forecast'|'discount'|'review'|'customer'|'returns'|'production'|null,question:string,previousInput:any):'matching'|'forecast'|'discount'|'review'|'customer'|'returns'|'production'|null{
+export function inheritedIntelligenceMode(currentMode:'matching'|'forecast'|'discount'|'review'|'customer'|'returns'|'production'|'marketing'|null,question:string,previousInput:any):'matching'|'forecast'|'discount'|'review'|'customer'|'returns'|'production'|'marketing'|null{
   if(currentMode)return currentMode;
   const previous=sanitizeAxContext(previousInput),metric=String(previous.metric||''),mode=metric==='review_signal'?'review':metric;
-  return isContextContinuation(question,previous)&&['production','discount','forecast','matching','review','customer','returns'].includes(mode)?mode as 'matching'|'forecast'|'discount'|'review'|'customer'|'returns'|'production':null;
+  return isContextContinuation(question,previous)&&['production','discount','forecast','matching','review','customer','returns','marketing'].includes(mode)?mode as 'matching'|'forecast'|'discount'|'review'|'customer'|'returns'|'production'|'marketing':null;
 }
 
 export function modelConversationContext(previous:any,messages:any[]=[]){const context=sanitizeAxContext(previous),recent=(Array.isArray(messages)?messages:[]).slice(-8).map(row=>({role:row?.role==='assistant'?'assistant':'user',content:text(row?.content)}));return {summary:context.summary,metric:context.metric,dimension:context.dimension,visualization:context.visualization,periodDays:context.periodDays,comparison:context.comparison,filters:context.filters,subjects:context.subjects,lastResultSummary:context.lastResultSummary,recentMessages:recent}}

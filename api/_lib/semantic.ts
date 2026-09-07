@@ -35,8 +35,9 @@ export function requiresOpenAI(question:string){
   return ['왜','원인','전략','시나리오','어떻게','설명해','비교해서 판단'].some(token=>text.includes(token));
 }
 
-export function intelligenceMode(question:string,page='hub'):'matching'|'forecast'|'discount'|'review'|'customer'|'returns'|'production'|null{
+export function intelligenceMode(question:string,page='hub'):'matching'|'forecast'|'discount'|'review'|'customer'|'returns'|'production'|'marketing'|null{
   const text=`${page} ${question}`.toLowerCase();
+  if(page==='marketing'||['캠페인','roas','광고비','기여매출','전환율','노출수','클릭률','마케팅 성과'].some(token=>text.includes(token)))return 'marketing';
   if(page==='production'||['생산오더','생산 오더','생산 큐','공정','납기','검품','불량','봉제','재단'].some(token=>text.includes(token)))return 'production';
   if(['리뷰','후기','평점','voc','고객의견','부정 리뷰'].some(token=>text.includes(token)))return 'review';
   if(page==='returns'||['반품','취소','환불'].some(token=>text.includes(token)))return 'returns';

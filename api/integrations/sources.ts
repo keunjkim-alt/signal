@@ -10,7 +10,7 @@ import {credentialRegistry,probeConnector} from '../_lib/connector-runtime.js';
 import {refreshPostImportAnalytics} from '../_lib/post-import.js';
 import {cachedDashboardAggregate,invalidateDashboardCache} from '../_lib/dashboard-cache.js';
 
-const SUPPORTED_MAPPINGS=['product_master','sales_order','inventory_snapshot','product_review'];
+const SUPPORTED_MAPPINGS=['product_master','sales_order','inventory_snapshot','product_review','marketing_campaign'];
 const CONNECTION_CACHE_TTL=12_000;
 
 export default {async fetch(request:Request){
@@ -79,7 +79,7 @@ async function saveMapping(context:any,org:string,ws:string|null,body:any){
   if(missing.length)return json({ok:false,error:`필수 매핑이 누락되었습니다: ${missing.join(', ')}`},422);
   const sourceId=body?.sourceId?String(body.sourceId):null;
   if(sourceId){const sourceQuery=new URLSearchParams({id:`eq.${sourceId}`,organization_id:`eq.${org}`,select:'id',limit:'1'});if(ws)sourceQuery.set('workspace_id',`eq.${ws}`);const source=((await supabase(`/rest/v1/data_sources?${sourceQuery}`,{serviceRole:true})).data||[])[0];if(!source)return json({ok:false,error:'선택한 데이터 소스를 찾을 수 없습니다.'},404)}
-  const signature=await headerSignature(headers),existing=await findTemplate(org,ws,entityType,signature,sourceId),typeLabel=entityType==='product_master'?'상품 마스터':entityType==='sales_order'?'판매':entityType==='product_review'?'리뷰·VOC':'재고',name=String(body?.name||`${typeLabel} · ${headers.slice(0,3).join(' / ')}`).trim().slice(0,120),transformations=body?.transformations&&typeof body.transformations==='object'?body.transformations:{};
+  const signature=await headerSignature(headers),existing=await findTemplate(org,ws,entityType,signature,sourceId),typeLabel=entityType==='product_master'?'상품 마스터':entityType==='sales_order'?'판매':entityType==='product_review'?'리뷰·VOC':entityType==='marketing_campaign'?'마케팅·캠페인':'재고',name=String(body?.name||`${typeLabel} · ${headers.slice(0,3).join(' / ')}`).trim().slice(0,120),transformations=body?.transformations&&typeof body.transformations==='object'?body.transformations:{};
   const template=existing?(await update('mapping_templates',{id:`eq.${existing.id}`,organization_id:`eq.${org}`,...(ws?{workspace_id:`eq.${ws}`}:{})},{name,mapping,transformations,version:Number(existing.version||1)+1,active:true}))?.[0]:(await insert('mapping_templates',{organization_id:org,workspace_id:ws,data_source_id:sourceId,name,entity_type:entityType,header_signature:signature,mapping,transformations,version:1,active:true,created_by:context.user.id}))?.[0];
   await audit(context,'mapping_template.saved','mapping_template',template.id,{entityType,headerSignature:signature,version:template.version,sourceId,fields:Object.keys(mapping)});
   return json({ok:true,template:{id:template.id,name:template.name,entityType:template.entity_type,headerSignature:template.header_signature,mapping:template.mapping,version:template.version,dataSourceId:template.data_source_id}},existing?200:201);
@@ -94,7 +94,7 @@ async function rollbackImport(context:any,org:string,ws:string|null,body:any){
   if(job.summary?.rollback?.rolled_back_at)return json({ok:true,idempotent:true,job});
   if(!job.raw_upload_id)return json({ok:false,error:'원본 업로드 식별자가 없어 안전하게 되돌릴 수 없습니다.'},409);
   const uploadFilter=`organization_id=eq.${encodeURIComponent(org)}&${ws?`workspace_id=eq.${encodeURIComponent(ws)}&`:''}raw_upload_id=eq.${encodeURIComponent(job.raw_upload_id)}`;
-  let deletedLines=0,deletedOrders=0,deletedSnapshots=0,deletedReviews=0;
+  let deletedLines=0,deletedOrders=0,deletedSnapshots=0,deletedReviews=0,deletedMarketingSnapshots=0;
   if(job.entity_type==='sales_order'){
     deletedLines=((await supabase(`/rest/v1/sales_order_lines?${uploadFilter}`,{serviceRole:true,method:'DELETE',headers:{Prefer:'return=representation'}})).data||[]).length;
     deletedOrders=((await supabase(`/rest/v1/sales_orders?${uploadFilter}`,{serviceRole:true,method:'DELETE',headers:{Prefer:'return=representation'}})).data||[]).length;
@@ -102,10 +102,12 @@ async function rollbackImport(context:any,org:string,ws:string|null,body:any){
     deletedSnapshots=((await supabase(`/rest/v1/inventory_snapshots?${uploadFilter}`,{serviceRole:true,method:'DELETE',headers:{Prefer:'return=representation'}})).data||[]).length;
   }else if(job.entity_type==='product_review'){
     deletedReviews=((await supabase(`/rest/v1/product_reviews?${uploadFilter}`,{serviceRole:true,method:'DELETE',headers:{Prefer:'return=representation'}})).data||[]).length;
-  }else return json({ok:false,error:'상품 마스터를 제외한 판매·재고·리뷰 적재만 되돌릴 수 있습니다.'},422);
-  const rolledBackAt=new Date().toISOString(),summary={...(job.summary||{}),rollback:{rolled_back_at:rolledBackAt,rolled_back_by:context.user.id,deleted_lines:deletedLines,deleted_orders:deletedOrders,deleted_snapshots:deletedSnapshots,deleted_reviews:deletedReviews}},updated=(await update('import_jobs',{id:`eq.${job.id}`,organization_id:`eq.${org}`,...(ws?{workspace_id:`eq.${ws}`}:{})},{status:'failed',completed_at:rolledBackAt,summary}))?.[0];
-  await audit(context,'file_import.rolled_back','import_job',job.id,{entityType:job.entity_type,rawUploadId:job.raw_upload_id,deletedLines,deletedOrders,deletedSnapshots,deletedReviews});
-  return json({ok:true,job:updated,deleted:{salesLines:deletedLines,salesOrders:deletedOrders,inventorySnapshots:deletedSnapshots,reviews:deletedReviews}});
+  }else if(job.entity_type==='marketing_campaign'){
+    deletedMarketingSnapshots=((await supabase(`/rest/v1/marketing_campaign_snapshots?${uploadFilter}`,{serviceRole:true,method:'DELETE',headers:{Prefer:'return=representation'}})).data||[]).length;
+  }else return json({ok:false,error:'상품 마스터를 제외한 판매·재고·리뷰·캠페인 적재만 되돌릴 수 있습니다.'},422);
+  const rolledBackAt=new Date().toISOString(),summary={...(job.summary||{}),rollback:{rolled_back_at:rolledBackAt,rolled_back_by:context.user.id,deleted_lines:deletedLines,deleted_orders:deletedOrders,deleted_snapshots:deletedSnapshots,deleted_reviews:deletedReviews,deleted_marketing_snapshots:deletedMarketingSnapshots}},updated=(await update('import_jobs',{id:`eq.${job.id}`,organization_id:`eq.${org}`,...(ws?{workspace_id:`eq.${ws}`}:{})},{status:'failed',completed_at:rolledBackAt,summary}))?.[0];
+  await audit(context,'file_import.rolled_back','import_job',job.id,{entityType:job.entity_type,rawUploadId:job.raw_upload_id,deletedLines,deletedOrders,deletedSnapshots,deletedReviews,deletedMarketingSnapshots});
+  return json({ok:true,job:updated,deleted:{salesLines:deletedLines,salesOrders:deletedOrders,inventorySnapshots:deletedSnapshots,reviews:deletedReviews,marketingSnapshots:deletedMarketingSnapshots}});
 }
 
 async function previewDemoCleanup(context:any,org:string){
