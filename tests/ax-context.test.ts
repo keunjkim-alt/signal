@@ -68,6 +68,15 @@ test('a short follow-up stays on the previous precomputed intelligence route',()
   assert.equal(inheritedIntelligenceMode(null,'새로운 고객 분석을 상세히 설명해줘',previous),null);
 });
 
+test('marketing intelligence preserves its campaign semantic plan',()=>{
+  const previous=resolveAxContextPlan({question:'최근 30일 채널별 매출을 보여줘',page:'marketing',filters:{},plan:plan({metric:'net_sales',dimension:'channel',periodDays:30})}).context;
+  const result=resolveAxContextPlan({previous,question:'현재 캠페인 중 예산을 조정해야 할 채널과 근거를 알려줘',page:'marketing',filters:{},plan:plan({metric:'marketing',dimension:'campaign',periodDays:31,source:'precomputed_marketing_metrics'})});
+  assert.equal(result.plan.metric,'marketing');
+  assert.equal(result.plan.dimension,'campaign');
+  assert.match(result.context.summary,/캠페인 성과/);
+  assert.match(result.context.summary,/캠페인별/);
+});
+
 test('a natural location refinement preserves product, metric, dimension, and period',()=>{
   const previous=resolveAxContextPlan({question:'FLOW-22-BLK-F 최근 14일 제품별 가용재고를 보여줘',page:'action',filters:{},plan:plan({metric:'available_qty',periodDays:14})}).context;
   const result=resolveAxContextPlan({previous,question:'강남점 기준으로만 다시 보여줘',page:'action',filters:{},plan:plan({metric:'net_sales',dimension:'channel',periodDays:14})});
